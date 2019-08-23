@@ -1,0 +1,169 @@
+1:0> % PICK UP A BIG RED BLOCK.
+1:0> { goal(holding(X)) : large(X), red(X), block(X) } = 1.
+apply(pickup(green_cube_1),1).
+apply(put_on(green_cube_1,table),2).
+apply(pickup(big_red),3).
+moves(3).
+ok.
+
+2:3> 
+2:3> % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
+2:3> { goal(on(T, box)) : block(T), taller_than(T,H), block(H), holds(holding(H)) } = 1.
+apply(put_on(big_red,green_cube_1),4).
+apply(pickup(blue_block),5).
+apply(put_on(blue_block,box),6).
+moves(6).
+ok.
+
+3:6> 
+3:6> % WHAT DOES THE BOX CONTAIN?
+3:6> show(X) :- holds(on(X, box)).
+blue_block.
+blue_pyramid.
+
+4:6> 
+4:6> % WHAT IS THE PYRAMID SUPPORTED BY?
+4:6> show(S) :- it(X), pyramid(X), holds(on(X,S)).
+box.
+
+5:6> 
+5:6> % HOW MANY BLOCKS ARE NOT IN THE BOX?
+5:6> show(X) :- block(X), not holds(on(X, box)).
+big_red.
+red_cube.
+green_cube_1.
+green_cube_2.
+
+6:6> 
+6:6> % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
+6:6> show(X) :- it(X), narrower_than(X,Y), history(goal(holding(Y))).
+red_cube.
+
+7:6> 
+7:6> % IS IT SUPPORTED?
+7:6> show(on(X,Y)) :- it(X), holds(on(X,Y)).
+on(red_cube,table).
+
+8:6> 
+8:6> % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
+8:6> :def holds(stack(A,B,C; A,C,B; B,A,C; B,C,A; C,A,B; C,B,A), TIME) :- holds(on(A,B), TIME), holds(on(B,C), TIME), C != table, C != box.
+understood.
+
+8:6> green_cube_or_pyramid(C) :- green(C), cube(C). \
+... green_cube_or_pyramid(C) :- pyramid(C). \
+... { goal(stack(A,B,C),true) : red(A), block(A), red(B), block(B), A != B, green_cube_or_pyramid(C) } = 1.
+apply(pickup(green_pyramid),7).
+apply(put_on(green_pyramid,box),8).
+apply(pickup(red_cube),9).
+apply(put_on(red_cube,big_red),10).
+moves(10).
+ok.
+
+9:10> 
+9:10> % WHICH CUBE IS SITTING ON THE TABLE?
+9:10> show(X) :- cube(X), holds(on(X, table)).
+green_cube_1.
+green_cube_2.
+
+10:10> 
+10:10> % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
+10:10> { goal(on(S,C)) : small(S), block(S), green(C), cube(C), holds(on(P,C)), pyramid(P) } = 1.
+apply(pickup(red_pyramid),11).
+apply(put_on(red_pyramid,table),12).
+apply(pickup(red_cube),13).
+apply(put_on(red_cube,green_cube_2),14).
+moves(14).
+ok.
+
+11:14> 
+11:14> % PUT THE LITTLEST PYRAMID ON TOP OF IT.
+11:14> smallest_pyramid(X) :- pyramid(X), smaller_than(X,P) : pyramid(P), P != X. \
+... goal(on(P,S)) :- history(counter-1, goal(on(S,_))), smallest_pyramid(P).
+apply(pickup(green_pyramid),15).
+apply(put_on(green_pyramid,red_cube),16).
+moves(16).
+ok.
+
+12:16> 
+12:16> % HOW MANY THINGS ARE ON TOP OF GREEN CUBES?
+12:16> :def holds(above(A,B), TIME) :- holds(on(A,B), TIME).
+understood.
+
+12:16> :def holds(above(A,C), TIME) :- holds(above(A,B), TIME), holds(above(B,C), TIME).
+understood.
+
+12:16> show(X) :- holds(above(X,C)), green(C), cube(C).
+red_pyramid.
+red_cube.
+big_red.
+green_pyramid.
+green_cube_1.
+
+13:16> 
+13:16> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
+13:16> % WHEN DID YOU PICK IT UP?
+13:16> show((P,S)) :- pyramid(P), apply(pickup(P),S), S < T, green(X), pyramid(X), apply(put_on(X,C),T), small(C), cube(C).
+(red_pyramid,11).
+(green_pyramid,7).
+(green_pyramid,15).
+
+14:16> 
+14:16> % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
+14:16> show(X) :- holds(on(X,red_cube),S), S < T, apply(pickup(Y),T), holds(on(Y,red_cube),T-1).
+green_pyramid.
+
+15:16> 
+15:16> % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
+15:16> goal(on(blue_pyramid,B)) :- block(B), holds(on(B,box)).
+apply(pickup(blue_pyramid),17).
+apply(put_on(blue_pyramid,blue_block),18).
+moves(18).
+ok.
+
+16:18> 
+16:18> % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
+16:18> show(X) :- object(X), bigger_than(X,P) : pyramid(P); holds(on(X,B)), wider_than(B,X).
+blue_block.
+
+17:18> 
+17:18> % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
+17:18> :def holds(steeple, TIME) :- holds(stack(A,B,C), TIME), green(A), cube(A), green(B), cube(B), A != B, pyramid(C).
+understood.
+
+17:18> 
+17:18> % ARE THERE ANY STEEPLES NOW?
+17:18> show(true) :- holds(steeple). \
+... show(false) :- not holds(steeple).
+false.
+
+18:18> 
+18:18> % BUILD ONE.
+18:18> goal(steeple).
+apply(pickup(green_pyramid),19).
+apply(put_on(green_pyramid,table),20).
+apply(pickup(red_cube),21).
+apply(put_on(red_cube,table),22).
+apply(pickup(big_red),23).
+apply(put_on(big_red,red_cube),24).
+apply(pickup(green_cube_1),25).
+apply(put_on(green_cube_1,green_cube_2),26).
+apply(pickup(blue_pyramid),27).
+apply(put_on(blue_pyramid,green_cube_1),28).
+moves(28).
+ok.
+
+19:28> 
+19:28> % CALL THE BIGGEST BLOCK "SUPERBLOCK".
+19:28> :def superblock(B) :- block(B), bigger_than(B,X) : block(X), X != B.
+understood.
+
+19:28> 
+19:28> % HAVE YOU PICKED SUPERBLOCK UP SINCE WE BEGAN?
+19:28> picked_up(X) :- apply(pickup(X),T). \
+... show(true) :- picked_up(B), superblock(B). \
+... show(false) :- not picked_up(B), superblock(B).
+true.
+
+20:28> 
+20:28> thanks.
+YOU'RE WELCOME!

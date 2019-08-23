@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+import json
+import sh
+
+def readfiles(*args):
+  s = ''
+  for name in args:
+    with open(name, 'r') as f:
+      s += f.read()
+  return s
+
+def clingo(lp):
+  try:
+    result = sh.clingo(_ok_code=[10], _in=lp, outf=2, time_limit=1).stdout
+    values = json.loads(result)['Call'][-1]['Witnesses'][0]['Value']
+    return values
+  except:
+    print(lp)
+    raise
+
+program = readfiles('world.lp', 'actions.lp', 'planner.lp', 'prelude.lp')
+facts = set(['moves(0)'])
+counter = 1
+
+while True:
+  moves = int([fact[len('moves('):-1] for fact in facts if fact.startswith('moves(')][0])
+  cmd = input(str(counter) + ':' + str(moves) + '> ')
+  print(cmd)
+  while cmd.endswith('\\'):
+    cont = input('... ')
+    print(cont)
+    cmd = cmd[:-1] + '\n' + cont
+  if not cmd or cmd.startswith('%'): continue
+  if cmd == 'thanks.':
+    print("YOU'RE WELCOME!")
+    break
+  cmd += '\n'
+  if cmd.startswith(':def '):
+    cmd = cmd[len(':def '):]
+    program += cmd
+    if 'TIME' in cmd:
+      cmd = cmd.replace('TIME', '(now+t)')
+      program += '#program step(t).\n'
+      program += cmd
+      program += '#program base.\n'
+    print('understood.\n')
+    continue
+
+  cmd += '#const now = ' + str(moves) + '.\n'
+  cmd += '#const counter = ' + str(counter) + '.\n'
+  cmd += ''.join(fact + '.\n' for fact in facts)
+  results = clingo(cmd + program)
+  shows = []
+  for result in results:
+    if result.startswith('assert('):
+      result = result[len('assert('):-1]
+      facts.add(result)
+      print(result + '.')
+    elif result.startswith('retract('):
+      result = result[len('retract('):-1]
+      facts.remove(result)
+    elif result.startswith('show('):
+      result = result[len('show('):-1]
+      shows.append(result + '.')
+    elif result.startswith('history('):
+      facts.add(result)
+  print('\n'.join(shows))
+  print()
+  counter += 1
