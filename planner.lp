@@ -2,15 +2,16 @@
 
 #program base.
 % Define
-holds(F,0) :- init(F).
+state(F,0) :- init(F).
 
 % Generate
 { apply(A,T) : action(A) } = 1 :- T = 1..now.
 
 % Define
-holds(F,T) :- apply(A,T), adds(A,F).
+state(F,T) :- apply(A,T), adds(A,F).
 del  (F,T) :- apply(A,T), deletes(A,F).
-holds(F,T) :- holds(F,T-1), not del(F,T), T = 1..now.
+state(F,T) :- state(F,T-1), not del(F,T), T = 1..now.
+holds(F,T) :- state(F,T).
 
 #program step(t).
 % Generate
@@ -21,9 +22,10 @@ holds(F,T) :- holds(F,T-1), not del(F,T), T = 1..now.
 :- apply(A, now+t), demands(A,F, false),    holds(F, now+t-1).
 
 % Define
-holds(F, now+t) :- apply(A,now+t), adds(A,F).
-del  (F, now+t) :- apply(A,now+t), deletes(A,F).
-holds(F, now+t) :- holds(F,now+t-1), not del(F,now+t).
+state(F, now+t) :- apply(A, now+t), adds(A,F).
+del  (F, now+t) :- apply(A, now+t), deletes(A,F).
+state(F, now+t) :- state(F, now+t-1), not del(F, now+t).
+holds(F, now+t) :- state(F, now+t).
 
 % Display
 retract(moves(now)).

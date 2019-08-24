@@ -93,19 +93,17 @@ understood.
 understood.
 
 12:16> show(X) :- holds(above(X,C)), green(C), cube(C).
-red_pyramid.
-red_cube.
 big_red.
+red_cube.
 green_pyramid.
-green_cube_1.
 
 13:16> 
 13:16> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
 13:16> % WHEN DID YOU PICK IT UP?
 13:16> show((P,S)) :- pyramid(P), apply(pickup(P),S), S < T, green(X), pyramid(X), apply(put_on(X,C),T), small(C), cube(C).
 (red_pyramid,11).
-(green_pyramid,7).
 (green_pyramid,15).
+(green_pyramid,7).
 
 14:16> 
 14:16> % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
@@ -145,10 +143,10 @@ apply(pickup(red_cube),21).
 apply(put_on(red_cube,table),22).
 apply(pickup(big_red),23).
 apply(put_on(big_red,red_cube),24).
-apply(pickup(green_cube_1),25).
-apply(put_on(green_cube_1,green_cube_2),26).
+apply(pickup(green_cube_2),25).
+apply(put_on(green_cube_2,green_cube_1),26).
 apply(pickup(blue_pyramid),27).
-apply(put_on(blue_pyramid,green_cube_1),28).
+apply(put_on(blue_pyramid,green_cube_2),28).
 moves(28).
 ok.
 
