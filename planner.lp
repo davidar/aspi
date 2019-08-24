@@ -31,6 +31,7 @@ holds(F, now+t) :- state(F, now+t).
 retract(moves(now)).
 assert(moves(now+t)) :- query(t).
 assert(apply(A, now+t)) :- apply(A, now+t).
+assert(plan_interval(counter, now+1, now+t)) :- query(t).
 show(ok).
 #show assert/1.
 #show retract/1.

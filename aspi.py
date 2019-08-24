@@ -15,7 +15,7 @@ def clingo(lp):
     values = json.loads(result)['Call'][-1]['Witnesses'][0]['Value']
     return values
   except:
-    print(lp)
+    #print(lp)
     raise
 
 program = readfiles('world.lp', 'actions.lp', 'planner.lp', 'prelude.lp')
@@ -24,7 +24,7 @@ counter = 1
 
 while True:
   moves = int([fact[len('moves('):-1] for fact in facts if fact.startswith('moves(')][0])
-  cmd = input(str(counter) + ':' + str(moves) + '> ')
+  cmd = input('>>> ')
   print(cmd)
   while cmd.endswith('\\'):
     cont = input('... ')
@@ -51,7 +51,12 @@ while True:
   cmd += '#const now = ' + str(moves) + '.\n'
   cmd += '#const counter = ' + str(counter) + '.\n'
   cmd += ''.join(fact + '.\n' for fact in facts)
-  results = clingo(cmd + program)
+  try:
+    results = clingo(cmd + program)
+  except sh.ErrorReturnCode_1 as e:
+    print("I CAN'T\n")
+    #print(e.stderr.decode('utf-8'))
+    continue
   shows = []
   for result in results:
     if result.startswith('assert('):
