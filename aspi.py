@@ -35,6 +35,8 @@ while True:
     print("YOU'RE WELCOME!")
     break
   cmd += '\n'
+  if 'goal_once' in cmd:
+    cmd += '{ goal(F) : goal_once(F) } = 1.\n'
   if cmd.startswith(':def '):
     cmd = cmd[len(':def '):]
     program += cmd

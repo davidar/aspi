@@ -1,8 +1,8 @@
 % PICK UP A BIG RED BLOCK.
-{ goal(holding(X)) : large(X), red(X), block(X) } = 1.
+goal_once(holding(X)) :- large(X), red(X), block(X).
 
 % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
-{ goal(on(T, box)) : block(T), taller_than(T,H), block(H), holds(holding(H)) } = 1.
+goal_once(on(T, box)) :- block(T), taller_than(T,H), block(H), holds(holding(H)).
 
 % WHAT DOES THE BOX CONTAIN?
 show(X) :- holds(on(X, box)).
@@ -23,13 +23,13 @@ show(on(X,Y)) :- it(X), holds(on(X,Y)).
 :def holds(stack(A,B,C; A,C,B; B,A,C; B,C,A; C,A,B; C,B,A), TIME) :- holds(on(A,B), TIME), holds(on(B,C), TIME), C != table, C != box.
 green_cube_or_pyramid(C) :- green(C), cube(C). \
 green_cube_or_pyramid(C) :- pyramid(C). \
-{ goal(stack(A,B,C),true) : red(A), block(A), red(B), block(B), A != B, green_cube_or_pyramid(C) } = 1.
+goal_once(stack(A,B,C)) :- red(A), block(A), red(B), block(B), A != B, green_cube_or_pyramid(C).
 
 % WHICH CUBE IS SITTING ON THE TABLE?
 show(X) :- cube(X), holds(on(X, table)).
 
 % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
-{ goal(on(S,C)) : small(S), block(S), green(C), cube(C), holds(on(P,C)), pyramid(P) } = 1.
+goal_once(on(S,C)) :- small(S), block(S), green(C), cube(C), holds(on(P,C)), pyramid(P).
 
 % PUT THE LITTLEST PYRAMID ON TOP OF IT.
 smallest_pyramid(X) :- pyramid(X), smaller_than(X,P) : pyramid(P), P != X. \

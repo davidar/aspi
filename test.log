@@ -1,5 +1,5 @@
 1:0> % PICK UP A BIG RED BLOCK.
-1:0> { goal(holding(X)) : large(X), red(X), block(X) } = 1.
+1:0> goal_once(holding(X)) :- large(X), red(X), block(X).
 apply(pickup(green_cube_1),1).
 apply(put_on(green_cube_1,table),2).
 apply(pickup(big_red),3).
@@ -8,7 +8,7 @@ ok.
 
 2:3> 
 2:3> % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
-2:3> { goal(on(T, box)) : block(T), taller_than(T,H), block(H), holds(holding(H)) } = 1.
+2:3> goal_once(on(T, box)) :- block(T), taller_than(T,H), block(H), holds(holding(H)).
 apply(put_on(big_red,green_cube_1),4).
 apply(pickup(blue_block),5).
 apply(put_on(blue_block,box),6).
@@ -51,7 +51,7 @@ understood.
 
 8:6> green_cube_or_pyramid(C) :- green(C), cube(C). \
 ... green_cube_or_pyramid(C) :- pyramid(C). \
-... { goal(stack(A,B,C),true) : red(A), block(A), red(B), block(B), A != B, green_cube_or_pyramid(C) } = 1.
+... goal_once(stack(A,B,C)) :- red(A), block(A), red(B), block(B), A != B, green_cube_or_pyramid(C).
 apply(pickup(green_pyramid),7).
 apply(put_on(green_pyramid,box),8).
 apply(pickup(red_cube),9).
@@ -67,7 +67,7 @@ green_cube_2.
 
 10:10> 
 10:10> % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
-10:10> { goal(on(S,C)) : small(S), block(S), green(C), cube(C), holds(on(P,C)), pyramid(P) } = 1.
+10:10> goal_once(on(S,C)) :- small(S), block(S), green(C), cube(C), holds(on(P,C)), pyramid(P).
 apply(pickup(red_pyramid),11).
 apply(put_on(red_pyramid,table),12).
 apply(pickup(red_cube),13).
@@ -102,8 +102,8 @@ green_pyramid.
 13:16> % WHEN DID YOU PICK IT UP?
 13:16> show((P,S)) :- pyramid(P), apply(pickup(P),S), S < T, green(X), pyramid(X), apply(put_on(X,C),T), small(C), cube(C).
 (red_pyramid,11).
-(green_pyramid,15).
 (green_pyramid,7).
+(green_pyramid,15).
 
 14:16> 
 14:16> % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
