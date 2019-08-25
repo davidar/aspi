@@ -138,12 +138,66 @@ green_pyramid.
 
 >>> 
 >>> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
->>> % WHEN DID YOU PICK IT UP?
->>> touched(P,S) :- pyramid(P), apply(pickup(P),S), S < T-1, green(X), pyramid(X), apply(put_on(X,C),T), small(C), cube(C). \
-... show(P) :- touched(P,S). \
-... show(goal(G)) :- touched(P,S), plan_interval(C, T1, T2), T1 <= S, S <= T2, history(C, goal(G)).
+>>> :def touched_pyramid_before(P,S) :- pyramid(P), apply(pickup(P),S), S < T-1, green(X), pyramid(X), apply(put_on(X,C),T), small(C), cube(C).
+understood.
+
+>>> show(P) :- touched_pyramid_before(P,S).
 green_pyramid.
+
+>>> 
+>>> % WHEN DID YOU PICK IT UP?
+>>> show(goal(G)) :- touched_pyramid_before(P,S), plan_interval(C, T1, T2), T1 <= S, S <= T2, history(C, goal(G)).
 goal(stack(big_red,red_cube,green_cube_1)).
+
+>>> 
+>>> % WHY?
+>>> :def explain(apply(X,S), (apply(A,T), demands(A,F,true)))  :- adds(X,F),    plan_interval(C, T1, T2), T1 <= S, S <= T2, demands(A,F,true),  apply(A,T), S < T, T <= T2, S = 1..now.
+understood.
+
+>>> :def explain(apply(X,S), (apply(A,T), demands(A,F,false))) :- deletes(X,F), plan_interval(C, T1, T2), T1 <= S, S <= T2, demands(A,F,false), apply(A,T), S < T, T <= T2, S = 1..now.
+understood.
+
+>>> show(R) :- touched_pyramid_before(P,S), explain(apply(pickup(P),S), R).
+(apply(pickup(red_cube),11),demands(pickup(red_cube),on(green_pyramid,red_cube),false)).
+(apply(put_on(green_pyramid,big_red),10),demands(put_on(green_pyramid,big_red),holding(green_pyramid),true)).
+
+>>> 
+>>> % WHY DID YOU CLEAR OFF THAT CUBE?
+>>> show(R) :- it((A, demands(pickup(C),on(Y,C),false))), cube(C), explain(A,R).
+(apply(put_on(red_cube,green_cube_1),12),demands(put_on(red_cube,green_cube_1),holding(red_cube),true)).
+
+>>> 
+>>> % WHY DID YOU DO THAT?
+>>> :def explain(apply(A,T), goal(G)) :- plan_interval(C,S,T), history(C, goal(G)), action(A).
+understood.
+
+>>> show(R) :- it((A,D)), explain(A,R).
+goal(stack(big_red,red_cube,green_cube_1)).
+
+>>> 
+>>> % WHY DID YOU DO THAT?
+>>> :def explain(goal(G), history(C, goal(G))) :- history(C, goal(G)).
+understood.
+
+>>> show(R) :- it(G), explain(G,R).
+history(10,goal(stack(big_red,red_cube,green_cube_1))).
+
+>>> 
+>>> % HOW DID YOU DO IT?
+>>> :def steps(C, apply(A,T)) :- plan_interval(C, T1, T2), apply(A,T), T = T1..T2.
+understood.
+
+>>> show(A) :- it(history(C,G)), steps(C,A).
+apply(pickup(green_pyramid),9).
+apply(put_on(green_pyramid,big_red),10).
+apply(pickup(red_cube),11).
+apply(put_on(red_cube,green_cube_1),12).
+
+>>> 
+>>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
+>>> show(X) :- it(apply(pickup(X), T)).
+green_pyramid.
+red_cube.
 
 >>> 
 >>> % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
@@ -157,7 +211,7 @@ green_pyramid.
 >>> % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
 >>> goal(on(blue_pyramid,B)) :- block(B), holds(on(B,box)).
 apply(pickup(blue_pyramid),17).
-plan_interval(19,17,18).
+plan_interval(26,17,18).
 apply(put_on(blue_pyramid,blue_block),18).
 moves(18).
 ok.
@@ -182,16 +236,16 @@ false.
 >>> % BUILD ONE.
 >>> goal(steeple).
 apply(pickup(green_pyramid),19).
-apply(put_on(green_pyramid,table),20).
-apply(pickup(red_cube),21).
-apply(put_on(red_cube,blue_block),22).
-apply(pickup(red_pyramid),23).
-apply(put_on(red_pyramid,table),24).
+apply(put_on(green_pyramid,big_red),20).
+apply(pickup(red_pyramid),21).
+apply(put_on(red_pyramid,table),22).
+apply(pickup(red_cube),23).
+apply(put_on(red_cube,table),24).
 apply(pickup(green_cube_2),25).
 apply(put_on(green_cube_2,green_cube_1),26).
-apply(pickup(blue_pyramid),27).
-plan_interval(22,19,28).
-apply(put_on(blue_pyramid,green_cube_2),28).
+apply(pickup(green_pyramid),27).
+plan_interval(29,19,28).
+apply(put_on(green_pyramid,green_cube_2),28).
 moves(28).
 ok.
 

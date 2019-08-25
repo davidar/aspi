@@ -63,10 +63,34 @@ show(C) :- it(Y), holds(on(Y,X)), colour(C,X).
 show(X) :- holds(above(X,C)), green(C), cube(C).
 
 % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
+:def touched_pyramid_before(P,S) :- pyramid(P), apply(pickup(P),S), S < T-1, green(X), pyramid(X), apply(put_on(X,C),T), small(C), cube(C).
+show(P) :- touched_pyramid_before(P,S).
+
 % WHEN DID YOU PICK IT UP?
-touched(P,S) :- pyramid(P), apply(pickup(P),S), S < T-1, green(X), pyramid(X), apply(put_on(X,C),T), small(C), cube(C). \
-show(P) :- touched(P,S). \
-show(goal(G)) :- touched(P,S), plan_interval(C, T1, T2), T1 <= S, S <= T2, history(C, goal(G)).
+show(goal(G)) :- touched_pyramid_before(P,S), plan_interval(C, T1, T2), T1 <= S, S <= T2, history(C, goal(G)).
+
+% WHY?
+:def explain(apply(X,S), (apply(A,T), demands(A,F,true)))  :- adds(X,F),    plan_interval(C, T1, T2), T1 <= S, S <= T2, demands(A,F,true),  apply(A,T), S < T, T <= T2, S = 1..now.
+:def explain(apply(X,S), (apply(A,T), demands(A,F,false))) :- deletes(X,F), plan_interval(C, T1, T2), T1 <= S, S <= T2, demands(A,F,false), apply(A,T), S < T, T <= T2, S = 1..now.
+show(R) :- touched_pyramid_before(P,S), explain(apply(pickup(P),S), R).
+
+% WHY DID YOU CLEAR OFF THAT CUBE?
+show(R) :- it((A, demands(pickup(C),on(Y,C),false))), cube(C), explain(A,R).
+
+% WHY DID YOU DO THAT?
+:def explain(apply(A,T), goal(G)) :- plan_interval(C,S,T), history(C, goal(G)), action(A).
+show(R) :- it((A,D)), explain(A,R).
+
+% WHY DID YOU DO THAT?
+:def explain(goal(G), history(C, goal(G))) :- history(C, goal(G)).
+show(R) :- it(G), explain(G,R).
+
+% HOW DID YOU DO IT?
+:def steps(C, apply(A,T)) :- plan_interval(C, T1, T2), apply(A,T), T = T1..T2.
+show(A) :- it(history(C,G)), steps(C,A).
+
+% HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
+show(X) :- it(apply(pickup(X), T)).
 
 % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
 :def cleanoff(X,T) :- apply(pickup(Y), T), holds(on(Y,X), T-1).
