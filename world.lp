@@ -19,6 +19,7 @@ object(X) :- block(X).
 object(X) :- pyramid(X).
 
 table(table_front_left; table_front_right; table_back_left; table_back_right).
+box(box).
 
 location(box).
 location(X) :- table(X), not init(on(box, X)).
@@ -37,7 +38,9 @@ small(red_cube).
 
 taller_than(blue_block,big_red; red_pyramid,blue_pyramid; blue_pyramid,green_pyramid; red_pyramid,red_cube).
 taller_than(A,C) :- taller_than(A,B), taller_than(B,C).
+tall(A,B) :- taller_than(A,B).
 shorter_than(A,B) :- taller_than(B,A).
+short(A,B) :- shorter_than(A,B).
 
 bigger_than(blue_block,P) :- pyramid(P).
 bigger_than(
@@ -45,6 +48,8 @@ bigger_than(
   blue_pyramid,red_pyramid; red_pyramid,green_pyramid).
 bigger_than(A,C) :- bigger_than(A,B), bigger_than(B,C).
 smaller_than(A,B) :- bigger_than(B,A).
+small(A,B) :- smaller_than(A,B).
+little(A,B) :- small(A,B).
 
 wider_than(box,blue_block; big_red,red_cube).
 narrower_than(A,B) :- wider_than(B,A).

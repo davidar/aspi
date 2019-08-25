@@ -11,9 +11,8 @@ goal_once(on([block taller_than.holding], box))
 % WHAT DOES THE BOX CONTAIN?
 :def holds(above(A,B), TIME) :- holds(on(A,B), TIME).
 :def holds(above(A,C), TIME) :- holds(above(A,B), TIME), holds(above(B,C), TIME).
-:def holds(in_box(X), TIME) :- holds(above(X, box), TIME).
-:def in_box(X) :- holds(in_box(X)).
-[in_box]
+:def above(A,B) :- holds(above(A,B)).
+[above.box]
 
 % WHAT IS THE PYRAMID SUPPORTED BY?
 :def holds(supports(A,B), TIME) :- holds(on(B,A), TIME).
@@ -21,7 +20,7 @@ goal_once(on([block taller_than.holding], box))
 [supports[that pyramid]]
 
 % HOW MANY BLOCKS ARE NOT IN THE BOX?
-[block ~in_box]
+[block ~above.box]
 
 % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
 [that narrower_than.history$goal$holding]
@@ -46,9 +45,7 @@ goal_once(on([pyramid], [pyramid]))
 
 % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
 :def holds(stack(A,B,C; A,C,B; B,A,C; B,C,A; C,A,B; C,B,A), TIME) :- holds(on(A,B), TIME), holds(on(B,C), TIME), not table(C), C != box.
-green_cube_or_pyramid(C) :- green(C), cube(C). \
-green_cube_or_pyramid(C) :- pyramid(C). \
-goal_once(stack(A,B,C)) :- red(A), block(A), red(B), block(B), A != B, green_cube_or_pyramid(C).
+goal_once(stack([red block], [red block], [green cube | pyramid]))
 
 % WHICH CUBE IS SITTING ON THE TABLE?
 :def on(A,B) :- holds(on(A,B)).
@@ -63,20 +60,16 @@ goal_once(stack(A,B,C)) :- red(A), block(A), red(B), block(B), A != B, green_cub
 goal_once(on([small block], [green cube supports.pyramid]))
 
 % PUT THE LITTLEST PYRAMID ON TOP OF IT.
-smallest_pyramid(X) :- pyramid(X), smaller_than(X,P) : pyramid(P), P != X. \
-goal(on(P,S)) :- history(counter-1, goal(on(S,_))), smallest_pyramid(P).
+:def that(X) :- history(counter-1, goal(on(X,_))).
+goal_once(on([argmax(little, pyramid)], [that]))
 
 % DOES THE SHORTEST THING THE TALLEST PYRAMID'S SUPPORT SUPPORTS SUPPORT ANYTHING GREEN?
-tallest_pyramid_support(S) :- holds(on(P,S)), pyramid(P), taller_than(P,Q) : pyramid(Q), P != Q. \
-tps_supports(X) :- tallest_pyramid_support(S), holds(on(X,S)). \
-shortest_tpss(X) :- tps_supports(X), shorter_than(X,Y) : tps_supports(Y), X != Y. \
-show(Y) :- shortest_tpss(X), holds(on(Y,X)), green(Y).
+[green on.argmax(short, on.supports.argmax(tall, pyramid))]
 
 % WHAT COLOR IS IT?
 [colour.supports.that]
 
 % HOW MANY THINGS ARE ON TOP OF GREEN CUBES?
-:def above(A,B) :- holds(above(A,B)).
 [above[green cube]]
 
 % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
@@ -88,7 +81,7 @@ show(goal(G)) :- touched_pyramid_before(P,S), plan_interval(C, T1, T2), T1 <= S,
 
 % WHY?
 :def explain(apply(X,S), (apply(A,T), demands(A,F,true)))  :- adds(X,F),    plan_interval(C, T1, T2), T1 <= S, S <= T2, demands(A,F,true),  apply(A,T), S < T, T <= T2, S = 1..now.
-:def explain(apply(X,S), (apply(A,T), demands(A,F,false))) :- deletes(X,F), plan_interval(C, T1, T2), T1 <= S, S <= T2, demands(A,F,false), apply(A,T), S < T, T <= T2, S = 1..now.
+:def explain(apply(X,S), (apply(A,T), demands(A,F,false))) :- deletes(X,F), plan_interval(C, T1, T2), T1 <= S, S <= T2, demands(A,F,false), apply(A,T), S < T, T <= T2, S = 1..now, holds(F, S-1).
 show(R) :- touched_pyramid_before(P,S), explain(apply(pickup(P),S), R).
 
 % WHY DID YOU CLEAR OFF THAT CUBE?
@@ -96,6 +89,8 @@ show(R) :- it((A, demands(pickup(C),on(Y,C),false))), cube(C), explain(A,R).
 
 % WHY DID YOU DO THAT?
 :def explain(apply(A,T), goal(G)) :- plan_interval(C,S,T), history(C, goal(G)), action(A).
+show(R) :- it((A,D)), explain(A,R).
+show(R) :- it((A,D)), explain(A,R).
 show(R) :- it((A,D)), explain(A,R).
 
 % WHY DID YOU DO THAT?
@@ -119,7 +114,7 @@ show(X) :- cleanoff(red_cube,T), block(X), holds(left_of(X,box), T-1).
 show(N) :- #count { X : it(X) } = N.
 
 % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
-goal(on([blue pyramid], [block in_box]))
+goal(on([blue pyramid], [block above.box]))
 
 % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
 show(X) :- object(X), bigger_than(X,P) : pyramid(P); holds(on(X,B)), wider_than(B,X).

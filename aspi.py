@@ -38,7 +38,7 @@ while True:
     break
   if '[' in cmd:
     cmd = ldcs.transform(cmd)
-    print('-->', cmd)
+    print('-->', '\n    '.join(cmd.split('\n')))
   cmd += '\n'
   if 'goal_once' in cmd:
     cmd += '{ goal(F) : goal_once(F) } = 1.\n'

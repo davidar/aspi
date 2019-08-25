@@ -13,6 +13,8 @@ del  (F,T) :- apply(A,T), deletes(A,F).
 state(F,T) :- state(F,T-1), not del(F,T), T = 1..now.
 holds(F,T) :- state(F,T).
 
+show(already(F)) :- goal(F,true), holds(F,now).
+
 #program step(t).
 % Generate
 { apply(A, now+t) : action(A) } = 1.
