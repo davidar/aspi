@@ -31,6 +31,7 @@ colour(red, X) :- red(X).
 colour(green, X) :- green(X).
 colour(blue, X) :- blue(X).
 
+big(X) :- large(X).
 large(big_red; green_cube_1; green_cube_2; blue_block).
 small(red_cube).
 

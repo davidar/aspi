@@ -2,6 +2,8 @@
 import json
 import sh
 
+import ldcs
+
 def readfiles(*args):
   s = ''
   for name in args:
@@ -34,6 +36,9 @@ while True:
   if cmd == 'thanks.':
     print("YOU'RE WELCOME!")
     break
+  if '[' in cmd:
+    cmd = ldcs.transform(cmd)
+    print('-->', cmd)
   cmd += '\n'
   if 'goal_once' in cmd:
     cmd += '{ goal(F) : goal_once(F) } = 1.\n'

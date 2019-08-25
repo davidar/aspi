@@ -1,29 +1,33 @@
 % PICK UP A BIG RED BLOCK.
-goal_once(holding(X)) :- large(X), red(X), block(X).
+goal_once(holding[big red block])
 
 % GRASP THE PYRAMID.
-goal(holding(X)) :- pyramid(X).
+goal(holding[pyramid])
 
 % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
-goal_once(on(T, box)) :- block(T), taller_than(T,H), block(H), holds(holding(H)).
+:def holding(X) :- holds(holding(X)).
+goal_once(on([block taller_than.holding], box))
 
 % WHAT DOES THE BOX CONTAIN?
 :def holds(above(A,B), TIME) :- holds(on(A,B), TIME).
 :def holds(above(A,C), TIME) :- holds(above(A,B), TIME), holds(above(B,C), TIME).
 :def holds(in_box(X), TIME) :- holds(above(X, box), TIME).
-show(X) :- holds(in_box(X)).
+:def in_box(X) :- holds(in_box(X)).
+[in_box]
 
 % WHAT IS THE PYRAMID SUPPORTED BY?
-show(S) :- it(X), pyramid(X), holds(on(X,S)).
+:def holds(supports(A,B), TIME) :- holds(on(B,A), TIME).
+:def supports(A,B) :- holds(supports(A,B)).
+[supports[that pyramid]]
 
 % HOW MANY BLOCKS ARE NOT IN THE BOX?
-show(X) :- block(X), not holds(on(X, box)).
+[block ~in_box]
 
 % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
-show(X) :- it(X), narrower_than(X,Y), history(goal(holding(Y))).
+[that narrower_than.history$goal$holding]
 
 % IS IT SUPPORTED?
-show(on(X,Y)) :- it(X), holds(on(X,Y)).
+[supports.that]
 
 % CAN THE TABLE PICK UP BLOCKS?
 show(true) :- action(pickup(A,B)), table(A), block(B). \
@@ -38,7 +42,7 @@ show(true) :- action(put_on(P,Q)), pyramid(P), pyramid(Q). \
 show(false) :- not show(true).
 
 % STACK UP TWO PYRAMIDS.
-goal_once(on(P,Q)) :- pyramid(P), pyramid(Q).
+goal_once(on([pyramid], [pyramid]))
 
 % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
 :def holds(stack(A,B,C; A,C,B; B,A,C; B,C,A; C,A,B; C,B,A), TIME) :- holds(on(A,B), TIME), holds(on(B,C), TIME), not table(C), C != box.
@@ -47,15 +51,16 @@ green_cube_or_pyramid(C) :- pyramid(C). \
 goal_once(stack(A,B,C)) :- red(A), block(A), red(B), block(B), A != B, green_cube_or_pyramid(C).
 
 % WHICH CUBE IS SITTING ON THE TABLE?
-show(X) :- cube(X), holds(on(X,T)), table(T). \
-show(on(Y,X)) :- cube(X), holds(on(X,T)), table(T), holds(on(Y,X)).
+:def on(A,B) :- holds(on(A,B)).
+[cube on.table]
 
 % IS THERE A LARGE BLOCK BEHIND A PYRAMID?
 :def holds(behind(B,A), TIME) :- holds(above(B,X), TIME), holds(above(A,Y), TIME), table(X), table(Y), holds(behind(X,Y), TIME).
-show(X) :- large(X), block(X), holds(behind(X,P)), pyramid(P).
+:def behind(B,A) :- holds(behind(B,A)).
+[large block behind.pyramid]
 
 % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
-goal_once(on(S,C)) :- small(S), block(S), green(C), cube(C), holds(on(P,C)), pyramid(P).
+goal_once(on([small block], [green cube supports.pyramid]))
 
 % PUT THE LITTLEST PYRAMID ON TOP OF IT.
 smallest_pyramid(X) :- pyramid(X), smaller_than(X,P) : pyramid(P), P != X. \
@@ -68,10 +73,11 @@ shortest_tpss(X) :- tps_supports(X), shorter_than(X,Y) : tps_supports(Y), X != Y
 show(Y) :- shortest_tpss(X), holds(on(Y,X)), green(Y).
 
 % WHAT COLOR IS IT?
-show(C) :- it(Y), holds(on(Y,X)), colour(C,X).
+[colour.supports.that]
 
 % HOW MANY THINGS ARE ON TOP OF GREEN CUBES?
-show(X) :- holds(above(X,C)), green(C), cube(C).
+:def above(A,B) :- holds(above(A,B)).
+[above[green cube]]
 
 % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
 :def touched_pyramid_before(P,S) :- pyramid(P), apply(pickup(P),S), S < T-1, green(X), pyramid(X), apply(put_on(X,C),T), small(C), cube(C).
@@ -113,7 +119,7 @@ show(X) :- cleanoff(red_cube,T), block(X), holds(left_of(X,box), T-1).
 show(N) :- #count { X : it(X) } = N.
 
 % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
-goal(on(blue_pyramid,B)) :- block(B), holds(on(B,box)).
+goal(on([blue pyramid], [block in_box]))
 
 % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
 show(X) :- object(X), bigger_than(X,P) : pyramid(P); holds(on(X,B)), wider_than(B,X).
@@ -143,7 +149,8 @@ show(R) :- explain(put_on(B,T),R), superblock(B), table(T).
 
 % IS THERE ANYTHING TO THE RIGHT OF THE RED PYRAMID?
 :def holds(right_of(A,B), TIME) :- holds(left_of(B,A), TIME).
+:def right_of(A,B) :- holds(right_of(A,B)).
 goal_once(left_of(red_pyramid,box)).
-show(X) :- holds(right_of(X,P)), red(P), pyramid(P).
+[right_of[red pyramid]]
 
 thanks.

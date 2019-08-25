@@ -5,6 +5,7 @@ history(counter, show(X)) :- show(X).
 #show history/2.
 
 it(X) :- history(counter-1, show(X)).
+that(X) :- it(X).
 holds(X) :- holds(X, now).
 goal(F,true) :- goal(F).
 history(F) :- history(C,F).
