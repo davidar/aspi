@@ -1,11 +1,14 @@
 #program base.
 % https://www.uv.es/ivorra/Filosofia/TC/cubos.png
 init(on(
-  green_cube_1,big_red; big_red,table;
-  green_pyramid,red_cube; red_cube,table;
-  red_pyramid,green_cube_2; green_cube_2,table;
-  blue_pyramid,box; box,table;
-  blue_block,table)).
+  green_cube_1,big_red; big_red,table_front_left;
+  green_pyramid,red_cube; red_cube,table_front_left;
+  red_pyramid,green_cube_2; green_cube_2,table_front_right;
+  blue_pyramid,box; box,table_back_right;
+  blue_block,table_back_left)).
+
+init( behind((table_back_left;table_back_right), (table_front_left;table_front_right))).
+init(left_of((table_front_left;table_back_left), (table_front_right;table_back_right))).
 
 pyramid(red_pyramid; green_pyramid; blue_pyramid).
 cube(red_cube; green_cube_1; green_cube_2).
@@ -15,7 +18,10 @@ block(X) :- cube(X).
 object(X) :- block(X).
 object(X) :- pyramid(X).
 
-location(table; box).
+table(table_front_left; table_front_right; table_back_left; table_back_right).
+
+location(box).
+location(X) :- table(X), not init(on(box, X)).
 location(X) :- block(X).
 
 red(big_red; red_cube; red_pyramid).

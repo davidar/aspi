@@ -1,6 +1,9 @@
 % PICK UP A BIG RED BLOCK.
 goal_once(holding(X)) :- large(X), red(X), block(X).
 
+% GRASP THE PYRAMID.
+goal(holding(X)) :- pyramid(X).
+
 % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
 goal_once(on(T, box)) :- block(T), taller_than(T,H), block(H), holds(holding(H)).
 
@@ -22,6 +25,10 @@ show(X) :- it(X), narrower_than(X,Y), history(goal(holding(Y))).
 % IS IT SUPPORTED?
 show(on(X,Y)) :- it(X), holds(on(X,Y)).
 
+% CAN THE TABLE PICK UP BLOCKS?
+show(true) :- action(pickup(A,B)), table(A), block(B). \
+show(false) :- not show(true).
+
 % CAN A PYRAMID BE SUPPORTED BY A BLOCK?
 show(true) :- action(put_on(P,B)), pyramid(P), block(B). \
 show(false) :- not show(true).
@@ -34,14 +41,18 @@ show(false) :- not show(true).
 goal_once(on(P,Q)) :- pyramid(P), pyramid(Q).
 
 % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
-:def holds(stack(A,B,C; A,C,B; B,A,C; B,C,A; C,A,B; C,B,A), TIME) :- holds(on(A,B), TIME), holds(on(B,C), TIME), C != table, C != box.
+:def holds(stack(A,B,C; A,C,B; B,A,C; B,C,A; C,A,B; C,B,A), TIME) :- holds(on(A,B), TIME), holds(on(B,C), TIME), not table(C), C != box.
 green_cube_or_pyramid(C) :- green(C), cube(C). \
 green_cube_or_pyramid(C) :- pyramid(C). \
 goal_once(stack(A,B,C)) :- red(A), block(A), red(B), block(B), A != B, green_cube_or_pyramid(C).
 
 % WHICH CUBE IS SITTING ON THE TABLE?
-show(X) :- cube(X), holds(on(X, table)). \
-show(on(Y,X)) :- cube(X), holds(on(X, table)), holds(on(Y,X)).
+show(X) :- cube(X), holds(on(X,T)), table(T). \
+show(on(Y,X)) :- cube(X), holds(on(X,T)), table(T), holds(on(Y,X)).
+
+% IS THERE A LARGE BLOCK BEHIND A PYRAMID?
+:def holds(behind(B,A), TIME) :- holds(above(B,X), TIME), holds(above(A,Y), TIME), table(X), table(Y), holds(behind(X,Y), TIME).
+show(X) :- large(X), block(X), holds(behind(X,P)), pyramid(P).
 
 % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
 goal_once(on(S,C)) :- small(S), block(S), green(C), cube(C), holds(on(P,C)), pyramid(P).
@@ -96,6 +107,11 @@ show(X) :- it(apply(pickup(X), T)).
 :def cleanoff(X,T) :- apply(pickup(Y), T), holds(on(Y,X), T-1).
 show(X) :- holds(on(X,red_cube),S), S < T, cleanoff(red_cube, T).
 
+% THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
+:def holds(left_of(B,A), TIME) :- holds(above(B,X), TIME), holds(above(A,Y), TIME), table(X), table(Y), holds(left_of(X,Y), TIME).
+show(X) :- cleanoff(red_cube,T), block(X), holds(left_of(X,box), T-1).
+show(N) :- #count { X : it(X) } = N.
+
 % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
 goal(on(blue_pyramid,B)) :- block(B), holds(on(B,box)).
 
@@ -119,5 +135,15 @@ goal(steeple).
 picked_up(X) :- apply(pickup(X),T). \
 show(true) :- picked_up(B), superblock(B). \
 show(false) :- not picked_up(B), superblock(B).
+
+% WHY DID YOU DROP IT?
+:def explain(A,R) :- apply(A,T), explain(apply(A,T), R).
+:def explain(A, nonexistent) :- action(A), not apply(A,T) : T = 1..now.
+show(R) :- explain(put_on(B,T),R), superblock(B), table(T).
+
+% IS THERE ANYTHING TO THE RIGHT OF THE RED PYRAMID?
+:def holds(right_of(A,B), TIME) :- holds(left_of(B,A), TIME).
+goal_once(left_of(red_pyramid,box)).
+show(X) :- holds(right_of(X,P)), red(P), pyramid(P).
 
 thanks.
