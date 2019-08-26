@@ -61,10 +61,10 @@ goal_once(on([small block], [green cube supports.pyramid]))
 
 % PUT THE LITTLEST PYRAMID ON TOP OF IT.
 :def that(X) :- history(counter-1, goal(on(X,_))).
-goal_once(on([argmax(little, pyramid)], [that]))
+goal_once(on([most(little, pyramid)], [that]))
 
 % DOES THE SHORTEST THING THE TALLEST PYRAMID'S SUPPORT SUPPORTS SUPPORT ANYTHING GREEN?
-[green on.argmax(short, on.supports.argmax(tall, pyramid))]
+[green on.most(short, on.supports.most(tall, pyramid))]
 
 % WHAT COLOR IS IT?
 [colour.supports.that]
@@ -111,7 +111,7 @@ show(X) :- holds(on(X,red_cube),S), S < T, cleanoff(red_cube, T).
 % THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
 :def holds(left_of(B,A), TIME) :- holds(above(B,X), TIME), holds(above(A,Y), TIME), table(X), table(Y), holds(left_of(X,Y), TIME).
 show(X) :- cleanoff(red_cube,T), block(X), holds(left_of(X,box), T-1).
-show(N) :- #count { X : it(X) } = N.
+[count(that)]
 
 % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
 goal(on([blue pyramid], [block above.box]))

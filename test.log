@@ -154,8 +154,8 @@ already(on(red_cube,green_cube_2)).
 >>> :def that(X) :- history(counter-1, goal(on(X,_))).
 understood.
 
->>> goal_once(on([argmax(little, pyramid)], [that]))
---> goal_once(on(B,C)) :- not little(A,B) : pyramid(A); pyramid(B), that(C).
+>>> goal_once(on([most(little, pyramid)], [that]))
+--> goal_once(on(B,C)) :- little(B,A) : pyramid(A), B != A; pyramid(B), that(C).
 apply(pickup(big_red),13).
 apply(put_on(big_red,table_back_left),14).
 apply(pickup(green_pyramid),15).
@@ -166,9 +166,9 @@ ok.
 
 >>> 
 >>> % DOES THE SHORTEST THING THE TALLEST PYRAMID'S SUPPORT SUPPORTS SUPPORT ANYTHING GREEN?
->>> [green on.argmax(short, on.supports.argmax(tall, pyramid))]
---> show(G) :- green(G), on(G,F), not short(D,F) : superlative1(D); superlative1(F).
-    superlative1(E) :- on(E,C), supports(C,B), not tall(A,B) : pyramid(A); pyramid(B).
+>>> [green on.most(short, on.supports.most(tall, pyramid))]
+--> show(G) :- green(G), on(G,F), short(F,D) : superlative1(D), F != D; superlative1(F).
+    superlative1(E) :- on(E,C), supports(C,B), tall(B,A) : pyramid(A), B != A; pyramid(B).
 green_pyramid.
 
 >>> 
@@ -276,7 +276,8 @@ understood.
 big_red.
 red_cube.
 
->>> show(N) :- #count { X : it(X) } = N.
+>>> [count(that)]
+--> show(B) :- B = #count { A : that(A) }.
 2.
 
 >>> 

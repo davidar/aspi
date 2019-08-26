@@ -8,27 +8,35 @@ ebnf = r'''
 %import common.CNAME
 %import common.WS
 %ignore WS
+
+AGG_OP: "count"
+SUP_OP: "most"
+
+?start: command
 command: value
 ?value: pred
       | ldcs
 pred: atom [ "(" value ("," value)* ")" ]
     | atom ldcs
 atom: CNAME
-ldcs: disj
-disj: "[" conj ("|" conj)* "]"
+ldcs: "[" disj "]"
+disj: conj ("|" conj)*
 conj: lam lam*
 ?lam: unary
     | join
     | neg
+    | hof
 unary: atom
      | atom "$" unary -> compose
-     | "argmax" "(" atom "," conj ")" -> argmax
-join: atom "." lam
-    | atom disj
+binary: atom
+join: binary "." lam
+    | binary "[" disj "]"
 neg: "~" lam
+hof: AGG_OP "(" disj ")" -> aggregation
+   | SUP_OP "(" binary "," disj ")" -> superlative
 '''
 
-parser = lark.Lark(ebnf, start='command')
+parser = lark.Lark(ebnf)
 
 @lark.v_args(inline=True)
 class LDCS(lark.Transformer):
@@ -76,16 +84,24 @@ class LDCS(lark.Transformer):
     return lambda x: name + '(' + x + ')'
   def compose(self, name, lam):
     return lambda x: name + '(' + lam(x) + ')'
-  def argmax(self, rel, lam):
-    y = self.gensym()
-    if ';' in lam(y): lam = self.lift(lam, 'superlative')
-    return lambda x: 'not ' + rel + '(' + y + ',' + x + ')' + ' : ' + lam(y) + '; ' + lam(x)
+  def binary(self, name):
+    return lambda x,y: name + '(' + x + ',' + y + ')'
   def join(self, rel, lam):
     y = self.gensym()
-    return lambda x: rel + '(' + x + ',' + y + ')' + ', ' + lam(y)
+    return lambda x: rel(x,y) + ', ' + lam(y)
   def neg(self, lam):
     if ' ' in lam('_'): lam = self.lift(lam)
     return lambda x: 'not ' + lam(x)
+  def aggregation(self, op, lam):
+    y = self.gensym()
+    if ';' in lam(y): lam = self.lift(lam, 'aggregation')
+    if op == 'count':
+      return lambda x: x + ' = #count { ' + y + ' : ' + lam(y) + ' }'
+  def superlative(self, op, rel, lam):
+    y = self.gensym()
+    if ';' in lam(y): lam = self.lift(lam, 'superlative')
+    if op == 'most':
+      return lambda x: rel(x,y) + ' : ' + lam(y) + ', ' + x + ' != ' + y + '; ' + lam(x)
 
 def transform(s):
   tree = parser.parse(s)
