@@ -1,12 +1,12 @@
 % PICK UP A BIG RED BLOCK.
-goal_once(holding[big red block])
+goal_once$holding[big red block]
 
 % GRASP THE PYRAMID.
-goal(holding[pyramid])
+goal$holding[pyramid]
 
 % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
 :def holding(X) :- holds(holding(X)).
-goal_once(on([block taller_than.holding], box))
+goal_once$on[block taller_than.holding, box]
 
 % WHAT DOES THE BOX CONTAIN?
 :def holds(above(A,B), TIME) :- holds(on(A,B), TIME).
@@ -41,11 +41,11 @@ show(true) :- action(put_on(P,Q)), pyramid(P), pyramid(Q). \
 show(false) :- not show(true).
 
 % STACK UP TWO PYRAMIDS.
-goal_once(on([pyramid], [pyramid]))
+goal_once$on[pyramid, pyramid]
 
 % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
 :def holds(stack(A,B,C; A,C,B; B,A,C; B,C,A; C,A,B; C,B,A), TIME) :- holds(on(A,B), TIME), holds(on(B,C), TIME), not table(C), C != box.
-goal_once(stack([red block], [red block], [green cube | pyramid]))
+goal_once$stack[red block, red block, green cube | pyramid]
 
 % WHICH CUBE IS SITTING ON THE TABLE?
 :def on(A,B) :- holds(on(A,B)).
@@ -57,11 +57,11 @@ goal_once(stack([red block], [red block], [green cube | pyramid]))
 [large block behind.pyramid]
 
 % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
-goal_once(on([small block], [green cube supports.pyramid]))
+goal_once$on[small block, green cube supports.pyramid]
 
 % PUT THE LITTLEST PYRAMID ON TOP OF IT.
 :def that(X) :- history(counter-1, goal(on(X,_))).
-goal_once(on([most(little, pyramid)], [that]))
+goal_once$on[most(little, pyramid), that]
 
 % DOES THE SHORTEST THING THE TALLEST PYRAMID'S SUPPORT SUPPORTS SUPPORT ANYTHING GREEN?
 [green on.most(short, on.supports.most(tall, pyramid))]
@@ -114,7 +114,7 @@ show(X) :- cleanoff(red_cube,T), block(X), holds(left_of(X,box), T-1).
 [count(that)]
 
 % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
-goal(on([blue pyramid], [block above.box]))
+goal$on[blue pyramid, block above.box]
 
 % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
 show(X) :- object(X), bigger_than(X,P) : pyramid(P); holds(on(X,B)), wider_than(B,X).

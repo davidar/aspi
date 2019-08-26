@@ -15,19 +15,21 @@ SUP_OP: "most"
 ?start: command
 command: value
 ?value: pred
-      | ldcs
+      | "[" ldcs "]"
 pred: atom [ "(" value ("," value)* ")" ]
-    | atom ldcs
+    | atom "$" value
+    | atom "[" ldcs ("," ldcs)* "]"
 atom: CNAME
-ldcs: "[" disj "]"
+ldcs: disj
 disj: conj ("|" conj)*
 conj: lam lam*
 ?lam: unary
+    | compose
     | join
     | neg
     | hof
 unary: atom
-     | atom "$" unary -> compose
+compose: atom "$" lam
 binary: atom
 join: binary "." lam
     | binary "[" disj "]"

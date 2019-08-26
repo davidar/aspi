@@ -1,5 +1,5 @@
 >>> % PICK UP A BIG RED BLOCK.
->>> goal_once(holding[big red block])
+>>> goal_once$holding[big red block]
 --> goal_once(holding(A)) :- big(A), red(A), block(A).
 apply(pickup(green_cube_1),1).
 apply(put_on(green_cube_1,table_front_right),2).
@@ -10,7 +10,7 @@ ok.
 
 >>> 
 >>> % GRASP THE PYRAMID.
->>> goal(holding[pyramid])
+>>> goal$holding[pyramid]
 --> goal(holding(A)) :- pyramid(A).
 I CAN'T
 
@@ -19,8 +19,8 @@ I CAN'T
 >>> :def holding(X) :- holds(holding(X)).
 understood.
 
->>> goal_once(on([block taller_than.holding], box))
---> goal_once(on(B,box)) :- block(B), taller_than(B,A), holding(A).
+>>> goal_once$on[block taller_than.holding, box]
+--> goal_once(on(B,C)) :- block(B), taller_than(B,A), holding(A), box(C).
 apply(put_on(big_red,table_back_left),4).
 apply(pickup(blue_block),5).
 plan_interval(2,4,6).
@@ -98,7 +98,7 @@ false.
 
 >>> 
 >>> % STACK UP TWO PYRAMIDS.
->>> goal_once(on([pyramid], [pyramid]))
+>>> goal_once$on[pyramid, pyramid]
 --> goal_once(on(A,B)) :- pyramid(A), pyramid(B).
 I CAN'T
 
@@ -107,7 +107,7 @@ I CAN'T
 >>> :def holds(stack(A,B,C; A,C,B; B,A,C; B,C,A; C,A,B; C,B,A), TIME) :- holds(on(A,B), TIME), holds(on(B,C), TIME), not table(C), C != box.
 understood.
 
->>> goal_once(stack([red block], [red block], [green cube | pyramid]))
+>>> goal_once$stack[red block, red block, green cube | pyramid]
 --> goal_once(stack(A,B,D)) :- red(A), block(A), red(B), block(B), disjunction1(D).
     disjunction1(C) :- green(C), cube(C).
     disjunction1(C) :- pyramid(C).
@@ -145,7 +145,7 @@ blue_block.
 
 >>> 
 >>> % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
->>> goal_once(on([small block], [green cube supports.pyramid]))
+>>> goal_once$on[small block, green cube supports.pyramid]
 --> goal_once(on(A,C)) :- small(A), block(A), green(C), cube(C), supports(C,B), pyramid(B).
 already(on(red_cube,green_cube_2)).
 
@@ -154,7 +154,7 @@ already(on(red_cube,green_cube_2)).
 >>> :def that(X) :- history(counter-1, goal(on(X,_))).
 understood.
 
->>> goal_once(on([most(little, pyramid)], [that]))
+>>> goal_once$on[most(little, pyramid), that]
 --> goal_once(on(B,C)) :- little(B,A) : pyramid(A), B != A; pyramid(B), that(C).
 apply(pickup(big_red),13).
 apply(put_on(big_red,table_back_left),14).
@@ -282,7 +282,7 @@ red_cube.
 
 >>> 
 >>> % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
->>> goal(on([blue pyramid], [block above.box]))
+>>> goal$on[blue pyramid, block above.box]
 --> goal(on(A,C)) :- blue(A), pyramid(A), block(C), above(C,B), box(B).
 apply(pickup(blue_pyramid),17).
 plan_interval(32,17,18).
