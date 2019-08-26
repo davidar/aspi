@@ -35,6 +35,7 @@ colour(blue, X) :- blue(X).
 big(X) :- large(X).
 large(big_red; green_cube_1; green_cube_2; blue_block).
 small(red_cube).
+little(X) :- small(X).
 
 taller_than(blue_block,big_red; red_pyramid,blue_pyramid; blue_pyramid,green_pyramid; red_pyramid,red_cube).
 taller_than(A,C) :- taller_than(A,B), taller_than(B,C).

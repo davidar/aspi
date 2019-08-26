@@ -13,7 +13,7 @@ del  (F,T) :- apply(A,T), deletes(A,F).
 state(F,T) :- state(F,T-1), not del(F,T), T = 1..now.
 holds(F,T) :- state(F,T).
 
-show(already(F)) :- goal(F,true), holds(F,now).
+show(already(F)) :- goal(F), holds(F,now).
 
 #program step(t).
 % Generate
@@ -41,5 +41,4 @@ show(ok).
 
 #program check(t).
 % Test
-:- query(t), goal(F, true), not holds(F, now+t).
-:- query(t), goal(F, false),    holds(F, now+t).
+:- query(t), goal(F), not holds(F, now+t).

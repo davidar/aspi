@@ -187,16 +187,15 @@ green_pyramid.
 
 >>> 
 >>> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
->>> :def touched_pyramid_before(P,S) :- pyramid(P), apply(pickup(P),S), S < T-1, green(X), pyramid(X), apply(put_on(X,C),T), small(C), cube(C).
-understood.
-
->>> show(P) :- touched_pyramid_before(P,S).
-green_pyramid.
+>>> :macro before(E,F) :- end_time(S,E), S < T, start_time(T,F).
+>>> [pickup.pyramid before.goal.=on[green pyramid, little cube]]
+--> show(F) :- green(B), pyramid(B), little(C), cube(C), pickup(F,A), pyramid(A), end_time(G,F), G < H, start_time(H,E), goal(E,D), D = on(B,C).
+apply(pickup(green_pyramid),7).
 
 >>> 
 >>> % WHEN DID YOU PICK IT UP?
->>> show(goal(G)) :- touched_pyramid_before(P,S), plan_interval(C, T1, T2), T1 <= S, S <= T2, history(C, goal(G)).
-goal(stack(red_cube,big_red,green_cube_2)).
+>>> show((E,goal(G))) :- that(E), E = apply(pickup(P),S), plan_times(C,S), history(C, goal(G)).
+(apply(pickup(green_pyramid),7),goal(stack(red_cube,big_red,green_cube_2))).
 
 >>> 
 >>> % WHY?
@@ -206,7 +205,7 @@ understood.
 >>> :def explain(apply(X,S), (apply(A,T), demands(A,F,false))) :- deletes(X,F), plan_interval(C, T1, T2), T1 <= S, S <= T2, demands(A,F,false), apply(A,T), S < T, T <= T2, S = 1..now, holds(F, S-1).
 understood.
 
->>> show(R) :- touched_pyramid_before(P,S), explain(apply(pickup(P),S), R).
+>>> show(R) :- that((E,G)), explain(E,R).
 (apply(put_on(green_pyramid,blue_block),8),demands(put_on(green_pyramid,blue_block),holding(green_pyramid),true)).
 (apply(pickup(red_cube),9),demands(pickup(red_cube),on(green_pyramid,red_cube),false)).
 (apply(put_on(big_red,red_cube),12),demands(put_on(big_red,red_cube),on(green_pyramid,red_cube),false)).
@@ -240,7 +239,7 @@ history(11,goal(stack(red_cube,big_red,green_cube_2))).
 
 >>> 
 >>> % HOW DID YOU DO IT?
->>> :def steps(C, apply(A,T)) :- plan_interval(C, T1, T2), apply(A,T), T = T1..T2.
+>>> :def steps(C, apply(A,T)) :- plan_times(C,T), apply(A,T).
 understood.
 
 >>> show(A) :- it(history(C,G)), steps(C,A).

@@ -73,16 +73,16 @@ goal_once$on[most(little, pyramid), that]
 [above[green cube]]
 
 % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
-:def touched_pyramid_before(P,S) :- pyramid(P), apply(pickup(P),S), S < T-1, green(X), pyramid(X), apply(put_on(X,C),T), small(C), cube(C).
-show(P) :- touched_pyramid_before(P,S).
+:macro before(E,F) :- end_time(S,E), S < T, start_time(T,F).
+[pickup.pyramid before.goal.=on[green pyramid, little cube]]
 
 % WHEN DID YOU PICK IT UP?
-show(goal(G)) :- touched_pyramid_before(P,S), plan_interval(C, T1, T2), T1 <= S, S <= T2, history(C, goal(G)).
+show((E,goal(G))) :- that(E), E = apply(pickup(P),S), plan_times(C,S), history(C, goal(G)).
 
 % WHY?
 :def explain(apply(X,S), (apply(A,T), demands(A,F,true)))  :- adds(X,F),    plan_interval(C, T1, T2), T1 <= S, S <= T2, demands(A,F,true),  apply(A,T), S < T, T <= T2, S = 1..now.
 :def explain(apply(X,S), (apply(A,T), demands(A,F,false))) :- deletes(X,F), plan_interval(C, T1, T2), T1 <= S, S <= T2, demands(A,F,false), apply(A,T), S < T, T <= T2, S = 1..now, holds(F, S-1).
-show(R) :- touched_pyramid_before(P,S), explain(apply(pickup(P),S), R).
+show(R) :- that((E,G)), explain(E,R).
 
 % WHY DID YOU CLEAR OFF THAT CUBE?
 show(R) :- it((A, demands(pickup(C),on(Y,C),false))), cube(C), explain(A,R).
@@ -98,7 +98,7 @@ show(R) :- it((A,D)), explain(A,R).
 show(R) :- it(G), explain(G,R).
 
 % HOW DID YOU DO IT?
-:def steps(C, apply(A,T)) :- plan_interval(C, T1, T2), apply(A,T), T = T1..T2.
+:def steps(C, apply(A,T)) :- plan_times(C,T), apply(A,T).
 show(A) :- it(history(C,G)), steps(C,A).
 
 % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?

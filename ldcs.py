@@ -28,6 +28,7 @@ conj: lam lam*
     | join
     | neg
     | hof
+    | unify
 unary: atom
 compose: atom "$" lam
 binary: atom
@@ -36,6 +37,7 @@ join: binary "." lam
 neg: "~" lam
 hof: AGG_OP "(" disj ")" -> aggregation
    | SUP_OP "(" binary "," disj ")" -> superlative
+unify: "=" pred
 '''
 
 parser = lark.Lark(ebnf)
@@ -110,6 +112,8 @@ class LDCS(lark.Transformer):
     if ';' in lam(y): lam = self.lift(lam, 'superlative')
     if op == 'most':
       return lambda x: rel(x,y) + ' : ' + lam(y) + ', ' + x + ' != ' + y + '; ' + lam(x)
+  def unify(self, pred):
+    return lambda x: x + ' = ' + pred
 
 rule_ebnf = r'''
 %import common.DIGIT
