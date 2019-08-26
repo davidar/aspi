@@ -58,6 +58,11 @@ class LDCS(lark.Transformer):
     z = self.gensym()
     self.rules.append(f(z) + ' :- ' + lam(z) + '.')
     return f
+  def expand_macro(self, name, *args):
+    params, tree = macros[name]
+    subst = dict(zip(params,args))
+    return RuleBody(subst, self.gensym).transform(tree)
+
   def command(self, value):
     if len(value) == 1: value = 'show(' + value + ')'
     self.rules.insert(0, value + ' :- ' + self.body + '.')
@@ -85,6 +90,7 @@ class LDCS(lark.Transformer):
   def compose(self, name, lam):
     return lambda x: name + '(' + lam(x) + ')'
   def binary(self, name):
+    if name in macros: return lambda x,y: self.expand_macro(name,x,y)
     return lambda x,y: name + '(' + x + ',' + y + ')'
   def join(self, rel, lam):
     y = self.gensym()
@@ -103,9 +109,66 @@ class LDCS(lark.Transformer):
     if op == 'most':
       return lambda x: rel(x,y) + ' : ' + lam(y) + ', ' + x + ' != ' + y + '; ' + lam(x)
 
+rule_ebnf = r'''
+%import common.DIGIT
+%import common.LETTER
+%import common.LCASE_LETTER
+%import common.UCASE_LETTER
+%import common.WS
+%ignore WS
+
+ATOM: LCASE_LETTER ("_"|LETTER|DIGIT)*
+VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
+OPERATOR: "=" | "!=" | "<" | "<=" | ">" | ">="
+
+?start: rule
+rule: head ":-" pred ("," pred)* "."
+pred: ATOM [ "(" value ("," value)* ")" ]
+    | value OPERATOR value -> predop
+?value: pred
+      | var
+var: VARIABLE
+head: ATOM "(" var ("," var)* ")"
+'''
+
+rule_parser = lark.Lark(rule_ebnf)
+
+@lark.v_args(inline=True)
+class RuleHead(lark.Transformer):
+  def rule(self, head, *body):
+    return head
+  def var(self, name):
+    return name
+  def head(self, name, *args):
+    return str(name), [str(arg) for arg in args]
+
+@lark.v_args(inline=True)
+class RuleBody(lark.Transformer):
+  def __init__(self, subst, gensym):
+    self.subst = subst
+    self.gensym = gensym
+  def rule(self, head, *body):
+    return ', '.join(body)
+  def pred(self, name, *args):
+    if not args: name
+    return name + '(' + ','.join(args) + ')'
+  def predop(self, *args):
+    return ' '.join(args)
+  def var(self, name):
+    if name not in self.subst:
+      self.subst[name] = self.gensym()
+    return self.subst[name]
+
 def transform(s):
   tree = parser.parse(s)
   return LDCS().transform(tree)
+
+macros = {}
+
+def add_macro(s):
+  tree = rule_parser.parse(s)
+  name, args = RuleHead().transform(tree)
+  macros[name] = args, tree
 
 def main():
   print(transform(input()))

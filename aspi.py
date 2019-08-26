@@ -36,6 +36,10 @@ while True:
   if cmd == 'thanks.':
     print("YOU'RE WELCOME!")
     break
+  if cmd.startswith(':macro '):
+    cmd = cmd[len(':macro '):]
+    ldcs.add_macro(cmd)
+    continue
   if '[' in cmd:
     cmd = ldcs.transform(cmd)
     print('-->', '\n    '.join(cmd.split('\n')))
