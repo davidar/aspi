@@ -139,7 +139,7 @@ rule_ebnf = r'''
 
 ATOM: LCASE_LETTER ("_"|LETTER|DIGIT)*
 VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
-OPERATOR: "=" | "!=" | "<" | "<=" | ">" | ">="
+OPERATOR: "=" | "!=" | "<=" | ">=" | "<" | ">"
 
 ?start: rule
 rule: head ":-" pred ("," pred)* "."
@@ -180,8 +180,12 @@ class RuleBody(lark.Transformer):
     return self.subst[name]
 
 def transform(s):
+  prefix = ''
+  if s.startswith(':def '):
+    prefix = ':def '
+    s = s[len(prefix):]
   tree = parser.parse(s)
-  return LDCS().transform(tree)
+  return prefix + LDCS().transform(tree)
 
 macros = {}
 
