@@ -80,20 +80,26 @@ table_front_left.
 
 >>> 
 >>> % CAN THE TABLE PICK UP BLOCKS?
->>> show(true) :- action(pickup(A,B)), table(A), block(B). \
-... show(false) :- not show(true).
+>>> [exists(table action$pickup.block)]
+--> show(C) :- exists1(C).
+    exists1(true) :- table(B), action(pickup(B,A)), block(A).
+    exists1(false) :- not exists1(true).
 false.
 
 >>> 
 >>> % CAN A PYRAMID BE SUPPORTED BY A BLOCK?
->>> show(true) :- action(put_on(P,B)), pyramid(P), block(B). \
-... show(false) :- not show(true).
+>>> [exists(pyramid action$put_on.block)]
+--> show(C) :- exists1(C).
+    exists1(true) :- pyramid(B), action(put_on(B,A)), block(A).
+    exists1(false) :- not exists1(true).
 true.
 
 >>> 
 >>> % CAN A PYRAMID SUPPORT A PYRAMID?
->>> show(true) :- action(put_on(P,Q)), pyramid(P), pyramid(Q). \
-... show(false) :- not show(true).
+>>> [exists(pyramid action$put_on.pyramid)]
+--> show(C) :- exists1(C).
+    exists1(true) :- pyramid(B), action(put_on(B,A)), pyramid(A).
+    exists1(false) :- not exists1(true).
 false.
 
 >>> 
@@ -254,8 +260,8 @@ apply(put_on(big_red,red_cube),12).
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
 >>> show(X) :- it(apply(pickup(X), T)).
 big_red.
-red_cube.
 green_pyramid.
+red_cube.
 
 >>> 
 >>> % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?

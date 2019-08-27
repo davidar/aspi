@@ -9,7 +9,7 @@ ebnf = r'''
 %import common.WS
 %ignore WS
 
-AGG_OP: "count"
+AGG_OP: "count" | "exists"
 SUP_OP: "most"
 
 ?start: command
@@ -24,14 +24,14 @@ ldcs: disj
 disj: conj ("|" conj)*
 conj: lam lam*
 ?lam: unary
-    | compose
     | join
     | neg
     | hof
     | unify
 unary: atom
-compose: atom "$" lam
+     | atom "$" unary -> compose
 binary: atom
+      | atom "$" binary -> compose2
 join: binary "." lam
     | binary "[" disj "]"
 neg: "~" lam
@@ -96,6 +96,8 @@ class LDCS(lark.Transformer):
   def binary(self, name):
     if name in macros: return lambda x,y: self.expand_macro(name,x,y)
     return lambda x,y: name + '(' + x + ',' + y + ')'
+  def compose2(self, name, lam):
+    return lambda x,y: name + '(' + lam(x,y) + ')'
   def join(self, rel, lam):
     y = self.gensym()
     return lambda x: rel(x,y) + ', ' + lam(y)
@@ -107,6 +109,11 @@ class LDCS(lark.Transformer):
     if ';' in lam(y): lam = self.lift(lam, 'aggregation')
     if op == 'count':
       return lambda x: x + ' = #count { ' + y + ' : ' + lam(y) + ' }'
+    elif op == 'exists':
+      f = self.genpred('exists')
+      self.rules.append(f('true')  + ' :- ' + lam(y) + '.')
+      self.rules.append(f('false') + ' :- not ' + f('true') + '.')
+      return f
   def superlative(self, op, rel, lam):
     y = self.gensym()
     if ';' in lam(y): lam = self.lift(lam, 'superlative')

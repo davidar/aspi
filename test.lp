@@ -29,16 +29,13 @@ goal_once$on[block taller_than.holding, box]
 [supports.that]
 
 % CAN THE TABLE PICK UP BLOCKS?
-show(true) :- action(pickup(A,B)), table(A), block(B). \
-show(false) :- not show(true).
+[exists(table action$pickup.block)]
 
 % CAN A PYRAMID BE SUPPORTED BY A BLOCK?
-show(true) :- action(put_on(P,B)), pyramid(P), block(B). \
-show(false) :- not show(true).
+[exists(pyramid action$put_on.block)]
 
 % CAN A PYRAMID SUPPORT A PYRAMID?
-show(true) :- action(put_on(P,Q)), pyramid(P), pyramid(Q). \
-show(false) :- not show(true).
+[exists(pyramid action$put_on.pyramid)]
 
 % STACK UP TWO PYRAMIDS.
 goal_once$on[pyramid, pyramid]
