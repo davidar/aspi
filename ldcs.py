@@ -7,11 +7,13 @@ import string
 ebnf = r'''
 %import common.CNAME
 %import common.INT
+%import common.UCASE_LETTER
 %import common.WS
 %ignore WS
 
 AGG_OP: "count" | "exists"
 SUP_OP: "most"
+VARIABLE: UCASE_LETTER
 
 ?start: command
 command: value
@@ -26,6 +28,7 @@ disj: conj ("|" conj)*
 conj: lam lam*
 ?lam: unary
     | INT -> constant
+    | VARIABLE -> constant
     | join
     | neg
     | hof
@@ -95,6 +98,7 @@ class LDCS(lark.Transformer):
   def unary(self, name):
     return lambda x: name + '(' + x + ')'
   def constant(self, c):
+    if c in string.ascii_uppercase: c = 'Mu' + c
     return lambda x: x + ' = ' + c
   def compose(self, name, lam):
     return lambda x: name + '(' + lam(x) + ')'
