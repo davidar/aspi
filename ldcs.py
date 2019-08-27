@@ -34,6 +34,7 @@ unary: atom
      | atom "$" unary -> compose
 binary: atom
       | atom "$" binary -> compose2
+      | binary "'" -> flip
 join: binary "." lam
     | binary "[" disj "]"
 neg: "~" lam
@@ -102,6 +103,8 @@ class LDCS(lark.Transformer):
     return lambda x,y: name + '(' + x + ',' + y + ')'
   def compose2(self, name, lam):
     return lambda x,y: name + '(' + lam(x,y) + ')'
+  def flip(self, lam):
+    return lambda x,y: lam(y,x)
   def join(self, rel, lam):
     y = self.gensym()
     return lambda x: rel(x,y) + ', ' + lam(y)
