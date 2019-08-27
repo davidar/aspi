@@ -44,6 +44,7 @@ shorter_than(A,B) :- taller_than(B,A).
 short(A,B) :- shorter_than(A,B).
 
 bigger_than(blue_block,P) :- pyramid(P).
+bigger_than(L,green_pyramid) :- large(L).
 bigger_than(
   blue_block,big_red; big_red,green_cube_1; big_red,green_cube_2; green_cube_1,red_cube; green_cube_2,red_cube;
   blue_pyramid,red_pyramid; red_pyramid,green_pyramid).
@@ -53,7 +54,9 @@ smaller_than(A,B) :- bigger_than(B,A).
 small(A,B) :- smaller_than(A,B).
 little(A,B) :- small(A,B).
 
-wider_than(box,blue_block; big_red,red_cube).
+wider_than(box, X) :- object(X).
+wider_than(T,X) :- table(T), object(X).
+wider_than(big_red,red_cube).
 narrower_than(A,B) :- wider_than(B,A).
 
 holds(num_on(N,X), T) :- location(X), T = 0..now, #count { Y : object(Y), holds(on(Y,X), T) } = N.

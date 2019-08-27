@@ -105,7 +105,7 @@ show(X) :- cleanoff(red_cube,T), block(X), holds(left_of(X,box), T-1).
 goal$on[blue pyramid, block above.box]
 
 % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
-show(X) :- object(X), bigger_than(X,P) : pyramid(P); holds(on(X,B)), wider_than(B,X).
+[X object every(bigger_than, pyramid) on.wider_than.X]
 
 % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
 :def holds(steeple, TIME) :- holds(stack(A,B,C), TIME), green(A), cube(A), green(B), cube(B), A != B, pyramid(C).

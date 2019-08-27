@@ -241,12 +241,12 @@ understood.
 
 >>> [event during.that]
 --> show(B) :- event(B), start_time(C,B), end_time(D,B), start_time(E,A), end_time(F,A), E <= C, D <= F, B != A, that(A).
-apply(pickup(big_red),13).
 apply(put_on(red_cube,green_cube_2),12).
+apply(put_on(green_pyramid,blue_block),10).
+apply(pickup(big_red),13).
+apply(pickup(green_pyramid),9).
 apply(pickup(red_cube),11).
 apply(put_on(big_red,red_cube),14).
-apply(put_on(green_pyramid,blue_block),10).
-apply(pickup(green_pyramid),9).
 
 >>> 
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
@@ -289,7 +289,8 @@ ok.
 
 >>> 
 >>> % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
->>> show(X) :- object(X), bigger_than(X,P) : pyramid(P); holds(on(X,B)), wider_than(B,X).
+>>> [X object every(bigger_than, pyramid) on.wider_than.X]
+--> show(D) :- D = MuX, object(D), bigger_than(D,A) : pyramid(A); on(D,C), wider_than(C,B), B = MuX.
 blue_block.
 
 >>> 

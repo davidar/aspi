@@ -12,7 +12,7 @@ ebnf = r'''
 %ignore WS
 
 AGG_OP: "count" | "exists"
-SUP_OP: "most"
+SUP_OP: "most" | "every"
 VARIABLE: UCASE_LETTER
 
 ?start: command
@@ -76,7 +76,7 @@ class LDCS(lark.Transformer):
   def command(self, value):
     if len(value) == 1: value = 'show(' + value + ')'
     self.rules.insert(0, value + ' :- ' + self.body + '.')
-    return '\n'.join(self.rules)
+    return '\n'.join(self.rules).replace(';,', ';')
   def pred(self, name, *args):
     if not args: return name
     return name + '(' + ','.join(args) + ')'
@@ -130,6 +130,8 @@ class LDCS(lark.Transformer):
     if ';' in lam(y): lam = self.lift(lam, 'superlative')
     if op == 'most':
       return lambda x: rel(x,y) + ' : ' + lam(y) + ', ' + x + ' != ' + y + '; ' + lam(x)
+    elif op == 'every':
+      return lambda x: rel(x,y) + ' : ' + lam(y) + ';'
   def unify(self, pred):
     return lambda x: x + ' = ' + pred
 
