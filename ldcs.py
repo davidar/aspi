@@ -6,6 +6,7 @@ import string
 
 ebnf = r'''
 %import common.CNAME
+%import common.INT
 %import common.WS
 %ignore WS
 
@@ -24,6 +25,7 @@ ldcs: disj
 disj: conj ("|" conj)*
 conj: lam lam*
 ?lam: unary
+    | INT -> constant
     | join
     | neg
     | hof
@@ -91,6 +93,8 @@ class LDCS(lark.Transformer):
     return lambda x: ', '.join(lam(x) for lam in lams)
   def unary(self, name):
     return lambda x: name + '(' + x + ')'
+  def constant(self, c):
+    return lambda x: x + ' = ' + c
   def compose(self, name, lam):
     return lambda x: name + '(' + lam(x) + ')'
   def binary(self, name):
