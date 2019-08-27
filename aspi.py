@@ -20,7 +20,7 @@ def clingo(lp):
     #print(lp)
     raise
 
-program = readfiles('world.lp', 'actions.lp', 'planner.lp', 'prelude.lp')
+program = readfiles('world.lp', 'actions.lp', 'planner.lp', 'why.lp', 'prelude.lp')
 facts = set(['moves(0)'])
 counter = 1
 

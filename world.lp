@@ -48,6 +48,7 @@ bigger_than(
   blue_block,big_red; big_red,green_cube_1; big_red,green_cube_2; green_cube_1,red_cube; green_cube_2,red_cube;
   blue_pyramid,red_pyramid; red_pyramid,green_pyramid).
 bigger_than(A,C) :- bigger_than(A,B), bigger_than(B,C).
+big(A,B) :- bigger_than(A,B).
 smaller_than(A,B) :- bigger_than(B,A).
 small(A,B) :- smaller_than(A,B).
 little(A,B) :- small(A,B).

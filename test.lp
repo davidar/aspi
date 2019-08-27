@@ -74,32 +74,23 @@ goal_once$on[most(little, pyramid), that]
 [pickup.pyramid before.goal.=on[green pyramid, little cube]]
 
 % WHEN DID YOU PICK IT UP?
-show((E,goal(G))) :- that(E), E = apply(pickup(P),S), plan_times(C,S), history(C, goal(G)).
+:def event(history(C,G)) :- history(C,G).
+:macro during(E,F) :- start_time(S1,E), end_time(S2,E), start_time(T1,F), end_time(T2,F), T1 <= S1, S2 <= T2, E != F.
+[event during'.that]
 
 % WHY?
-:def explain(apply(X,S), (apply(A,T), demands(A,F,true)))  :- adds(X,F),    plan_interval(C, T1, T2), T1 <= S, S <= T2, demands(A,F,true),  apply(A,T), S < T, T <= T2, S = 1..now.
-:def explain(apply(X,S), (apply(A,T), demands(A,F,false))) :- deletes(X,F), plan_interval(C, T1, T2), T1 <= S, S <= T2, demands(A,F,false), apply(A,T), S < T, T <= T2, S = 1..now, holds(F, S-1).
-show(R) :- that((E,G)), explain(E,R).
-
-% WHY DID YOU CLEAR OFF THAT CUBE?
-show(R) :- it((A, demands(pickup(C),on(Y,C),false))), cube(C), explain(A,R).
+[why.that.2]
 
 % WHY DID YOU DO THAT?
-:def explain(apply(A,T), goal(G)) :- plan_interval(C,S,T), history(C, goal(G)), action(A).
-show(R) :- it((A,D)), explain(A,R).
-show(R) :- it((A,D)), explain(A,R).
-show(R) :- it((A,D)), explain(A,R).
-
-% WHY DID YOU DO THAT?
-:def explain(goal(G), history(C, goal(G))) :- history(C, goal(G)).
-show(R) :- it(G), explain(G,R).
+[why.that]
+[why.that]
 
 % HOW DID YOU DO IT?
-:def steps(C, apply(A,T)) :- plan_times(C,T), apply(A,T).
-show(A) :- it(history(C,G)), steps(C,A).
+:def event(apply(A,T)) :- apply(A,T).
+[event during.that]
 
 % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
-show(X) :- it(apply(pickup(X), T)).
+[count(that =apply(pickup(_),_))]
 
 % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
 :def cleanoff(X,T) :- apply(pickup(Y), T), holds(on(Y,X), T-1).
@@ -127,22 +118,19 @@ show(false) :- not holds(steeple).
 goal(steeple).
 
 % CALL THE BIGGEST BLOCK "SUPERBLOCK".
-:def superblock(B) :- block(B), bigger_than(B,X) : block(X), X != B.
+:def superblock[most(big, block)]
 
 % HAVE YOU PICKED SUPERBLOCK UP SINCE WE BEGAN?
-picked_up(X) :- apply(pickup(X),T). \
-show(true) :- picked_up(B), superblock(B). \
-show(false) :- not picked_up(B), superblock(B).
+:def picked_up(X) :- apply(pickup(X),T).
+[exists(superblock picked_up)]
 
 % WHY DID YOU DROP IT?
-:def explain(A,R) :- apply(A,T), explain(apply(A,T), R).
-:def explain(A, nonexistent) :- action(A), not apply(A,T) : T = 1..now.
-show(R) :- explain(put_on(B,T),R), superblock(B), table(T).
+[why.=put_on[superblock, table]]
 
 % IS THERE ANYTHING TO THE RIGHT OF THE RED PYRAMID?
 :def holds(right_of(A,B), TIME) :- holds(left_of(B,A), TIME).
 :def right_of(A,B) :- holds(right_of(A,B)).
-goal_once(left_of(red_pyramid,box)).
+goal_once$left_of[red pyramid, box]
 [right_of[red pyramid]]
 
 thanks.

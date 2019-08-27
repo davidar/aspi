@@ -3,8 +3,8 @@ history(counter, goal(F)) :- goal(F).
 history(counter, show(X)) :- show(X).
 #show history/2.
 
-it(X) :- history(counter-1, show(X)).
-that(X) :- it(X).
+that(X,N) :- history(counter-N, show(X)).
+that(X) :- that(X,1).
 holds(X) :- holds(X, now).
 history(F) :- history(C,F).
 plan_times(C,T) :- plan_interval(C, T1, T2), T = T1..T2.
