@@ -148,6 +148,7 @@ class LDCS(lark.Transformer):
 
 rule_ebnf = r'''
 %import common.DIGIT
+%import common.INT
 %import common.LETTER
 %import common.LCASE_LETTER
 %import common.UCASE_LETTER
@@ -156,7 +157,7 @@ rule_ebnf = r'''
 
 ATOM: LCASE_LETTER ("_"|LETTER|DIGIT)*
 VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
-OPERATOR: "=" | "!=" | "<=" | ">=" | "<" | ">"
+OPERATOR: "=" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-"
 
 ?start: rule
 rule: head ":-" pred ("," pred)* "."
@@ -164,6 +165,7 @@ pred: ATOM [ "(" value ("," value)* ")" ]
     | value OPERATOR value -> predop
 ?value: pred
       | var
+      | INT
 var: VARIABLE
 head: ATOM "(" var ("," var)* ")"
 '''
