@@ -93,12 +93,15 @@ goal_once$on[most(little, pyramid), that]
 [count(that =apply(pickup(_),_))]
 
 % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
-:def cleanoff(X,T) :- apply(pickup(Y), T), holds(on(Y,X), T-1).
-show(X) :- holds(on(X,red_cube),S), S < T, cleanoff(red_cube, T).
+:def end_time(T, holds(P,T)) :- holds(P,T).
+:def cleanoff_at(X,T) :- apply(pickup(Y), T), holds(on(Y,X), T-1).
+:def cleanoff(cleanoff_at(X,T), X) :- cleanoff_at(X,T).
+:def start_time(T, cleanoff_at(X,T)) :- cleanoff_at(X,T).
+[on[X red cube; before.cleanoff.X]]
 
 % THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
 :def holds(left_of(B,A), TIME) :- holds(above(B,X), TIME), holds(above(A,Y), TIME), table(X), table(Y), holds(left_of(X,Y), TIME).
-show(X) :- cleanoff(red_cube,T), block(X), holds(left_of(X,box), T-1).
+show(X) :- cleanoff_at(red_cube,T), block(X), holds(left_of(X,box), T-1).
 [count(that)]
 
 % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.

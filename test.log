@@ -222,16 +222,16 @@ apply(put_on(big_red,red_cube),14).
 >>> % WHY DID YOU DO THAT?
 >>> [why.that]
 --> show(B) :- why(B,A), that(A).
-goal(stack(red_cube,big_red,green_cube_2)).
 apply(pickup(big_red),13).
 apply(pickup(red_cube),11).
 apply(put_on(red_cube,green_cube_2),12).
+goal(stack(red_cube,big_red,green_cube_2)).
 
 >>> [why.that]
 --> show(B) :- why(B,A), that(A).
-apply(put_on(red_cube,green_cube_2),12).
 apply(pickup(big_red),13).
 history(11,goal(stack(red_cube,big_red,green_cube_2))).
+apply(put_on(red_cube,green_cube_2),12).
 apply(put_on(big_red,red_cube),14).
 
 >>> 
@@ -241,12 +241,12 @@ understood.
 
 >>> [event during.that]
 --> show(B) :- event(B), start_time(C,B), end_time(D,B), start_time(E,A), end_time(F,A), E <= C, D <= F, B != A, that(A).
-apply(put_on(red_cube,green_cube_2),12).
-apply(put_on(green_pyramid,blue_block),10).
-apply(pickup(big_red),13).
-apply(pickup(green_pyramid),9).
 apply(pickup(red_cube),11).
+apply(pickup(big_red),13).
+apply(put_on(green_pyramid,blue_block),10).
 apply(put_on(big_red,red_cube),14).
+apply(put_on(red_cube,green_cube_2),12).
+apply(pickup(green_pyramid),9).
 
 >>> 
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
@@ -256,10 +256,20 @@ apply(put_on(big_red,red_cube),14).
 
 >>> 
 >>> % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
->>> :def cleanoff(X,T) :- apply(pickup(Y), T), holds(on(Y,X), T-1).
+>>> :def end_time(T, holds(P,T)) :- holds(P,T).
 understood.
 
->>> show(X) :- holds(on(X,red_cube),S), S < T, cleanoff(red_cube, T).
+>>> :def cleanoff_at(X,T) :- apply(pickup(Y), T), holds(on(Y,X), T-1).
+understood.
+
+>>> :def cleanoff(cleanoff_at(X,T), X) :- cleanoff_at(X,T).
+understood.
+
+>>> :def start_time(T, cleanoff_at(X,T)) :- cleanoff_at(X,T).
+understood.
+
+>>> [on[X red cube; before.cleanoff.X]]
+--> show(E) :- on(C,E,D), end_time(F,C), F < G, start_time(G,B), cleanoff(B,A), A = MuX, D = MuX, red(D), cube(D).
 green_pyramid.
 big_red.
 
@@ -268,7 +278,7 @@ big_red.
 >>> :def holds(left_of(B,A), TIME) :- holds(above(B,X), TIME), holds(above(A,Y), TIME), table(X), table(Y), holds(left_of(X,Y), TIME).
 understood.
 
->>> show(X) :- cleanoff(red_cube,T), block(X), holds(left_of(X,box), T-1).
+>>> show(X) :- cleanoff_at(red_cube,T), block(X), holds(left_of(X,box), T-1).
 big_red.
 red_cube.
 green_cube_1.

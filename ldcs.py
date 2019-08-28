@@ -24,6 +24,7 @@ pred: atom [ "(" value ("," value)* ")" ]
     | atom "[" ldcs ("," ldcs)* "]"
 atom: CNAME
 ldcs: disj
+disjs: disj ("," disj)*
 disj: conj ("|" conj)*
 conj: lam lam*
 ?lam: unary
@@ -33,6 +34,7 @@ conj: lam lam*
     | neg
     | hof
     | unify
+    | multijoin
 unary: atom
      | atom "$" unary -> compose
 binary: atom
@@ -44,6 +46,7 @@ neg: "~" lam
 hof: AGG_OP "(" disj ")" -> aggregation
    | SUP_OP "(" binary "," disj ")" -> superlative
 unify: "=" pred
+multijoin: atom "[" disjs [";" disjs] "]"
 '''
 
 parser = lark.Lark(ebnf)
@@ -87,6 +90,8 @@ class LDCS(lark.Transformer):
     if self.body: self.body += ', '
     self.body += lam(x)
     return x
+  def disjs(self, *args):
+    return list(args)
   def disj(self, *lams):
     if len(lams) == 1: return lams[0]
     f = self.genpred('disjunction')
@@ -134,6 +139,12 @@ class LDCS(lark.Transformer):
       return lambda x: rel(x,y) + ' : ' + lam(y) + ';'
   def unify(self, pred):
     return lambda x: x + ' = ' + pred
+  def multijoin(self, rel, lams_tail, lams_head = []):
+    lams_head.reverse()
+    xs = [self.gensym() for lam in lams_head]
+    zs = [self.gensym() for lam in lams_tail]
+    lams = zip(lams_head + lams_tail, xs + zs)
+    return lambda y: rel + '(' + ','.join(xs + [y] + zs) + '), ' + ', '.join(lam(x) for lam,x in lams)
 
 rule_ebnf = r'''
 %import common.DIGIT
