@@ -4,6 +4,8 @@ import sh
 
 import ldcs
 
+ClingoExhausted = sh.ErrorReturnCode_20
+
 def readfiles(*args):
   s = ''
   for name in args:
@@ -13,7 +15,7 @@ def readfiles(*args):
 
 def clingo(lp):
   try:
-    result = sh.clingo(_ok_code=[10], _in=lp, outf=2, time_limit=1).stdout
+    result = sh.clingo(_ok_code=[10], _in=lp, outf=2, time_limit=2).stdout
     values = json.loads(result)['Call'][-1]['Witnesses'][0]['Value']
     return values
   except:
@@ -62,7 +64,7 @@ while True:
   cmd += ''.join(fact + '.\n' for fact in facts)
   try:
     results = clingo(cmd + program)
-  except sh.ErrorReturnCode_1 as e:
+  except ClingoExhausted as e:
     print("I CAN'T\n")
     #print(e.stderr.decode('utf-8'))
     continue
