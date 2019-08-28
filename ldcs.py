@@ -11,8 +11,8 @@ ebnf = r'''
 %import common.WS
 %ignore WS
 
-AGG_OP: "count" | "exists"
-SUP_OP: "most" | "every"
+AGG_OP: "count" | "any"
+SUP_OP: "most" | "each"
 VARIABLE: UCASE_LETTER
 
 ?start: command
@@ -43,8 +43,8 @@ binary: atom
 join: binary "." lam
     | binary "[" disj "]"
 neg: "~" lam
-hof: AGG_OP "(" disj ")" -> aggregation
-   | SUP_OP "(" binary "," disj ")" -> superlative
+hof: "#" AGG_OP "(" disj ")" -> aggregation
+   | "#" SUP_OP "(" binary "," disj ")" -> superlative
 unify: "=" pred
 multijoin: atom "[" disjs [";" disjs] "]"
 '''
@@ -125,8 +125,8 @@ class LDCS(lark.Transformer):
     if ';' in lam(y): lam = self.lift(lam, 'aggregation')
     if op == 'count':
       return lambda x: x + ' = #count { ' + y + ' : ' + lam(y) + ' }'
-    elif op == 'exists':
-      f = self.genpred('exists')
+    elif op == 'any':
+      f = self.genpred('any')
       self.rules.append(f('true')  + ' :- ' + lam(y) + '.')
       self.rules.append(f('false') + ' :- not ' + f('true') + '.')
       return f
@@ -135,7 +135,7 @@ class LDCS(lark.Transformer):
     if ';' in lam(y): lam = self.lift(lam, 'superlative')
     if op == 'most':
       return lambda x: rel(x,y) + ' : ' + lam(y) + ', ' + x + ' != ' + y + '; ' + lam(x)
-    elif op == 'every':
+    elif op == 'each':
       return lambda x: rel(x,y) + ' : ' + lam(y) + ';'
   def unify(self, pred):
     return lambda x: x + ' = ' + pred

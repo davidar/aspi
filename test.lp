@@ -29,13 +29,13 @@ goal_once$on[block taller_than.holding, box]
 [supports.that]
 
 % CAN THE TABLE PICK UP BLOCKS?
-[exists(table action$pickup.block)]
+[#any(table action$pickup.block)]
 
 % CAN A PYRAMID BE SUPPORTED BY A BLOCK?
-[exists(pyramid action$put_on.block)]
+[#any(pyramid action$put_on.block)]
 
 % CAN A PYRAMID SUPPORT A PYRAMID?
-[exists(pyramid action$put_on.pyramid)]
+[#any(pyramid action$put_on.pyramid)]
 
 % STACK UP TWO PYRAMIDS.
 goal_once$on[pyramid, pyramid]
@@ -58,10 +58,10 @@ goal_once$on[small block, green cube supports.pyramid]
 
 % PUT THE LITTLEST PYRAMID ON TOP OF IT.
 :def that(X) :- history(counter-1, goal(on(X,_))).
-goal_once$on[most(little, pyramid), that]
+goal_once$on[#most(little, pyramid), that]
 
 % DOES THE SHORTEST THING THE TALLEST PYRAMID'S SUPPORT SUPPORTS SUPPORT ANYTHING GREEN?
-[green on.most(short, on.supports.most(tall, pyramid))]
+[green on.#most(short, on.supports.#most(tall, pyramid))]
 
 % WHAT COLOR IS IT?
 [colour.supports.that]
@@ -90,7 +90,7 @@ goal_once$on[most(little, pyramid), that]
 [event during.that]
 
 % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
-[count(that =apply(pickup(_),_))]
+[#count(pickup.object during.that.2)]
 
 % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
 :def end_time(T, holds(P,T)) :- holds(P,T).
@@ -102,29 +102,29 @@ goal_once$on[most(little, pyramid), that]
 % THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
 :def holds(left_of(B,A), TIME) :- holds(above(B,X), TIME), holds(above(A,Y), TIME), table(X), table(Y), holds(left_of(X,Y), TIME).
 show(X) :- cleanoff_at(red_cube,T), block(X), holds(left_of(X,box), T-1).
-[count(that)]
+[#count(that)]
 
 % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
 goal$on[blue pyramid, block above.box]
 
 % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
-[X object every(bigger_than, pyramid) on.wider_than.X]
+[X object #each(bigger_than, pyramid) on.wider_than.X]
 
 % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
 :def steeple$stack[green cube, green cube, pyramid]
 
 % ARE THERE ANY STEEPLES NOW?
-[exists(steeple holds)]
+[#any(steeple holds)]
 
 % BUILD ONE.
 goal_once[steeple]
 
 % CALL THE BIGGEST BLOCK "SUPERBLOCK".
-:def superblock[most(big, block)]
+:def superblock[#most(big, block)]
 
 % HAVE YOU PICKED SUPERBLOCK UP SINCE WE BEGAN?
 :def picked_up(X) :- apply(pickup(X),T).
-[exists(superblock picked_up)]
+[#any(superblock picked_up)]
 
 % WHY DID YOU DROP IT?
 [why.=put_on[superblock, table]]
