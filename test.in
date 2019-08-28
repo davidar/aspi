@@ -63,11 +63,9 @@ goal_once$on[#most(little, pyramid), that]
 [above[green cube]]
 
 % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
-:macro before(E,F) :- end_time(S,E), S < T, start_time(T,F).
 [pickup.pyramid before.goal.=on[green pyramid, little cube]]
 
 % WHEN DID YOU PICK IT UP?
-:macro during(E,F) :- start_time(S1,E), end_time(S2,E), start_time(T1,F), end_time(T2,F), T1 <= S1, S2 <= T2, E != F.
 [event during'.that]
 
 % WHY?
@@ -84,7 +82,6 @@ goal_once$on[#most(little, pyramid), that]
 [#count(pickup.object during.that.2)]
 
 % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
-:macro just_before(E,F) :- end_time(T-1,E), start_time(T,F).
 [on[X red cube; just_before.cleanoff.X]]
 
 % THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
@@ -122,4 +119,4 @@ goal_once$left_of[red pyramid, box]
 % IS THERE ANYTHING TO THE RIGHT OF THE RED PYRAMID?
 [right_of[red pyramid]]
 
-thanks.
+thanks

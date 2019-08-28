@@ -78,7 +78,9 @@ class LDCS(lark.Transformer):
 
   def command(self, value):
     if len(value) == 1: value = 'show(' + value + ')'
-    self.rules.insert(0, value + ' :- ' + self.body + '.')
+    if self.body: value += ' :- ' + self.body
+    value += '.'
+    self.rules.insert(0, value)
     return '\n'.join(self.rules).replace(';,', ';')
   def pred(self, name, *args):
     if not args: return name

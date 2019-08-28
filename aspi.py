@@ -26,25 +26,30 @@ program = readfiles('world.lp', 'actions.lp', 'planner.lp', 'why.lp', 'prelude.l
 facts = set(['moves(0)'])
 counter = 1
 
+with open('macros.lp', 'r') as f:
+  for line in f:
+    ldcs.add_macro(line)
+
 while True:
   moves = int([fact[len('moves('):-1] for fact in facts if fact.startswith('moves(')][0])
   cmd = input('>>> ')
   print(cmd)
+
   while cmd.endswith('\\'):
     cont = input('... ')
     print(cont)
     cmd = cmd[:-1] + '\n' + cont
   if not cmd or cmd.startswith('%'): continue
-  if cmd == 'thanks.':
-    print("YOU'RE WELCOME!")
-    break
   if cmd.startswith(':macro '):
     cmd = cmd[len(':macro '):]
     ldcs.add_macro(cmd)
     continue
-  if '[' in cmd:
-    cmd = ldcs.transform(cmd)
-    print('-->', '\n    '.join(cmd.split('\n')))
+
+  cmd = ldcs.transform(cmd)
+  print('-->', '\n    '.join(cmd.split('\n')))
+  if cmd == 'thanks.':
+    print("YOU'RE WELCOME!")
+    break
   cmd += '\n'
   if 'goal_once' in cmd:
     cmd += '{ goal(F) : goal_once(F) } = 1.\n'

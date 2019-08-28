@@ -187,7 +187,6 @@ green_pyramid.
 
 >>> 
 >>> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
->>> :macro before(E,F) :- end_time(S,E), S < T, start_time(T,F).
 >>> [pickup.pyramid before.goal.=on[green pyramid, little cube]]
 --> show(F) :- green(B), pyramid(B), little(C), cube(C), pickup(F,A), pyramid(A), end_time(G,F), G < H, start_time(H,E), goal(E,D), D = on(B,C).
 apply(pickup(red_pyramid),17).
@@ -198,63 +197,62 @@ apply(pickup(blue_pyramid),11).
 
 >>> 
 >>> % WHEN DID YOU PICK IT UP?
->>> :macro during(E,F) :- start_time(S1,E), end_time(S2,E), start_time(T1,F), end_time(T2,F), T1 <= S1, S2 <= T2, E != F.
 >>> [event during'.that]
 --> show(B) :- event(B), start_time(C,A), end_time(D,A), start_time(E,B), end_time(F,B), E <= C, D <= F, A != B, that(A).
-history(15,goal(on(red_pyramid,green_cube_1))).
-history(2,goal(on(blue_block,box))).
-history(12,goal(stack(red_cube,big_red,red_pyramid))).
 history(3,goal(on(blue_pyramid,box))).
+history(12,goal(stack(red_cube,big_red,red_pyramid))).
+history(2,goal(on(blue_block,box))).
+history(15,goal(on(red_pyramid,green_cube_1))).
 
 >>> 
 >>> % WHY?
 >>> [why.that.2]
 --> show(C) :- why(C,B), that(B,A), A = 2.
-apply(put_on(red_pyramid,green_cube_1),20).
-apply(put_on(blue_pyramid,big_red),6).
+apply(put_on(blue_pyramid,box),12).
 apply(put_on(green_pyramid,big_red),14).
 apply(put_on(red_pyramid,red_cube),18).
-apply(put_on(blue_pyramid,box),12).
+apply(put_on(blue_pyramid,big_red),6).
+apply(put_on(red_pyramid,green_cube_1),20).
 apply(pickup(red_cube),15).
 
 >>> 
 >>> % WHY DID YOU DO THAT?
 >>> [why.that]
 --> show(B) :- why(B,A), that(A).
-apply(put_on(red_cube,big_red),16).
+goal(stack(red_cube,big_red,red_pyramid)).
+apply(pickup(blue_block),7).
 apply(pickup(red_cube),15).
 apply(pickup(red_pyramid),17).
-apply(pickup(blue_block),7).
-goal(stack(red_cube,big_red,red_pyramid)).
 goal(on(blue_pyramid,box)).
+apply(put_on(red_cube,big_red),16).
 goal(on(red_pyramid,green_cube_1)).
 
 >>> [why.that]
 --> show(B) :- why(B,A), that(A).
-apply(put_on(blue_block,box),8).
 history(15,goal(on(red_pyramid,green_cube_1))).
 history(12,goal(stack(red_cube,big_red,red_pyramid))).
+apply(put_on(blue_block,box),8).
 apply(pickup(red_pyramid),17).
-apply(put_on(red_cube,big_red),16).
 apply(put_on(red_pyramid,red_cube),18).
 history(3,goal(on(blue_pyramid,box))).
+apply(put_on(red_cube,big_red),16).
 
 >>> 
 >>> % HOW DID YOU DO IT?
 >>> [event during.that]
 --> show(B) :- event(B), start_time(C,B), end_time(D,B), start_time(E,A), end_time(F,A), E <= C, D <= F, B != A, that(A).
-apply(pickup(blue_block),9).
-apply(put_on(blue_pyramid,box),12).
-apply(pickup(blue_pyramid),11).
-apply(put_on(blue_block,green_cube_1),10).
-apply(pickup(red_pyramid),19).
 apply(put_on(red_pyramid,green_cube_1),20).
-apply(pickup(red_pyramid),17).
-apply(put_on(green_pyramid,big_red),14).
-apply(put_on(red_cube,big_red),16).
-apply(pickup(red_cube),15).
+apply(pickup(red_pyramid),19).
+apply(put_on(blue_pyramid,box),12).
+apply(put_on(blue_block,green_cube_1),10).
+apply(pickup(blue_pyramid),11).
+apply(pickup(blue_block),9).
 apply(put_on(red_pyramid,red_cube),18).
+apply(pickup(red_pyramid),17).
+apply(put_on(red_cube,big_red),16).
+apply(put_on(green_pyramid,big_red),14).
 apply(pickup(green_pyramid),13).
+apply(pickup(red_cube),15).
 
 >>> 
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
@@ -264,7 +262,6 @@ apply(pickup(green_pyramid),13).
 
 >>> 
 >>> % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
->>> :macro just_before(E,F) :- end_time(T-1,E), start_time(T,F).
 >>> [on[X red cube; just_before.cleanoff.X]]
 --> show(E) :- on(C,E,D), end_time(F - 1,C), start_time(F,B), cleanoff(B,A), A = MuX, D = MuX, red(D), cube(D).
 red_pyramid.
@@ -380,5 +377,6 @@ green_cube_2.
 blue_pyramid.
 
 >>> 
->>> thanks.
+>>> thanks
+--> thanks.
 YOU'RE WELCOME!
