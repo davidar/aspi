@@ -111,14 +111,13 @@ goal$on[blue pyramid, block above.box]
 [X object every(bigger_than, pyramid) on.wider_than.X]
 
 % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
-:def holds(steeple, TIME) :- holds(stack(A,B,C), TIME), green(A), cube(A), green(B), cube(B), A != B, pyramid(C).
+:def steeple$stack[green cube, green cube, pyramid]
 
 % ARE THERE ANY STEEPLES NOW?
-show(true) :- holds(steeple). \
-show(false) :- not holds(steeple).
+[exists(steeple holds)]
 
 % BUILD ONE.
-goal(steeple).
+goal_once[steeple]
 
 % CALL THE BIGGEST BLOCK "SUPERBLOCK".
 :def superblock[most(big, block)]
