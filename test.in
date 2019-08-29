@@ -5,7 +5,8 @@ goal_once$holding(big red block).
 goal_once$holding(that pyramid).
 
 % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
-goal_once$on(block taller_than.holding, box).
+block tall.holding?
+goal_once$on(that, box).
 
 goal_once$on(blue pyramid, box).
 
@@ -19,7 +20,7 @@ supports[that pyramid]?
 block ~above.box?
 
 % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
-that narrower_than.history$goal$holding?
+that narrow.history$goal$holding?
 
 % IS IT SUPPORTED?
 supports.that?
@@ -82,7 +83,7 @@ event during.that?
 #count(pickup.object during.that.2)?
 
 % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
-on[X red cube; just_before.cleanoff.X]?
+on[red cube; just_before.cleanoff[red cube]]?
 
 % THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
 block left_of[box; just_before.cleanoff[red cube]]?
@@ -94,13 +95,13 @@ goal_once$on(blue block, box).
 goal_once$on(blue pyramid, block above.box).
 
 % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
-X object #each(bigger_than, pyramid) on.wider_than.X?
+object #each(big, pyramid) X wide'.supports.X?
 
 % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
 :def steeple$stack(green cube, green cube, pyramid).
 
 % ARE THERE ANY STEEPLES NOW?
-#any(steeple holds)?
+#any(steeple holds.now)?
 
 % BUILD ONE.
 goal_once(steeple).

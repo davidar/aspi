@@ -3,6 +3,8 @@ history(counter, goal(F)) :- goal(F).
 history(counter, show(X)) :- show(X).
 #show history/2.
 
+now(now).
+
 that(X,N) :- history(counter-N, show(X)).
 that(X,N) :- history(counter-N, goal(on(X,_))).
 that(X) :- that(X,1).

@@ -57,7 +57,9 @@ little(A,B) :- small(A,B).
 wider_than(box, X) :- object(X).
 wider_than(T,X) :- table(T), object(X).
 wider_than(big_red,red_cube).
+wide(A,B) :- wider_than(A,B).
 narrower_than(A,B) :- wider_than(B,A).
+narrow(A,B) :- narrower_than(A,B).
 
 holds(num_on(N,X), T) :- location(X), T = 0..now, #count { Y : object(Y), holds(on(Y,X), T) } = N.
 holds(many_on(X), T) :- holds(num_on(N,X), T), N > 1.
