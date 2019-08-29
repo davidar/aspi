@@ -16,9 +16,8 @@ SUP_OP: "most" | "each"
 VARIABLE: UCASE_LETTER
 
 ?start: command
-command: value
-?value: pred
-      | "[" ldcs "]"
+command: pred "."
+       | ldcs "?"
 pred: atom "(" ldcs ("," ldcs)* ")"
     | atom "$" pred
 atom: CNAME

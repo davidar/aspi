@@ -44,7 +44,7 @@ while True:
     cmd = cmd[len(':macro '):]
     ldcs.add_macro(cmd)
     continue
-  if cmd == 'thanks':
+  if cmd == 'thanks.':
     print("YOU'RE WELCOME!")
     break
 

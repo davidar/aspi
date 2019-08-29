@@ -1,122 +1,122 @@
 % PICK UP A BIG RED BLOCK.
-goal_once$holding(big red block)
+goal_once$holding(big red block).
 
 % GRASP THE PYRAMID.
-goal_once$holding(that pyramid)
+goal_once$holding(that pyramid).
 
 % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
-goal_once$on(block taller_than.holding, box)
+goal_once$on(block taller_than.holding, box).
 
-goal_once$on(blue pyramid, box)
+goal_once$on(blue pyramid, box).
 
 % WHAT DOES THE BOX CONTAIN?
-[above.box]
+above.box?
 
 % WHAT IS THE PYRAMID SUPPORTED BY?
-[supports[that pyramid]]
+supports[that pyramid]?
 
 % HOW MANY BLOCKS ARE NOT IN THE BOX?
-[block ~above.box]
+block ~above.box?
 
 % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
-[that narrower_than.history$goal$holding]
+that narrower_than.history$goal$holding?
 
 % IS IT SUPPORTED?
-[supports.that]
+supports.that?
 
 % CAN THE TABLE PICK UP BLOCKS?
-[#any(table action$pickup.block)]
+#any(table action$pickup.block)?
 
 % CAN A PYRAMID BE SUPPORTED BY A BLOCK?
-[#any(pyramid action$put_on.block)]
+#any(pyramid action$put_on.block)?
 
 % CAN A PYRAMID SUPPORT A PYRAMID?
-[#any(pyramid action$put_on.pyramid)]
+#any(pyramid action$put_on.pyramid)?
 
 % STACK UP TWO PYRAMIDS.
-goal_once$on(pyramid, pyramid)
+goal_once$on(pyramid, pyramid).
 
 % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
-goal_once$stack(red block, red block, green cube | pyramid)
+goal_once$stack(red block, red block, green cube | pyramid).
 
 % WHICH CUBE IS SITTING ON THE TABLE?
-[cube on.table]
+cube on.table?
 
 % IS THERE A LARGE BLOCK BEHIND A PYRAMID?
-[large block behind.pyramid]
+large block behind.pyramid?
 
-goal_once$on(red pyramid, green cube)
+goal_once$on(red pyramid, green cube).
 
 % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
-goal_once$on(small block, green cube supports.pyramid)
+goal_once$on(small block, green cube supports.pyramid).
 
 % PUT THE LITTLEST PYRAMID ON TOP OF IT.
-goal_once$on(#most(little, pyramid), that)
+goal_once$on(#most(little, pyramid), that).
 
 % DOES THE SHORTEST THING THE TALLEST PYRAMID'S SUPPORT SUPPORTS SUPPORT ANYTHING GREEN?
-[green on.#most(short, on.supports.#most(tall, pyramid))]
+green on.#most(short, on.supports.#most(tall, pyramid))?
 
 % WHAT COLOR IS IT?
-[colour.supports.that]
+colour.supports.that?
 
 % HOW MANY THINGS ARE ON TOP OF GREEN CUBES?
-[above[green cube]]
+above[green cube]?
 
 % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
-[pickup.pyramid before.goal.on(green pyramid, little cube)]
+pickup.pyramid before.goal.on(green pyramid, little cube)?
 
 % WHEN DID YOU PICK IT UP?
-[event during'.that]
+event during'.that?
 
 % WHY?
-[why.that.2]
+why.that.2?
 
 % WHY DID YOU DO THAT?
-[why.that]
-[why.that]
+why.that?
+why.that?
 
 % HOW DID YOU DO IT?
-[event during.that]
+event during.that?
 
 % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
-[#count(pickup.object during.that.2)]
+#count(pickup.object during.that.2)?
 
 % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
-[on[X red cube; just_before.cleanoff.X]]
+on[X red cube; just_before.cleanoff.X]?
 
 % THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
-[block left_of[box; just_before.cleanoff[red cube]]]
-[#count(that)]
+block left_of[box; just_before.cleanoff[red cube]]?
+#count(that)?
 
-goal_once$on(blue block, box)
+goal_once$on(blue block, box).
 
 % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
-goal_once$on(blue pyramid, block above.box)
+goal_once$on(blue pyramid, block above.box).
 
 % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
-[X object #each(bigger_than, pyramid) on.wider_than.X]
+X object #each(bigger_than, pyramid) on.wider_than.X?
 
 % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
-:def steeple$stack(green cube, green cube, pyramid)
+:def steeple$stack(green cube, green cube, pyramid).
 
 % ARE THERE ANY STEEPLES NOW?
-[#any(steeple holds)]
+#any(steeple holds)?
 
 % BUILD ONE.
-goal_once(steeple)
+goal_once(steeple).
 
 % CALL THE BIGGEST BLOCK "SUPERBLOCK".
-:def superblock(#most(big, block))
+:def superblock(#most(big, block)).
 
 % HAVE YOU PICKED SUPERBLOCK UP SINCE WE BEGAN?
-[#any(superblock picked_up)]
+#any(superblock picked_up)?
 
 % WHY DID YOU DROP IT?
-[why.put_on(superblock, table)]
+why.put_on(superblock, table)?
 
-goal_once$left_of(red pyramid, box)
+goal_once$left_of(red pyramid, box).
 
 % IS THERE ANYTHING TO THE RIGHT OF THE RED PYRAMID?
-[right_of[red pyramid]]
+right_of[red pyramid]?
 
-thanks
+thanks.
