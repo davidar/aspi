@@ -19,9 +19,8 @@ VARIABLE: UCASE_LETTER
 command: value
 ?value: pred
       | "[" ldcs "]"
-pred: atom [ "(" value ("," value)* ")" ]
-    | atom "$" value
-    | atom "[" ldcs ("," ldcs)* "]"
+pred: atom "(" ldcs ("," ldcs)* ")"
+    | atom "$" pred
 atom: CNAME
 ldcs: disj
 disjs: disj ("," disj)*
@@ -45,7 +44,7 @@ join: binary "." lam
 neg: "~" lam
 hof: "#" AGG_OP "(" disj ")" -> aggregation
    | "#" SUP_OP "(" binary "," disj ")" -> superlative
-unify: "=" pred
+unify: pred
 multijoin: atom "[" disjs [";" disjs] "]"
 '''
 

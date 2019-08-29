@@ -1,5 +1,5 @@
 >>> % PICK UP A BIG RED BLOCK.
->>> goal_once$holding[big red block]
+>>> goal_once$holding(big red block)
 --> goal_once(holding(A)) :- big(A), red(A), block(A).
 apply(pickup(green_cube_1),1).
 apply(put_on(green_cube_1,box),2).
@@ -10,13 +10,13 @@ ok.
 
 >>> 
 >>> % GRASP THE PYRAMID.
->>> goal_once$holding[that pyramid]
+>>> goal_once$holding(that pyramid)
 --> goal_once(holding(A)) :- that(A), pyramid(A).
 I CAN'T
 
 >>> 
 >>> % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
->>> goal_once$on[block taller_than.holding, box]
+>>> goal_once$on(block taller_than.holding, box)
 --> goal_once(on(B,C)) :- block(B), taller_than(B,A), holding(A), box(C).
 apply(put_on(big_red,table_front_right),4).
 apply(pickup(blue_pyramid),5).
@@ -28,7 +28,7 @@ moves(8).
 ok.
 
 >>> 
->>> goal_once$on[blue pyramid, box]
+>>> goal_once$on(blue pyramid, box)
 --> goal_once(on(A,B)) :- blue(A), pyramid(A), box(B).
 apply(pickup(blue_block),9).
 apply(put_on(blue_block,green_cube_1),10).
@@ -99,13 +99,13 @@ false.
 
 >>> 
 >>> % STACK UP TWO PYRAMIDS.
->>> goal_once$on[pyramid, pyramid]
+>>> goal_once$on(pyramid, pyramid)
 --> goal_once(on(A,B)) :- pyramid(A), pyramid(B).
 I CAN'T
 
 >>> 
 >>> % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
->>> goal_once$stack[red block, red block, green cube | pyramid]
+>>> goal_once$stack(red block, red block, green cube | pyramid)
 --> goal_once(stack(A,B,D)) :- red(A), block(A), red(B), block(B), disjunction1(D).
     disjunction1(C) :- green(C), cube(C).
     disjunction1(C) :- pyramid(C).
@@ -133,7 +133,7 @@ blue_block.
 green_cube_1.
 
 >>> 
->>> goal_once$on[red pyramid, green cube]
+>>> goal_once$on(red pyramid, green cube)
 --> goal_once(on(A,B)) :- red(A), pyramid(A), green(B), cube(B).
 apply(pickup(red_pyramid),19).
 plan_interval(15,19,20).
@@ -143,7 +143,7 @@ ok.
 
 >>> 
 >>> % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
->>> goal_once$on[small block, green cube supports.pyramid]
+>>> goal_once$on(small block, green cube supports.pyramid)
 --> goal_once(on(A,C)) :- small(A), block(A), green(C), cube(C), supports(C,B), pyramid(B).
 apply(pickup(blue_block),21).
 apply(put_on(blue_block,green_cube_2),22).
@@ -155,7 +155,7 @@ ok.
 
 >>> 
 >>> % PUT THE LITTLEST PYRAMID ON TOP OF IT.
->>> goal_once$on[#most(little, pyramid), that]
+>>> goal_once$on(#most(little, pyramid), that)
 --> goal_once(on(B,C)) :- little(B,A) : pyramid(A), B != A; pyramid(B), that(C).
 apply(pickup(green_pyramid),25).
 plan_interval(17,25,26).
@@ -187,31 +187,31 @@ green_pyramid.
 
 >>> 
 >>> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
->>> [pickup.pyramid before.goal.=on[green pyramid, little cube]]
+>>> [pickup.pyramid before.goal.on(green pyramid, little cube)]
 --> show(F) :- green(B), pyramid(B), little(C), cube(C), pickup(F,A), pyramid(A), end_time(G,F), G < H, start_time(H,E), goal(E,D), D = on(B,C).
 apply(pickup(red_pyramid),17).
 apply(pickup(red_pyramid),19).
 apply(pickup(green_pyramid),13).
-apply(pickup(blue_pyramid),5).
 apply(pickup(blue_pyramid),11).
+apply(pickup(blue_pyramid),5).
 
 >>> 
 >>> % WHEN DID YOU PICK IT UP?
 >>> [event during'.that]
 --> show(B) :- event(B), start_time(C,A), end_time(D,A), start_time(E,B), end_time(F,B), E <= C, D <= F, A != B, that(A).
-history(3,goal(on(blue_pyramid,box))).
-history(12,goal(stack(red_cube,big_red,red_pyramid))).
 history(2,goal(on(blue_block,box))).
+history(12,goal(stack(red_cube,big_red,red_pyramid))).
+history(3,goal(on(blue_pyramid,box))).
 history(15,goal(on(red_pyramid,green_cube_1))).
 
 >>> 
 >>> % WHY?
 >>> [why.that.2]
 --> show(C) :- why(C,B), that(B,A), A = 2.
-apply(put_on(blue_pyramid,box),12).
+apply(put_on(blue_pyramid,big_red),6).
 apply(put_on(green_pyramid,big_red),14).
 apply(put_on(red_pyramid,red_cube),18).
-apply(put_on(blue_pyramid,big_red),6).
+apply(put_on(blue_pyramid,box),12).
 apply(put_on(red_pyramid,green_cube_1),20).
 apply(pickup(red_cube),15).
 
@@ -219,40 +219,40 @@ apply(pickup(red_cube),15).
 >>> % WHY DID YOU DO THAT?
 >>> [why.that]
 --> show(B) :- why(B,A), that(A).
-goal(stack(red_cube,big_red,red_pyramid)).
+apply(put_on(red_cube,big_red),16).
+goal(on(blue_pyramid,box)).
 apply(pickup(blue_block),7).
+goal(stack(red_cube,big_red,red_pyramid)).
+goal(on(red_pyramid,green_cube_1)).
 apply(pickup(red_cube),15).
 apply(pickup(red_pyramid),17).
-goal(on(blue_pyramid,box)).
-apply(put_on(red_cube,big_red),16).
-goal(on(red_pyramid,green_cube_1)).
 
 >>> [why.that]
 --> show(B) :- why(B,A), that(A).
-history(15,goal(on(red_pyramid,green_cube_1))).
 history(12,goal(stack(red_cube,big_red,red_pyramid))).
 apply(put_on(blue_block,box),8).
-apply(pickup(red_pyramid),17).
-apply(put_on(red_pyramid,red_cube),18).
-history(3,goal(on(blue_pyramid,box))).
 apply(put_on(red_cube,big_red),16).
+apply(pickup(red_pyramid),17).
+history(3,goal(on(blue_pyramid,box))).
+history(15,goal(on(red_pyramid,green_cube_1))).
+apply(put_on(red_pyramid,red_cube),18).
 
 >>> 
 >>> % HOW DID YOU DO IT?
 >>> [event during.that]
 --> show(B) :- event(B), start_time(C,B), end_time(D,B), start_time(E,A), end_time(F,A), E <= C, D <= F, B != A, that(A).
-apply(put_on(red_pyramid,green_cube_1),20).
+apply(put_on(red_pyramid,red_cube),18).
+apply(pickup(red_cube),15).
+apply(put_on(green_pyramid,big_red),14).
+apply(put_on(red_cube,big_red),16).
+apply(pickup(green_pyramid),13).
+apply(pickup(red_pyramid),17).
 apply(pickup(red_pyramid),19).
+apply(put_on(red_pyramid,green_cube_1),20).
 apply(put_on(blue_pyramid,box),12).
+apply(pickup(blue_block),9).
 apply(put_on(blue_block,green_cube_1),10).
 apply(pickup(blue_pyramid),11).
-apply(pickup(blue_block),9).
-apply(put_on(red_pyramid,red_cube),18).
-apply(pickup(red_pyramid),17).
-apply(put_on(red_cube,big_red),16).
-apply(put_on(green_pyramid,big_red),14).
-apply(pickup(green_pyramid),13).
-apply(pickup(red_cube),15).
 
 >>> 
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
@@ -278,7 +278,7 @@ red_cube.
 1.
 
 >>> 
->>> goal_once$on[blue block, box]
+>>> goal_once$on(blue block, box)
 --> goal_once(on(A,B)) :- blue(A), block(A), box(B).
 apply(pickup(blue_pyramid),27).
 apply(put_on(blue_pyramid,table_back_left),28).
@@ -290,7 +290,7 @@ ok.
 
 >>> 
 >>> % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
->>> goal_once$on[blue pyramid, block above.box]
+>>> goal_once$on(blue pyramid, block above.box)
 --> goal_once(on(A,C)) :- blue(A), pyramid(A), block(C), above(C,B), box(B).
 apply(pickup(blue_pyramid),31).
 plan_interval(32,31,32).
@@ -306,7 +306,7 @@ blue_block.
 
 >>> 
 >>> % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
->>> :def steeple$stack[green cube, green cube, pyramid]
+>>> :def steeple$stack(green cube, green cube, pyramid)
 --> :def steeple(stack(A,B,C)) :- green(A), cube(A), green(B), cube(B), pyramid(C).
 understood.
 
@@ -320,7 +320,7 @@ false.
 
 >>> 
 >>> % BUILD ONE.
->>> goal_once[steeple]
+>>> goal_once(steeple)
 --> goal_once(A) :- steeple(A).
 apply(pickup(red_pyramid),33).
 apply(put_on(red_pyramid,blue_block),34).
@@ -338,7 +338,7 @@ ok.
 
 >>> 
 >>> % CALL THE BIGGEST BLOCK "SUPERBLOCK".
->>> :def superblock[#most(big, block)]
+>>> :def superblock(#most(big, block))
 --> :def superblock(B) :- big(B,A) : block(A), B != A; block(B).
 understood.
 
@@ -352,12 +352,12 @@ true.
 
 >>> 
 >>> % WHY DID YOU DROP IT?
->>> [why.=put_on[superblock, table]]
+>>> [why.put_on(superblock, table)]
 --> show(D) :- superblock(A), table(B), why(D,C), C = put_on(A,B).
 nonexistent.
 
 >>> 
->>> goal_once$left_of[red pyramid, box]
+>>> goal_once$left_of(red pyramid, box)
 --> goal_once(left_of(A,B)) :- red(A), pyramid(A), box(B).
 apply(pickup(red_pyramid),43).
 plan_interval(38,43,44).
@@ -378,5 +378,4 @@ blue_pyramid.
 
 >>> 
 >>> thanks
---> thanks.
 YOU'RE WELCOME!

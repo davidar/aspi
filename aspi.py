@@ -44,12 +44,12 @@ while True:
     cmd = cmd[len(':macro '):]
     ldcs.add_macro(cmd)
     continue
+  if cmd == 'thanks':
+    print("YOU'RE WELCOME!")
+    break
 
   cmd = ldcs.transform(cmd)
   print('-->', '\n    '.join(cmd.split('\n')))
-  if cmd == 'thanks.':
-    print("YOU'RE WELCOME!")
-    break
   cmd += '\n'
   if 'goal_once' in cmd:
     cmd += '{ goal(F) : goal_once(F) } = 1.\n'
