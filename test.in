@@ -66,13 +66,20 @@ above[green cube]?
 % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
 pickup.pyramid before.goal.on(green pyramid, little cube)?
 
+that pickup.green?
+
 % WHEN DID YOU PICK IT UP?
 event during'.that?
 
 % WHY?
 why.that.2?
 
+that pickup.cube?
+
 % WHY DID YOU DO THAT?
+why.that?
+why.that?
+why.that?
 why.that?
 why.that?
 

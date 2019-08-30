@@ -167,7 +167,7 @@ rule_ebnf = r'''
 
 ATOM: LCASE_LETTER ("_"|LETTER|DIGIT)*
 VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
-OPERATOR: "=" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-"
+OPERATOR: "=" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | ".."
 
 ?start: rule
 rule: head ":-" pred ("," pred)* "."
