@@ -34,18 +34,18 @@ conj: lam lam*
     | hof
     | unify
     | multijoin
-unary: atom
-     | atom "$" unary -> compose
-binary: atom
-      | atom "$" binary -> compose2
-      | binary "'" -> flip
+?unary: func
+?binary: func
+func: atom
+    | atom "$" func -> compose
+    | func "'" -> flip
 join: binary "." lam
     | binary "[" disj "]"
 neg: "~" lam
 hof: "#" AGG_OP "(" disj ")" -> aggregation
    | "#" SUP_OP "(" binary "," disj ")" -> superlative
 unify: pred
-multijoin: atom "[" disjs [";" disjs] "]"
+multijoin: func "[" disjs [";" disjs] "]"
 '''
 
 parser = lark.Lark(ebnf)
@@ -110,20 +110,16 @@ class LDCS(lark.Transformer):
     return f
   def conj(self, *lams):
     return lambda x: ', '.join(lam(x) for lam in lams)
-  def unary(self, name):
-    return lambda x: name + '(' + x + ')'
   def constant(self, c):
     if c in string.ascii_uppercase: c = 'Mu' + c
     return lambda x: x + ' = ' + c
+  def func(self, name):
+    if name in macros: return lambda *args: self.expand_macro(name,*args)
+    return lambda *args: name + '(' + ','.join(args) + ')'
   def compose(self, name, lam):
-    return lambda x: name + '(' + lam(x) + ')'
-  def binary(self, name):
-    if name in macros: return lambda x,y: self.expand_macro(name,x,y)
-    return lambda x,y: name + '(' + x + ',' + y + ')'
-  def compose2(self, name, lam):
-    return lambda x,y: name + '(' + lam(x,y) + ')'
+    return lambda *args: name + '(' + lam(*args) + ')'
   def flip(self, lam):
-    return lambda x,y: lam(y,x)
+    return lambda *args: lam(*reversed(args))
   def join(self, rel, lam):
     y = self.gensym()
     return lambda x: rel(x,y) + ', ' + lam(y)
@@ -154,7 +150,7 @@ class LDCS(lark.Transformer):
     xs = [self.gensym() for lam in lams_head]
     zs = [self.gensym() for lam in lams_tail]
     lams = zip(lams_head + lams_tail, xs + zs)
-    return lambda y: rel + '(' + ','.join(xs + [y] + zs) + '), ' + ', '.join(lam(x) for lam,x in lams)
+    return lambda y: rel(*xs,y,*zs) + ', ' + ', '.join(lam(x) for lam,x in lams)
 
 rule_ebnf = r'''
 %import common.DIGIT

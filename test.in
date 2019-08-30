@@ -6,18 +6,18 @@ holding(that pyramid)!
 
 % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
 block tall.holding?
-on(that, box)!
+in(that, box)!
 
-on(blue pyramid, box)!
+in(blue pyramid, box)!
 
 % WHAT DOES THE BOX CONTAIN?
-above.box?
+contains'.box?
 
 % WHAT IS THE PYRAMID SUPPORTED BY?
 supports[that pyramid]?
 
 % HOW MANY BLOCKS ARE NOT IN THE BOX?
-block ~above.box?
+block ~in.box?
 
 % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
 that narrow.history$goal$holding?
@@ -35,7 +35,7 @@ supports.that?
 #any(pyramid action$put_on.pyramid)?
 
 % STACK UP TWO PYRAMIDS.
-on(pyramid, pyramid)!
+stack(pyramid, pyramid)!
 
 % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
 stack(red block, red block, green cube | pyramid)!
@@ -90,7 +90,7 @@ event during.that?
 #count(pickup.object during.that.2)?
 
 % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
-on[red cube; just_before.cleanoff[red cube]]?
+supports'[red cube, just_before.cleanoff[red cube]]?
 
 % THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
 block left_of[box; just_before.cleanoff[red cube]]?
@@ -99,7 +99,7 @@ block left_of[box; just_before.cleanoff[red cube]]?
 on(blue block, box)!
 
 % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
-on(blue pyramid, block above.box)!
+on(blue pyramid, block in.box)!
 
 % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
 object #each(big, pyramid) X wide'.supports.X?
@@ -117,7 +117,7 @@ steeple!
 :def superblock(#most(big, block)).
 
 % HAVE YOU PICKED SUPERBLOCK UP SINCE WE BEGAN?
-#any(superblock picked_up)?
+#any(holding.superblock)?
 
 % WHY DID YOU DROP IT?
 why.put_on(superblock, table)?

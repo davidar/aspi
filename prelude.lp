@@ -17,8 +17,10 @@ plan_times(C,T) :- plan_interval(C, T1, T2), T = T1..T2.
 pickup(apply(pickup(X),  T), X)   :- apply(pickup(X),  T).
 put_on(apply(put_on(X,Y),T), X,Y) :- apply(put_on(X,Y),T).
 
-     on(holds(     on(X,Y),T), X,Y) :- holds(     on(X,Y),T).
-left_of(holds(left_of(X,Y),T), X,Y) :- holds(left_of(X,Y),T).
+      on(holds(      on(X,Y),T), X,Y) :- holds(      on(X,Y),T).
+supports(holds(supports(X,Y),T), X,Y) :- holds(supports(X,Y),T).
+ left_of(holds( left_of(X,Y),T), X,Y) :- holds( left_of(X,Y),T).
+ holding(holds( holding(X),  T), X)   :- holds( holding(X),  T).
 
 cleanoff_at(X,T) :- apply(pickup(Y), T), holds(on(Y,X), T-1).
 cleanoff(cleanoff_at(X,T), X) :- cleanoff_at(X,T).
