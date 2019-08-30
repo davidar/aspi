@@ -51,16 +51,9 @@ while True:
   cmd = ldcs.transform(cmd)
   print('-->', '\n    '.join(cmd.split('\n')))
   cmd += '\n'
-  if 'goal_once' in cmd:
-    cmd += '{ goal(F) : goal_once(F) } = 1.\n'
   if cmd.startswith(':def '):
     cmd = cmd[len(':def '):]
     program += cmd
-    if 'TIME' in cmd:
-      cmd = cmd.replace('TIME', '(now+t)')
-      program += '#program step(t).\n'
-      program += cmd
-      program += '#program base.\n'
     print('understood.\n')
     continue
 

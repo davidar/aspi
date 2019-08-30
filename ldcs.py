@@ -18,6 +18,7 @@ VARIABLE: UCASE_LETTER
 ?start: command
 command: pred "."
        | ldcs "?"
+       | ldcs "!" -> goal
 pred: atom "(" ldcs ("," ldcs)* ")"
     | atom "$" pred
 atom: CNAME
@@ -79,6 +80,15 @@ class LDCS(lark.Transformer):
     if self.body: value += ' :- ' + self.body
     value += '.'
     self.rules.insert(0, value)
+    return '\n'.join(self.rules).replace(';,', ';')
+  def goal(self, value):
+    body = self.body
+    if ';' in self.body:
+      f = self.genpred('goal')
+      self.rules.append(f(value) + ' :- ' + body + '.')
+      value = self.gensym()
+      body = f(value)
+    self.rules.insert(0, '{ goal(' + value + ') : ' + body + ' } = 1.')
     return '\n'.join(self.rules).replace(';,', ';')
   def pred(self, name, *args):
     if not args: return name
