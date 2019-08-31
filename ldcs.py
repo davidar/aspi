@@ -205,12 +205,8 @@ class RuleBody(lark.Transformer):
     return self.subst[name]
 
 def transform(s):
-  prefix = ''
-  if s.startswith(':def '):
-    prefix = ':def '
-    s = s[len(prefix):]
   tree = parser.parse(s)
-  return prefix + LDCS().transform(tree)
+  return LDCS().transform(tree)
 
 macros = {}
 

@@ -100,6 +100,35 @@ false.
 I CAN'T
 
 >>> 
+>>> % THE BLUE PYRAMID IS MINE.
+>>> mine(blue pyramid).
+--> mine(A) :- blue(A), pyramid(A).
+understood.
+
+>>> 
+>>> % I OWN BLOCKS WHICH ARE NOT RED BUT I DON'T OWN ANYTHING WHICH SUPPORTS A PYRAMID.
+>>> mine(block ~red ~supports.pyramid).
+--> mine(C) :- block(C), not red(C), not lifted1(C).
+    lifted1(B) :- supports(B,A), pyramid(A).
+understood.
+
+>>> 
+>>> % DO I OWN THE BOX?
+>>> #any(box mine)?
+--> show(B) :- any1(B).
+    any1(true) :- box(A), mine(A).
+    any1(false) :- not any1(true).
+false.
+
+>>> 
+>>> % DO I OWN ANYTHING IN THE BOX?
+>>> in.box mine?
+--> show(B) :- in(B,A), box(A), mine(B).
+blue_block.
+green_cube_1.
+blue_pyramid.
+
+>>> 
 >>> % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
 >>> stack(red block, red block, green cube | pyramid)!
 --> { goal(E) : red(A), block(A), red(B), block(B), disjunction1(D), E = stack(A,B,D) } = 1.
@@ -110,7 +139,7 @@ apply(put_on(green_pyramid,big_red),8).
 apply(pickup(red_cube),9).
 apply(put_on(red_cube,big_red),10).
 apply(pickup(red_pyramid),11).
-plan_interval(13,7,12).
+plan_interval(15,7,12).
 apply(put_on(red_pyramid,red_cube),12).
 moves(12).
 ok.
@@ -132,7 +161,7 @@ green_cube_1.
 >>> on(red pyramid, green cube)!
 --> { goal(C) : red(A), pyramid(A), green(B), cube(B), C = on(A,B) } = 1.
 apply(pickup(red_pyramid),13).
-plan_interval(16,13,14).
+plan_interval(18,13,14).
 apply(put_on(red_pyramid,green_cube_1),14).
 moves(14).
 ok.
@@ -144,7 +173,7 @@ ok.
 apply(pickup(blue_block),15).
 apply(put_on(blue_block,green_cube_2),16).
 apply(pickup(red_cube),17).
-plan_interval(17,15,18).
+plan_interval(19,15,18).
 apply(put_on(red_cube,green_cube_1),18).
 moves(18).
 ok.
@@ -155,7 +184,7 @@ ok.
 --> { goal(E) : goal1(E) } = 1.
     goal1(D) :- little(B,A) : pyramid(A), B != A; pyramid(B), that(C), D = on(B,C).
 apply(pickup(green_pyramid),19).
-plan_interval(18,19,20).
+plan_interval(20,19,20).
 apply(put_on(green_pyramid,red_cube),20).
 moves(20).
 ok.
@@ -199,7 +228,7 @@ apply(pickup(green_pyramid),7).
 >>> % WHEN DID YOU PICK IT UP?
 >>> event during'.that?
 --> show(B) :- event(B), start_time(C,A), end_time(D,A), start_time(E,B), end_time(F,B), C = E .. F, D = C .. F, A != B, that(A).
-history(13,goal(stack(red_cube,big_red,red_pyramid))).
+history(15,goal(stack(red_cube,big_red,red_pyramid))).
 
 >>> 
 >>> % WHY?
@@ -234,7 +263,7 @@ goal(stack(red_cube,big_red,red_pyramid)).
 
 >>> why.that?
 --> show(B) :- why(B,A), that(A).
-history(13,goal(stack(red_cube,big_red,red_pyramid))).
+history(15,goal(stack(red_cube,big_red,red_pyramid))).
 
 >>> 
 >>> % HOW DID YOU DO IT?
@@ -276,7 +305,7 @@ red_cube.
 apply(pickup(blue_pyramid),21).
 apply(put_on(blue_pyramid,table_back_left),22).
 apply(pickup(blue_block),23).
-plan_interval(37,21,24).
+plan_interval(39,21,24).
 apply(put_on(blue_block,box),24).
 moves(24).
 ok.
@@ -286,7 +315,7 @@ ok.
 >>> on(blue pyramid, block in.box)!
 --> { goal(D) : blue(A), pyramid(A), block(C), in(C,B), box(B), D = on(A,C) } = 1.
 apply(pickup(blue_pyramid),25).
-plan_interval(38,25,26).
+plan_interval(40,25,26).
 apply(put_on(blue_pyramid,blue_block),26).
 moves(26).
 ok.
@@ -299,8 +328,8 @@ blue_block.
 
 >>> 
 >>> % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
->>> :def steeple$stack(green cube, green cube, pyramid).
---> :def steeple(stack(A,B,C)) :- green(A), cube(A), green(B), cube(B), pyramid(C).
+>>> steeple$stack(green cube, green cube, pyramid).
+--> steeple(stack(A,B,C)) :- green(A), cube(A), green(B), cube(B), pyramid(C).
 understood.
 
 >>> 
@@ -324,15 +353,15 @@ apply(put_on(red_pyramid,red_cube),32).
 apply(pickup(green_cube_2),33).
 apply(put_on(green_cube_2,green_cube_1),34).
 apply(pickup(green_pyramid),35).
-plan_interval(41,27,36).
+plan_interval(43,27,36).
 apply(put_on(green_pyramid,green_cube_2),36).
 moves(36).
 ok.
 
 >>> 
 >>> % CALL THE BIGGEST BLOCK "SUPERBLOCK".
->>> :def superblock(#most(big, block)).
---> :def superblock(B) :- big(B,A) : block(A), B != A; block(B).
+>>> superblock(#most(big, block)).
+--> superblock(B) :- big(B,A) : block(A), B != A; block(B).
 understood.
 
 >>> 

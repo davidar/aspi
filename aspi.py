@@ -35,24 +35,16 @@ while True:
   cmd = input('>>> ')
   print(cmd)
 
-  while cmd.endswith('\\'):
-    cont = input('... ')
-    print(cont)
-    cmd = cmd[:-1] + '\n' + cont
   if not cmd or cmd.startswith('%'): continue
-  if cmd.startswith(':macro '):
-    cmd = cmd[len(':macro '):]
-    ldcs.add_macro(cmd)
-    continue
   if cmd == 'thanks.':
     print("YOU'RE WELCOME!")
     break
 
+  declare = cmd.endswith('.')
   cmd = ldcs.transform(cmd)
   print('-->', '\n    '.join(cmd.split('\n')))
   cmd += '\n'
-  if cmd.startswith(':def '):
-    cmd = cmd[len(':def '):]
+  if declare:
     program += cmd
     print('understood.\n')
     continue

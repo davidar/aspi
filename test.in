@@ -37,6 +37,18 @@ supports.that?
 % STACK UP TWO PYRAMIDS.
 stack(pyramid, pyramid)!
 
+% THE BLUE PYRAMID IS MINE.
+mine(blue pyramid).
+
+% I OWN BLOCKS WHICH ARE NOT RED BUT I DON'T OWN ANYTHING WHICH SUPPORTS A PYRAMID.
+mine(block ~red ~supports.pyramid).
+
+% DO I OWN THE BOX?
+#any(box mine)?
+
+% DO I OWN ANYTHING IN THE BOX?
+in.box mine?
+
 % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
 stack(red block, red block, green cube | pyramid)!
 
@@ -105,7 +117,7 @@ on(blue pyramid, block in.box)!
 object #each(big, pyramid) X wide'.supports.X?
 
 % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
-:def steeple$stack(green cube, green cube, pyramid).
+steeple$stack(green cube, green cube, pyramid).
 
 % ARE THERE ANY STEEPLES NOW?
 #any(steeple holds.now)?
@@ -114,7 +126,7 @@ object #each(big, pyramid) X wide'.supports.X?
 steeple!
 
 % CALL THE BIGGEST BLOCK "SUPERBLOCK".
-:def superblock(#most(big, block)).
+superblock(#most(big, block)).
 
 % HAVE YOU PICKED SUPERBLOCK UP SINCE WE BEGAN?
 #any(holding.superblock)?
