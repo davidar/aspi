@@ -44,4 +44,6 @@ ok.
 
 #program check(t).
 % Test
-:- query(t), goal(F), not holds(F, now+t).
+success(F, now+t) :- holds(F, now+t).
+success(A, now+t) :- apply(A, now+t).
+:- query(t), goal(G), not success(G, now+t).

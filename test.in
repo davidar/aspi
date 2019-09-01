@@ -1,5 +1,5 @@
 % PICK UP A BIG RED BLOCK.
-holding(big red block)!
+pickup(big red block)!
 
 % GRASP THE PYRAMID.
 holding(that pyramid)!
@@ -20,7 +20,7 @@ supports[that pyramid]?
 block ~in.box?
 
 % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
-that narrow.history$goal$holding?
+that narrow.command$pickup?
 
 % IS IT SUPPORTED?
 supports.that?
@@ -64,7 +64,7 @@ on(red pyramid, green cube)!
 on(small block, green cube supports.pyramid)!
 
 % PUT THE LITTLEST PYRAMID ON TOP OF IT.
-on(#most(little, pyramid), that)!
+on(#most(little, pyramid), small block)!
 
 % DOES THE SHORTEST THING THE TALLEST PYRAMID'S SUPPORT SUPPORTS SUPPORT ANYTHING GREEN?
 green on.#most(short, on.supports.#most(tall, pyramid))?

@@ -2,6 +2,7 @@
 import json
 import re
 import sh
+import sys
 
 import ldcs
 
@@ -66,6 +67,9 @@ while True:
     print('impossible.\n')
     #print(e.stderr.decode('utf-8'))
     continue
+  except sh.ErrorReturnCode as e:
+    print(e.stderr.decode('utf-8'), file=sys.stderr)
+    sys.exit(1)
 
   ok = False
   shows = []
@@ -86,7 +90,7 @@ while True:
         .replace('(','[').replace(')',']').replace(',', ', ')
       m = re.fullmatch(r'history\(\d+,goal\((.*)\)\)', result)
       if m: result = 'goal.' + m.group(1).replace(',', ', ')
-      if result not in shows: shows.append(result)
+      shows.append(result)
     elif result.startswith('history('):
       facts.add(result)
     elif result.startswith('already('):

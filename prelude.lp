@@ -6,11 +6,11 @@ history(counter, show(X)) :- show(X).
 now(now).
 
 that(X,N) :- history(counter-N, show(X)).
-that(X,N) :- history(counter-N, goal(on(X,_))).
 that(X) :- that(X,1).
 
 holds(X) :- holds(X, now).
 history(F) :- history(C,F).
+command(G) :- history(goal(G)).
 
 plan_times(C,T) :- plan_interval(C, T1, T2), T = T1..T2.
 

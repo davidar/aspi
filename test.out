@@ -1,6 +1,6 @@
 >>> % PICK UP A BIG RED BLOCK.
->>> holding(big red block)!
---> { goal(B) : big(A), red(A), block(A), B = holding(A) } = 1.
+>>> pickup(big red block)!
+--> { goal(B) : big(A), red(A), block(A), B = pickup(A) } = 1.
 pickup(green_cube_1)
 put_on(green_cube_1,box)
 pickup(big_red)
@@ -51,8 +51,8 @@ that(large red block | red cube | green cube supports[red pyramid]).
 
 >>> 
 >>> % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
->>> that narrow.history$goal$holding?
---> show(B) :- that(B), narrow(B,A), history(goal(holding(A))).
+>>> that narrow.command$pickup?
+--> show(B) :- that(B), narrow(B,A), command(pickup(A)).
 that(red cube).
 
 >>> 
@@ -163,9 +163,9 @@ ok.
 
 >>> 
 >>> % PUT THE LITTLEST PYRAMID ON TOP OF IT.
->>> on(#most(little, pyramid), that)!
+>>> on(#most(little, pyramid), small block)!
 --> { goal(E) : goal1(E) } = 1.
-    goal1(D) :- little(B,A) : pyramid(A), B != A; pyramid(B), that(C), D = on(B,C).
+    goal1(D) :- little(B,A) : pyramid(A), B != A; pyramid(B), small(C), block(C), D = on(B,C).
 pickup(green_pyramid)
 put_on(green_pyramid,red_cube)
 ok.
@@ -193,7 +193,7 @@ that(blue block | red cube | red pyramid | green pyramid).
 >>> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
 >>> pickup.pyramid before.goal.on(green pyramid, little cube)?
 --> show(F) :- green(B), pyramid(B), little(C), cube(C), pickup(F,A), pyramid(A), end_time(G,F), G = 0 .. H - 1, start_time(H,E), goal(E,D), D = on(B,C).
-that(pickup[green pyramid] | pickup[red pyramid]).
+that(pickup[green pyramid] | pickup[red pyramid] | pickup[red pyramid]).
 
 >>> 
 >>> that pickup.green?
