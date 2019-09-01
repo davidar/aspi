@@ -86,8 +86,8 @@ while True:
     elif result.startswith('retract('):
       result = result[len('retract('):-1]
       facts.remove(result)
-    elif result.startswith('show('):
-      result = result[len('show('):-1]
+    elif result.startswith('what('):
+      result = result[len('what('):-1]
       m = re.fullmatch(r'apply\((.*),\d+\)', result)
       if m: result = m.group(1) \
         .replace('(','[').replace(')',']').replace(',', ', ')

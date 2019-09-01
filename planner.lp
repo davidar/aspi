@@ -39,7 +39,6 @@ assert(plan_interval(counter, now+1, now+t)) :- query(t).
 ok.
 #show assert/1.
 #show retract/1.
-#show show/1.
 #show ok/0.
 
 #program check(t).

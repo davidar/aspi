@@ -1,11 +1,12 @@
 #program base.
-history(counter, goal(F)) :- goal(F).
-history(counter, show(X)) :- show(X).
+#show what/1.
 #show history/2.
+history(counter, goal(F)) :- goal(F).
+history(counter, what(X)) :- what(X).
 
 now(now).
 
-that(X,N) :- history(counter-N, show(X)).
+that(X,N) :- history(counter-N, what(X)).
 that(X) :- that(X,1).
 
 holds(X) :- holds(X, now).

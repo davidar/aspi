@@ -76,7 +76,7 @@ class LDCS(lark.Transformer):
     return RuleBody(subst, self.gensym).transform(tree)
 
   def command(self, value):
-    if len(value) == 1: value = 'show(' + value + ')'
+    if len(value) == 1: value = 'what(' + value + ')'
     if self.body: value += ' :- ' + self.body
     value += '.'
     self.rules.insert(0, value)
