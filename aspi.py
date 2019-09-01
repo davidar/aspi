@@ -8,9 +8,10 @@ import ldcs
 
 ClingoExhausted = sh.ErrorReturnCode_20
 
-def replaceall(s, d):
+def replaceall(s, d, d2={}):
   r = s
   for k,v in d.items():
+    if k in d2: v += ' ' + d2[k]
     r = r.replace(k,v)
   if s == r: return s
   return replaceall(r, d)
@@ -40,7 +41,6 @@ with open('macros.lp', 'r') as f:
     ldcs.add_macro(line)
 
 while True:
-  moves = int([fact[len('moves('):-1] for fact in facts if fact.startswith('moves(')][0])
   cmd = input('>>> ')
   print(cmd)
 
@@ -58,7 +58,8 @@ while True:
     print('understood.\n')
     continue
 
-  cmd += '#const now = ' + str(moves) + '.\n'
+  now = int([fact[len('moves('):-1] for fact in facts if fact.startswith('moves(')][0])
+  cmd += '#const now = ' + str(now) + '.\n'
   cmd += '#const counter = ' + str(counter) + '.\n'
   cmd += ''.join(fact + '.\n' for fact in facts)
   try:
@@ -72,14 +73,16 @@ while True:
     sys.exit(1)
 
   ok = False
+  acts = []
   shows = []
   names = {}
+  names_t = {}
   for result in results:
     if result.startswith('assert('):
       result = result[len('assert('):-1]
       facts.add(result)
       m = re.fullmatch(r'apply\((.*),\d+\)', result)
-      if m: print(m.group(1))
+      if m: acts.append(m.group(1).replace(',', ', '))
     elif result.startswith('retract('):
       result = result[len('retract('):-1]
       facts.remove(result)
@@ -98,12 +101,19 @@ while True:
       print(replaceall(result, names) + '.')
     elif result.startswith('describe('):
       result = result[len('describe('):-1].split(',')
-      names[result[0]] = ' '.join(result[1:]) \
+      names[result[0]] = ' '.join(result[1:])
+    elif result.startswith('describe_extra('):
+      result = result[len('describe_extra('):-1].split(',')
+      t = int(result[0])
+      if t not in names_t: names_t[t] = {}
+      names_t[t][result[1]] = ' '.join(result[2:]) \
         .replace('(','[').replace(')',']').replace('not_','~')
     elif result == 'ok':
       ok = True
+  for t,act in enumerate(acts):
+    print(replaceall(act, names, names_t[now+t]) + '!')
   if ok: print('ok.')
-  shows = [replaceall(show, names) for show in shows]
+  shows = [replaceall(show, names, names_t[now]) for show in shows]
   if shows: print('that(' + ' | '.join(shows) + ').')
   print()
   counter += 1
