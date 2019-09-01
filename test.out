@@ -1,18 +1,16 @@
 >>> % PICK UP A BIG RED BLOCK.
 >>> holding(big red block)!
 --> { goal(B) : big(A), red(A), block(A), B = holding(A) } = 1.
-apply(pickup(green_cube_1),1).
-apply(put_on(green_cube_1,box),2).
-plan_interval(1,1,3).
-apply(pickup(big_red),3).
-moves(3).
+pickup(green_cube_1)
+put_on(green_cube_1,box)
+pickup(big_red)
 ok.
 
 >>> 
 >>> % GRASP THE PYRAMID.
 >>> holding(that pyramid)!
 --> { goal(B) : that(A), pyramid(A), B = holding(A) } = 1.
-I CAN'T
+impossible.
 
 >>> 
 >>> % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
@@ -22,11 +20,9 @@ blue_block.
 
 >>> in(that, box)!
 --> { goal(C) : that(A), box(B), C = in(A,B) } = 1.
-apply(put_on(big_red,table_front_right),4).
-apply(pickup(blue_block),5).
-plan_interval(3,4,6).
-apply(put_on(blue_block,green_cube_1),6).
-moves(6).
+put_on(big_red,table_front_right)
+pickup(blue_block)
+put_on(blue_block,green_cube_1)
 ok.
 
 >>> 
@@ -97,7 +93,7 @@ false.
 >>> % STACK UP TWO PYRAMIDS.
 >>> stack(pyramid, pyramid)!
 --> { goal(C) : pyramid(A), pyramid(B), C = stack(A,B) } = 1.
-I CAN'T
+impossible.
 
 >>> 
 >>> % THE BLUE PYRAMID IS MINE.
@@ -134,14 +130,12 @@ blue_pyramid.
 --> { goal(E) : red(A), block(A), red(B), block(B), disjunction1(D), E = stack(A,B,D) } = 1.
     disjunction1(C) :- green(C), cube(C).
     disjunction1(C) :- pyramid(C).
-apply(pickup(green_pyramid),7).
-apply(put_on(green_pyramid,big_red),8).
-apply(pickup(red_cube),9).
-apply(put_on(red_cube,big_red),10).
-apply(pickup(red_pyramid),11).
-plan_interval(15,7,12).
-apply(put_on(red_pyramid,red_cube),12).
-moves(12).
+pickup(green_pyramid)
+put_on(green_pyramid,big_red)
+pickup(red_cube)
+put_on(red_cube,big_red)
+pickup(red_pyramid)
+put_on(red_pyramid,red_cube)
 ok.
 
 >>> 
@@ -160,22 +154,18 @@ green_cube_1.
 >>> 
 >>> on(red pyramid, green cube)!
 --> { goal(C) : red(A), pyramid(A), green(B), cube(B), C = on(A,B) } = 1.
-apply(pickup(red_pyramid),13).
-plan_interval(18,13,14).
-apply(put_on(red_pyramid,green_cube_1),14).
-moves(14).
+pickup(red_pyramid)
+put_on(red_pyramid,green_cube_1)
 ok.
 
 >>> 
 >>> % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
 >>> on(small block, green cube supports.pyramid)!
 --> { goal(D) : small(A), block(A), green(C), cube(C), supports(C,B), pyramid(B), D = on(A,C) } = 1.
-apply(pickup(blue_block),15).
-apply(put_on(blue_block,green_cube_2),16).
-apply(pickup(red_cube),17).
-plan_interval(19,15,18).
-apply(put_on(red_cube,green_cube_1),18).
-moves(18).
+pickup(blue_block)
+put_on(blue_block,green_cube_2)
+pickup(red_cube)
+put_on(red_cube,green_cube_1)
 ok.
 
 >>> 
@@ -183,10 +173,8 @@ ok.
 >>> on(#most(little, pyramid), that)!
 --> { goal(E) : goal1(E) } = 1.
     goal1(D) :- little(B,A) : pyramid(A), B != A; pyramid(B), that(C), D = on(B,C).
-apply(pickup(green_pyramid),19).
-plan_interval(20,19,20).
-apply(put_on(green_pyramid,red_cube),20).
-moves(20).
+pickup(green_pyramid)
+put_on(green_pyramid,red_cube)
 ok.
 
 >>> 
@@ -302,22 +290,18 @@ red_cube.
 >>> 
 >>> on(blue block, box)!
 --> { goal(C) : blue(A), block(A), box(B), C = on(A,B) } = 1.
-apply(pickup(blue_pyramid),21).
-apply(put_on(blue_pyramid,table_back_left),22).
-apply(pickup(blue_block),23).
-plan_interval(39,21,24).
-apply(put_on(blue_block,box),24).
-moves(24).
+pickup(blue_pyramid)
+put_on(blue_pyramid,table_back_left)
+pickup(blue_block)
+put_on(blue_block,box)
 ok.
 
 >>> 
 >>> % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
 >>> on(blue pyramid, block in.box)!
 --> { goal(D) : blue(A), pyramid(A), block(C), in(C,B), box(B), D = on(A,C) } = 1.
-apply(pickup(blue_pyramid),25).
-plan_interval(40,25,26).
-apply(put_on(blue_pyramid,blue_block),26).
-moves(26).
+pickup(blue_pyramid)
+put_on(blue_pyramid,blue_block)
 ok.
 
 >>> 
@@ -344,18 +328,16 @@ false.
 >>> % BUILD ONE.
 >>> steeple!
 --> { goal(A) : steeple(A) } = 1.
-apply(pickup(green_pyramid),27).
-apply(put_on(green_pyramid,big_red),28).
-apply(pickup(red_cube),29).
-apply(put_on(red_cube,table_front_left),30).
-apply(pickup(red_pyramid),31).
-apply(put_on(red_pyramid,red_cube),32).
-apply(pickup(green_cube_2),33).
-apply(put_on(green_cube_2,green_cube_1),34).
-apply(pickup(green_pyramid),35).
-plan_interval(43,27,36).
-apply(put_on(green_pyramid,green_cube_2),36).
-moves(36).
+pickup(green_pyramid)
+put_on(green_pyramid,big_red)
+pickup(red_cube)
+put_on(red_cube,table_front_left)
+pickup(red_pyramid)
+put_on(red_pyramid,red_cube)
+pickup(green_cube_2)
+put_on(green_cube_2,green_cube_1)
+pickup(green_pyramid)
+put_on(green_pyramid,green_cube_2)
 ok.
 
 >>> 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import re
 import sh
 
 import ldcs
@@ -55,15 +56,17 @@ while True:
   try:
     results = clingo(cmd + program)
   except ClingoExhausted as e:
-    print("I CAN'T\n")
+    print('impossible.\n')
     #print(e.stderr.decode('utf-8'))
     continue
+
   shows = []
   for result in results:
     if result.startswith('assert('):
       result = result[len('assert('):-1]
       facts.add(result)
-      print(result + '.')
+      m = re.fullmatch(r'apply\((.*),\d+\)', result)
+      if m: print(m.group(1))
     elif result.startswith('retract('):
       result = result[len('retract('):-1]
       facts.remove(result)
