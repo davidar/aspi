@@ -16,7 +16,7 @@ impossible.
 >>> % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
 >>> block tall.holding?
 --> show(B) :- block(B), tall(B,A), holding(A).
-blue_block.
+that(blue block).
 
 >>> in(that, box)!
 --> { goal(C) : that(A), box(B), C = in(A,B) } = 1.
@@ -28,42 +28,38 @@ ok.
 >>> 
 >>> in(blue pyramid, box)!
 --> { goal(C) : blue(A), pyramid(A), box(B), C = in(A,B) } = 1.
-already(in(blue_pyramid,box)).
+in(blue pyramid, box).
 
 >>> 
 >>> % WHAT DOES THE BOX CONTAIN?
 >>> contains'.box?
 --> show(B) :- contains(A,B), box(A).
-blue_block.
-green_cube_1.
-blue_pyramid.
+that(blue block | green cube supports[blue block] | blue pyramid).
 
 >>> 
 >>> % WHAT IS THE PYRAMID SUPPORTED BY?
 >>> supports[that pyramid]?
 --> show(B) :- supports(B,A), that(A), pyramid(A).
-box.
+that(box).
 
 >>> 
 >>> % HOW MANY BLOCKS ARE NOT IN THE BOX?
 >>> block ~in.box?
 --> show(C) :- block(C), not lifted1(C).
     lifted1(B) :- in(B,A), box(A).
-big_red.
-red_cube.
-green_cube_2.
+that(large red block | red cube | green cube supports[red pyramid]).
 
 >>> 
 >>> % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
 >>> that narrow.history$goal$holding?
 --> show(B) :- that(B), narrow(B,A), history(goal(holding(A))).
-red_cube.
+that(red cube).
 
 >>> 
 >>> % IS IT SUPPORTED?
 >>> supports.that?
 --> show(B) :- supports(B,A), that(A).
-table_front_left.
+that(table).
 
 >>> 
 >>> % CAN THE TABLE PICK UP BLOCKS?
@@ -71,7 +67,7 @@ table_front_left.
 --> show(C) :- any1(C).
     any1(true) :- table(B), action(pickup(B,A)), block(A).
     any1(false) :- not any1(true).
-false.
+that(false).
 
 >>> 
 >>> % CAN A PYRAMID BE SUPPORTED BY A BLOCK?
@@ -79,7 +75,7 @@ false.
 --> show(C) :- any1(C).
     any1(true) :- pyramid(B), action(put_on(B,A)), block(A).
     any1(false) :- not any1(true).
-true.
+that(true).
 
 >>> 
 >>> % CAN A PYRAMID SUPPORT A PYRAMID?
@@ -87,7 +83,7 @@ true.
 --> show(C) :- any1(C).
     any1(true) :- pyramid(B), action(put_on(B,A)), pyramid(A).
     any1(false) :- not any1(true).
-false.
+that(false).
 
 >>> 
 >>> % STACK UP TWO PYRAMIDS.
@@ -114,15 +110,13 @@ understood.
 --> show(B) :- any1(B).
     any1(true) :- box(A), mine(A).
     any1(false) :- not any1(true).
-false.
+that(false).
 
 >>> 
 >>> % DO I OWN ANYTHING IN THE BOX?
 >>> in.box mine?
 --> show(B) :- in(B,A), box(A), mine(B).
-blue_block.
-green_cube_1.
-blue_pyramid.
+that(blue block | green cube supports[blue block] | blue pyramid).
 
 >>> 
 >>> % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
@@ -142,14 +136,13 @@ ok.
 >>> % WHICH CUBE IS SITTING ON THE TABLE?
 >>> cube on.table?
 --> show(B) :- cube(B), on(B,A), table(A).
-green_cube_2.
+that(green cube ~supports[blue block]).
 
 >>> 
 >>> % IS THERE A LARGE BLOCK BEHIND A PYRAMID?
 >>> large block behind.pyramid?
 --> show(B) :- large(B), block(B), behind(B,A), pyramid(A).
-blue_block.
-green_cube_1.
+that(blue block | green cube supports[blue block]).
 
 >>> 
 >>> on(red pyramid, green cube)!
@@ -182,110 +175,93 @@ ok.
 >>> green on.#most(short, on.supports.#most(tall, pyramid))?
 --> show(G) :- green(G), on(G,F), short(F,D) : superlative1(D), F != D; superlative1(F).
     superlative1(E) :- on(E,C), supports(C,B), tall(B,A) : pyramid(A), B != A; pyramid(B).
-green_pyramid.
+that(green pyramid).
 
 >>> 
 >>> % WHAT COLOR IS IT?
 >>> colour.supports.that?
 --> show(C) :- colour(C,B), supports(B,A), that(A).
-red.
+that(red).
 
 >>> 
 >>> % HOW MANY THINGS ARE ON TOP OF GREEN CUBES?
 >>> above[green cube]?
 --> show(B) :- above(B,A), green(A), cube(A).
-blue_block.
-red_cube.
-red_pyramid.
-green_pyramid.
+that(blue block | red cube | red pyramid | green pyramid).
 
 >>> 
 >>> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
 >>> pickup.pyramid before.goal.on(green pyramid, little cube)?
 --> show(F) :- green(B), pyramid(B), little(C), cube(C), pickup(F,A), pyramid(A), end_time(G,F), G = 0 .. H - 1, start_time(H,E), goal(E,D), D = on(B,C).
-apply(pickup(green_pyramid),7).
-apply(pickup(red_pyramid),11).
-apply(pickup(red_pyramid),13).
+that(pickup[green pyramid] | pickup[red pyramid]).
 
 >>> 
 >>> that pickup.green?
 --> show(B) :- that(B), pickup(B,A), green(A).
-apply(pickup(green_pyramid),7).
+that(pickup[green pyramid]).
 
 >>> 
 >>> % WHEN DID YOU PICK IT UP?
 >>> event during'.that?
 --> show(B) :- event(B), start_time(C,A), end_time(D,A), start_time(E,B), end_time(F,B), C = E .. F, D = C .. F, A != B, that(A).
-history(15,goal(stack(red_cube,big_red,red_pyramid))).
+that(goal.stack(red cube, large red block, red pyramid)).
 
 >>> 
 >>> % WHY?
 >>> why.that.2?
 --> show(C) :- why(C,B), that(B,A), A = 2.
-apply(put_on(green_pyramid,big_red),8).
-apply(pickup(red_cube),9).
-apply(put_on(red_pyramid,red_cube),12).
+that(put_on[green pyramid, large red block] | pickup[red cube] | put_on[red pyramid, red cube]).
 
 >>> 
 >>> that pickup.cube?
 --> show(B) :- that(B), pickup(B,A), cube(A).
-apply(pickup(red_cube),9).
+that(pickup[red cube]).
 
 >>> 
 >>> % WHY DID YOU DO THAT?
 >>> why.that?
 --> show(B) :- why(B,A), that(A).
-apply(put_on(red_cube,big_red),10).
+that(put_on[red cube, large red block]).
 
 >>> why.that?
 --> show(B) :- why(B,A), that(A).
-apply(pickup(red_pyramid),11).
+that(pickup[red pyramid]).
 
 >>> why.that?
 --> show(B) :- why(B,A), that(A).
-apply(put_on(red_pyramid,red_cube),12).
+that(put_on[red pyramid, red cube]).
 
 >>> why.that?
 --> show(B) :- why(B,A), that(A).
-goal(stack(red_cube,big_red,red_pyramid)).
-
->>> why.that?
---> show(B) :- why(B,A), that(A).
-history(15,goal(stack(red_cube,big_red,red_pyramid))).
+that(goal.stack(red cube, large red block, red pyramid)).
 
 >>> 
 >>> % HOW DID YOU DO IT?
 >>> event during.that?
 --> show(B) :- event(B), start_time(C,B), end_time(D,B), start_time(E,A), end_time(F,A), C = E .. F, D = C .. F, B != A, that(A).
-apply(pickup(green_pyramid),7).
-apply(put_on(green_pyramid,big_red),8).
-apply(pickup(red_cube),9).
-apply(put_on(red_cube,big_red),10).
-apply(pickup(red_pyramid),11).
-apply(put_on(red_pyramid,red_cube),12).
+that(pickup[green pyramid] | put_on[green pyramid, large red block] | pickup[red cube] | put_on[red cube, large red block] | pickup[red pyramid] | put_on[red pyramid, red cube]).
 
 >>> 
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
 >>> #count(pickup.object during.that.2)?
 --> show(I) :- I = #count { D : pickup(D,A), object(A), start_time(J,D), end_time(K,D), start_time(L,C), end_time(M,C), J = L .. M, K = J .. M, D != C, that(C,B), B = 2 }.
-3.
+that(3).
 
 >>> 
 >>> % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
 >>> supports'[red cube, just_before.cleanoff[red cube]]?
 --> show(E) :- supports(D,C,E), red(C), cube(C), end_time(F - 1,D), start_time(F,B), cleanoff(B,A), red(A), cube(A).
-red_pyramid.
-green_pyramid.
+that(red pyramid | green pyramid).
 
 >>> 
 >>> % THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
 >>> block left_of[box; just_before.cleanoff[red cube]]?
 --> show(E) :- block(E), left_of(C,E,D), end_time(F - 1,C), start_time(F,B), cleanoff(B,A), red(A), cube(A), box(D).
-red_cube.
+that(red cube).
 
 >>> #count(that)?
 --> show(B) :- B = #count { A : that(A) }.
-1.
+that(1).
 
 >>> 
 >>> on(blue block, box)!
@@ -308,7 +284,7 @@ ok.
 >>> % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
 >>> object #each(big, pyramid) X wide'.supports.X?
 --> show(D) :- object(D), big(D,A) : pyramid(A); D = MuX, wide(C,D), supports(C,B), B = MuX.
-blue_block.
+that(blue block).
 
 >>> 
 >>> % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
@@ -322,7 +298,7 @@ understood.
 --> show(C) :- any1(C).
     any1(true) :- steeple(B), holds(B,A), now(A).
     any1(false) :- not any1(true).
-false.
+that(false).
 
 >>> 
 >>> % BUILD ONE.
@@ -352,30 +328,24 @@ understood.
 --> show(C) :- any1(C).
     any1(true) :- holding(B,A), superblock(A).
     any1(false) :- not any1(true).
-true.
+that(true).
 
 >>> 
 >>> % WHY DID YOU DROP IT?
 >>> why.put_on(superblock, table)?
 --> show(D) :- superblock(A), table(B), why(D,C), C = put_on(A,B).
-nonexistent.
+that(nonexistent).
 
 >>> 
 >>> left_of(red pyramid, box)!
 --> { goal(C) : red(A), pyramid(A), box(B), C = left_of(A,B) } = 1.
-already(left_of(red_pyramid,box)).
+left_of(red pyramid, box).
 
 >>> 
 >>> % IS THERE ANYTHING TO THE RIGHT OF THE RED PYRAMID?
 >>> right_of[red pyramid]?
 --> show(B) :- right_of(B,A), red(A), pyramid(A).
-box.
-big_red.
-blue_block.
-green_cube_1.
-green_cube_2.
-green_pyramid.
-blue_pyramid.
+that(box | large red block | blue block | green cube supports[green cube supports[green pyramid]] | green cube supports[green pyramid] | green pyramid | blue pyramid).
 
 >>> 
 >>> thanks.

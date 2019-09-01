@@ -7,6 +7,13 @@ import ldcs
 
 ClingoExhausted = sh.ErrorReturnCode_20
 
+def replaceall(s, d):
+  r = s
+  for k,v in d.items():
+    r = r.replace(k,v)
+  if s == r: return s
+  return replaceall(r, d)
+
 def readfiles(*args):
   s = ''
   for name in args:
@@ -60,7 +67,9 @@ while True:
     #print(e.stderr.decode('utf-8'))
     continue
 
+  ok = False
   shows = []
+  names = {}
   for result in results:
     if result.startswith('assert('):
       result = result[len('assert('):-1]
@@ -72,9 +81,25 @@ while True:
       facts.remove(result)
     elif result.startswith('show('):
       result = result[len('show('):-1]
-      shows.append(result + '.')
+      m = re.fullmatch(r'apply\((.*),\d+\)', result)
+      if m: result = m.group(1) \
+        .replace('(','[').replace(')',']').replace(',', ', ')
+      m = re.fullmatch(r'history\(\d+,goal\((.*)\)\)', result)
+      if m: result = 'goal.' + m.group(1).replace(',', ', ')
+      if result not in shows: shows.append(result)
     elif result.startswith('history('):
       facts.add(result)
-  print('\n'.join(shows))
+    elif result.startswith('already('):
+      result = result[len('already('):-1].replace(',', ', ')
+      print(replaceall(result, names) + '.')
+    elif result.startswith('describe('):
+      result = result[len('describe('):-1].split(',')
+      names[result[0]] = ' '.join(result[1:]) \
+        .replace('(','[').replace(')',']').replace('not_','~')
+    elif result == 'ok':
+      ok = True
+  if ok: print('ok.')
+  shows = [replaceall(show, names) for show in shows]
+  if shows: print('that(' + ' | '.join(shows) + ').')
   print()
   counter += 1

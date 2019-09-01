@@ -21,6 +21,25 @@ object(X) :- pyramid(X).
 table(table_front_left; table_front_right; table_back_left; table_back_right).
 box(box).
 
+#show describe/1.
+#show describe/2.
+#show describe/3.
+#show describe/4.
+#show describe/5.
+#show describe/6.
+#show describe/7.
+#show describe/8.
+#show describe/9.
+describe(big_red, large, red, block).
+describe(red_cube, red, cube).
+describe(blue_block, blue, block).
+describe(P, C, pyramid) :- pyramid(P), colour(C,P).
+describe(T, table) :- table(T).
+describe(C, green, cube, supports(X)) :- green(C), cube(C), supports(C,X).
+describe(C, green, cube, not_supports(X)) :- green(C), cube(C), not supports_something(C), green(G), cube(G), C != G, supports(G,X), C != X.
+
+supports_something(X) :- supports(X,Y).
+
 location(box).
 location(X) :- table(X), not init(on(box, X)).
 location(X) :- block(X).

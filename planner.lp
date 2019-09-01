@@ -14,7 +14,8 @@ del  (F,T) :- apply(A,T), deletes(A,F).
 state(F,T) :- state(F,T-1), not del(F,T), T = 1..now.
 holds(F,T) :- state(F,T).
 
-show(already(F)) :- goal(F), holds(F,now).
+#show already/1.
+already(F) :- goal(F), holds(F,now).
 
 #program step(t).
 % Generate
@@ -35,10 +36,11 @@ retract(moves(now)).
 assert(moves(now+t)) :- query(t).
 assert(apply(A, now+t)) :- apply(A, now+t).
 assert(plan_interval(counter, now+1, now+t)) :- query(t).
-show(ok).
+ok.
 #show assert/1.
 #show retract/1.
 #show show/1.
+#show ok/0.
 
 #program check(t).
 % Test
