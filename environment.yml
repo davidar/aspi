@@ -9,3 +9,5 @@ dependencies:
   - clingo
   - lark-parser
   - sh
+  - pytest
+  - pytest-console-scripts
