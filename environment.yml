@@ -1,0 +1,11 @@
+# https://docs.conda.io/en/latest/miniconda.html
+# conda env create -f environment.yml
+name: aspi
+channels:
+  - conda-forge
+  - potassco
+dependencies:
+  - python=3.8
+  - clingo
+  - lark-parser
+  - sh
