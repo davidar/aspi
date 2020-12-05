@@ -1,0 +1,8 @@
+% Add all the natural numbers below 1000 that are multiples of 3 or 5.
+#sum(0..999 multiple[3|5])?
+
+% Find the sum of all the even-valued terms in the Fibonacci sequence which do not exceed one million.
+fib(0,0).
+fib(1,1).
+fib(N 2..45, fib'[N-1] + fib'[N-2]).
+#sum(even fib'[0..45] (<).1000000)?

@@ -1,0 +1,27 @@
+>>> % Add all the natural numbers below 1000 that are multiples of 3 or 5.
+>>> #sum(0..999 multiple[3|5])?
+--> what(F) :- A = 0, B = 999, F = #sum { E : E = A..B, E \ D = 0, disjunction1(D) }.
+    disjunction1(C) :- C = 3.
+    disjunction1(C) :- C = 5.
+that(233168).
+
+>>> 
+>>> % Find the sum of all the even-valued terms in the Fibonacci sequence which do not exceed one million.
+>>> fib(0,0).
+--> fib(A,B) :- A = 0, B = 0.
+understood.
+
+>>> fib(1,1).
+--> fib(A,B) :- A = 1, B = 1.
+understood.
+
+>>> fib(N 2..45, fib'[N-1] + fib'[N-2]).
+--> fib(C,L) :- A = 2, B = 45, C = MuN, C = A..B, D = MuN, E = 1, fib(F,G), F = D-E, H = MuN, I = 2, fib(J,K), J = H-I, L = G+K.
+understood.
+
+>>> #sum(even fib'[0..45] (<).1000000)?
+--> what(F) :- A = 0, B = 45, F = #sum { E : E \ 2 = 0, fib(C,E), C = A..B, E<D, D = 1000000 }.
+that(1089154).
+
+>>> thanks.
+YOU'RE WELCOME!

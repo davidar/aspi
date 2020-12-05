@@ -288,20 +288,20 @@ that(false).
 >>> % BUILD ONE.
 >>> steeple!
 --> { goal(A) : steeple(A) } = 1.
-pickup(green pyramid)!
-put_on(green pyramid, blue block)!
+pickup(red pyramid)!
+put_on(red pyramid, blue block)!
 pickup(blue pyramid)!
 put_on(blue pyramid, blue block)!
+pickup(green pyramid)!
+put_on(green pyramid, table)!
 pickup(red cube)!
 put_on(red cube, table)!
 pickup(large red block)!
-put_on(large red block, table)!
-pickup(red pyramid)!
-put_on(red pyramid, red cube)!
+put_on(large red block, red cube)!
 pickup(green cube on[box])!
 put_on(green cube holding, green cube)!
-pickup(green pyramid)!
-put_on(green pyramid, green cube)!
+pickup(blue pyramid)!
+put_on(blue pyramid, green cube)!
 ok.
 
 >>> 
@@ -327,13 +327,15 @@ that(nonexistent).
 >>> 
 >>> left_of(red pyramid, box)!
 --> { goal(C) : red(A), pyramid(A), box(B), C = left_of(A,B) } = 1.
-left_of(red pyramid, box).
+pickup(red pyramid)!
+put_on(red pyramid, table)!
+ok.
 
 >>> 
 >>> % IS THERE ANYTHING TO THE RIGHT OF THE RED PYRAMID?
 >>> right_of[red pyramid]?
 --> what(B) :- right_of(B,A), red(A), pyramid(A).
-that(box | blue block | green cube supports[green pyramid] | green cube supports[green cube] | green pyramid | blue pyramid).
+that(box | blue block | green cube supports[blue pyramid] | green cube supports[green cube] | blue pyramid).
 
 >>> 
 >>> thanks.

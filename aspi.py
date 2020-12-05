@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import collections
 import enum
 import json
 import re
@@ -6,6 +7,13 @@ import sh
 import sys
 
 import ldcs
+
+try:
+    import gnureadline as readline
+except ImportError:
+    import readline
+
+readline.parse_and_bind('tab: complete')
 
 
 class ClingoExitCode(enum.IntFlag):
@@ -39,17 +47,18 @@ def readfiles(*args):
 
 
 def clingo(lp):
-    result = sh.clingo(_ok_code=[ClingoExitCode.SAT], _in=lp, outf=2, time_limit=2).stdout
+    result = sh.clingo(_ok_code=[ClingoExitCode.SAT],
+                       _in=lp, outf=2, time_limit=2).stdout
     values = json.loads(result)['Call'][-1]['Witnesses'][0]['Value']
     return values
 
 
-program = readfiles('world.lp', 'actions.lp',
-                    'planner.lp', 'why.lp', 'prelude.lp')
+program = readfiles('lib/prelude.lp', 'lib/planner.lp',
+                    'lib/plans.lp', *sys.argv[1:])
 facts = set(['moves(0)'])
 counter = 1
 
-with open('macros.lp', 'r') as f:
+with open('lib/macros.lp', 'r') as f:
     for line in f:
         if line.strip():
             ldcs.add_macro(line)
@@ -90,6 +99,7 @@ def repl(cmd):
             return
         else:
             print(e.stderr.decode('utf-8'), file=sys.stderr)
+            print(ClingoExitCode(e.exit_code), file=sys.stderr)
             sys.exit(1)
     print_results(results, now)
     counter += 1
@@ -100,7 +110,7 @@ def print_results(results, now):
     acts = []
     shows = []
     names = {}
-    names_t = {}
+    names_t = collections.defaultdict(dict)
     for result in results:
         ret = parse_result(result, acts, shows, names, names_t)
         if ret is True:
@@ -162,14 +172,18 @@ def parse_what(result, shows):
 def parse_describe_extra(result, names_t):
     result = result[len('describe_extra('):-1].split(',')
     t = int(result[0])
-    if t not in names_t:
-        names_t[t] = {}
     names_t[t][result[1]] = ' '.join(result[2:]).replace(
         '(', '[').replace(')', ']').replace('not_', '~')
 
 
 if __name__ == '__main__':
     while True:
-        cmd = input('>>> ')
+        try:
+            cmd = input('>>> ')
+        except EOFError:
+            cmd = 'thanks.'
+        except KeyboardInterrupt:
+            print('^C')
+            continue
         print(cmd)
         repl(cmd)
