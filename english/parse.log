@@ -1,102 +1,120 @@
 pick up a big red block
 pickup(big red block)!
 
-pick up that pyramid
-pickup(that pyramid)!
+hold that pyramid
+hold(that pyramid)!
 
-find a block which is taller than the one you are holding
-block tall.holding?
+which blocks are taller than what is being hold-ed
+block tall.hold?
 
-put that into the box
+put that in a box
 in(that, box)!
 
-what does the box contain
+what is contained by a box
 contain'.box?
 
-what is that pyramid supported by
+what supports that pyramid
 support[that pyramid]?
 
-how many blocks are not in the box
-#count(block ~in.box)?
+which blocks are not in a box
+block ~in.box?
 
-is at least one of those narrower than the one which I told you to pick up
+which of those are narrower than what you were told to pick up
 that narrow.command$pickup?
 
-is that supported
+what supports that
 support.that?
 
-stack up two pyramids
-stack(pyramid, pyramid)
+make a stack of two pyramids
+stack(pyramid, pyramid)!
 
-the blue pyramid is mine
+blue pyramids are mine
 mine(blue pyramid).
 
-I own blocks which are not red but I don't own anything which supports a pyramid
-own(block ~red ~thing support.pyramid)
+blocks which are not red and don't support a pyramid are mine
+mine(block ~red ~support.pyramid).
 
-do I own the box
-own box?
+which boxes are mine
+box mine?
 
-do I own anything in the box
-own thing in.box?
+what is in a box and is mine
+in.box mine?
 
-will you please stack up both of the red blocks and either a green cube or a pyramid
-stack(red block, red block, green cube | pyramid)
+make a stack of two red blocks and either a green cube or a pyramid
+stack(red block, red block, green cube | pyramid)!
 
-which cube is sitting on the table
+which cubes are on a table
 cube on.table?
 
-is there a large block behind a pyramid
+which large blocks are behind a pyramid
 large block behind.pyramid?
 
-put a small block onto the green cube which supports a pyramid
+put a small block onto a green cube which supports a pyramid
 on(small block, green cube support.pyramid)!
 
-put the smallest pyramid on top of the small block
-above(#most(small,pyramid), small block)!
+put the most little pyramid on a small block
+on(#most(little,pyramid), small block)!
 
-does the shortest thing the tallest pyramid's support supports support anything green
-#most(short,thing support'.support.#most(tall,pyramid)) support[thing green]?
-
-which green thing does the shortest thing the tallest pyramid's support supports support
+which green thing is supported by the shortest thing which is supported by what supports the tallest pyramid
 green thing support'[#most(short,thing support'.support.#most(tall,pyramid))]?
 
-what colour is that
-colour.that?
+what is the colour of what supports that
+colour.support.that?
 
-how many things are on top of green cubes
-#count(thing above[green cube])?
+what is above a green cube
+above[green cube]?
 
-had you touched any pyramid before I told you to put the green pyramid on the little cube
-touch.pyramid before[goal.on(green pyramid,little cube)]?
+which pyramids were picked up before you were told to put a green pyramid on a little cube
+pyramid pickup'[before[goal[on(green pyramid, little cube)]]]?
 
-how many objects did you touch while you were doing that
-#count(touch.object while.that)?
+when did you pick that up
+when.pickup.that?
 
-what did the red cube support before you started to clean the red cube off
-support'[red cube,before[cleanoff[red cube]]]?
+why did you pick that up
+why.pickup.that?
 
-which blocks were to the left of the box before you started to clean the red cube off
-block left[box; before[cleanoff[red cube]]]?
+why
+why?
 
-put the blue pyramid on the block in the box
-{'in(blue pyramid on.block, box)!', 'on(blue pyramid, block in.box)!'}
+how
+how?
 
-is there anything which is big-er than every pyramid but is not as wide as the thing that supports it
-thing #each(big,pyramid) wide'[thing support.#it]?
+how many objects were picked up during that
+#count(object pickup'.during.that)?
 
-a "steeple" is a stack which contains two green cubes and a pyramid
+what was supported by a red cube just before the cube was cleaned off
+support'[red cube,just_before.cleanoff.cube]?
+
+which blocks were to the left of a box just before a red cube was cleaned off
+block left[box; just_before[cleanoff[red cube]]]?
+
+count those
+#count(that)?
+
+put a blue pyramid on a block which is in a box
+on(blue pyramid, block in.box)!
+
+which objects are big-er than each pyramid but are not as wide as what supports them
+object #each(big,pyramid) wide'.support.#it?
+
+a stack of two green cubes and a pyramid is a steeple
 steeple(stack(green cube, green cube, pyramid)).
 
-build a steeple
+which steeples exist now
+steeple exist.now?
+
+make a steeple
 steeple!
 
-call the big-est block "superblock"
+the big-est block is superblock
 superblock(#most(big,block)).
 
-have you picked superblock up since we began
-pick.superblock?
+when did you pick up superblock
+when.pickup.superblock?
 
-is there anything to the right of the red pyramid
-thing right[red pyramid]?
+why did you put superblock on a table
+why.put_on(superblock,table)?
+
+what is to the right of a red pyramid
+right[red pyramid]?
 
