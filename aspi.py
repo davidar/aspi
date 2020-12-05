@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import enum
 import json
 import re
 import sh
@@ -6,7 +7,16 @@ import sys
 
 import ldcs
 
-ClingoExhausted = sh.ErrorReturnCode_20
+
+class ClingoExitCode(enum.IntFlag):
+    # https://github.com/potassco/clasp/issues/42
+    UNKNOWN = 0    # Satisfiablity of problem not known; search not started.
+    INTERRUPT = 1  # Run was interrupted.
+    SAT = 10       # At least one model was found.
+    EXHAUST = 20   # Search-space was completely examined.
+    MEMORY = 33    # Run was interrupted by out of memory exception.
+    ERROR = 65     # Run was interrupted by internal error.
+    NO_RUN = 128   # Search not started because of syntax or command line error.
 
 
 def replaceall(s, d, d2={}):
@@ -29,7 +39,7 @@ def readfiles(*args):
 
 
 def clingo(lp):
-    result = sh.clingo(_ok_code=[10], _in=lp, outf=2, time_limit=2).stdout
+    result = sh.clingo(_ok_code=[ClingoExitCode.SAT], _in=lp, outf=2, time_limit=2).stdout
     values = json.loads(result)['Call'][-1]['Witnesses'][0]['Value']
     return values
 
@@ -41,7 +51,8 @@ counter = 1
 
 with open('macros.lp', 'r') as f:
     for line in f:
-        ldcs.add_macro(line)
+        if line.strip():
+            ldcs.add_macro(line)
 
 
 def repl(cmd):
@@ -54,6 +65,8 @@ def repl(cmd):
 
     declare = cmd.endswith('.')
     cmd = ldcs.transform(cmd)
+    if cmd is None:
+        return
     print('-->', '\n    '.join(cmd.split('\n')))
     cmd += '\n'
     if declare:
@@ -68,12 +81,16 @@ def repl(cmd):
     cmd += ''.join(fact + '.\n' for fact in facts)
     try:
         results = clingo(cmd + program)
-    except ClingoExhausted:
-        print('impossible.\n')
-        return
     except sh.ErrorReturnCode as e:
-        print(e.stderr.decode('utf-8'), file=sys.stderr)
-        sys.exit(1)
+        if e.exit_code == ClingoExitCode.INTERRUPT:
+            print('timeout.\n')
+            return
+        elif e.exit_code == ClingoExitCode.EXHAUST:
+            print('impossible.\n')
+            return
+        else:
+            print(e.stderr.decode('utf-8'), file=sys.stderr)
+            sys.exit(1)
     print_results(results, now)
     counter += 1
 

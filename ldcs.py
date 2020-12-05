@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import lark
 import string
+import sys
 
 # https://arxiv.org/abs/1309.4408
 
@@ -11,7 +12,8 @@ ebnf = r'''
 %import common.WS
 %ignore WS
 
-AGG_OP: "count" | "any"
+BIN_OP: "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "/" | "\\" | "**" | "&" | "?" | "^" | ".."
+AGG_OP: "count" | "sum" | "any"
 SUP_OP: "most" | "each"
 VARIABLE: UCASE_LETTER
 
@@ -21,6 +23,7 @@ command: pred "."
        | ldcs "!" -> goal
 pred: atom "(" ldcs ("," ldcs)* ")"
     | atom "$" pred
+    | ldcs BIN_OP ldcs -> binop
 atom: CNAME
 ldcs: disj
 disjs: disj ("," disj)*
@@ -37,6 +40,7 @@ conj: lam lam*
 ?unary: func
 ?binary: func
 func: atom
+    | "(" BIN_OP ")" -> func_binop
     | atom "$" func -> compose
     | func "'" -> flip
 join: binary "." lam
@@ -105,6 +109,9 @@ class LDCS(lark.Transformer):
             return name
         return name + '(' + ','.join(args) + ')'
 
+    def binop(self, a, op, b):
+        return a + op + b
+
     def atom(self, name):
         return name
 
@@ -139,6 +146,9 @@ class LDCS(lark.Transformer):
             return lambda *args: self.expand_macro(name, *args)
         return lambda *args: name + '(' + ','.join(args) + ')'
 
+    def func_binop(self, op):
+        return lambda x, y: x + op + y
+
     def compose(self, name, lam):
         return lambda *args: name + '(' + lam(*args) + ')'
 
@@ -158,8 +168,8 @@ class LDCS(lark.Transformer):
         y = self.gensym()
         if ';' in lam(y):
             lam = self.lift(lam, 'aggregation')
-        if op == 'count':
-            return lambda x: x + ' = #count { ' + y + ' : ' + lam(y) + ' }'
+        if op == 'count' or op == 'sum':
+            return lambda x: f'{x} = #{op} {{ {y} : {lam(y)} }}'
         elif op == 'any':
             f = self.genpred('any')
             self.rules.append(f('true') + ' :- ' + lam(y) + '.')
@@ -197,7 +207,7 @@ rule_ebnf = r'''
 
 ATOM: LCASE_LETTER ("_"|LETTER|DIGIT)*
 VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
-OPERATOR: "=" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | ".."
+OPERATOR: "=" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "/" | "\\" | "**" | "&" | "?" | "^" | ".."
 
 ?start: rule
 rule: head ":-" pred ("," pred)* "."
@@ -249,8 +259,15 @@ class RuleBody(lark.Transformer):
 
 
 def transform(s):
-    tree = parser.parse(s)
-    return LDCS().transform(tree)
+    try:
+        tree = parser.parse(s)
+        return LDCS().transform(tree)
+    except lark.exceptions.UnexpectedInput as e:
+        print('Syntax error:', e, file=sys.stderr)
+        return None
+    except lark.exceptions.UnexpectedEOF as e:
+        print('Syntax error:', e, file=sys.stderr)
+        return None
 
 
 macros = {}
