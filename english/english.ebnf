@@ -1,0 +1,62 @@
+%import common.WS
+%ignore WS
+
+ADJ: "big" | "red" | "tall" | "narrow" | "mine" | "blue" | "green" | "large" | "small" | "short" | "little" | "wide"
+DET: "that" | "any" | "an" | "a" | "the"
+NOUN: "block" | "pyramid" | "box" | "cube" | "table" | "thing" | "colour" | "object" | "steeple" | "superblock"
+PREP: "into" | "onto" | "in" | "on top of" | "on" | "behind"
+PREPT: "before" | "while"
+VERB: "pick up" | "pick" | "contain" | "support" | "own" | "touch"
+DIR: "left" | "right"
+
+?start: ["will you"] ["please"] command
+      | question
+      | statement
+command: verb noun
+       | "put" noun prep noun -> put
+       | "stack up" ("two" | "both of") noun ["and" noun] -> stack
+       | "build" noun -> build
+question: "find" noun
+        | "is" ["there"] noun [adj]
+        | "do I" verb noun
+        | "which" noun ("is" | "are" | "were" | "does") adj
+        | "does" noun pred
+        | q
+q: "what" ("does" | "did") noun verb [time] -> flipjoin
+ | "how many" noun ("are" | "were") adj -> count
+ | "how many" noun "did you" verb [time] -> count2
+ | ["what"] "is" noun verb "ed" ["by"] -> passive
+ | "what" noun "is" noun -> join
+ | ("had" | "have") "you" verb "ed" noun ["up"] time -> qwhen
+statement: noun "is" adj
+         | "I" verb noun "but I do" ("not" | "n't") verb noun -> but
+         | "a \"" NOUN "\" is" noun -> define
+         | "call" noun "\"" NOUN "\""
+verb: VERB
+noun: [det] adj* NOUN ["s"] [["which" | "that"] ["is" | "are"] adj ["but is" adj]]
+    | ("that" | "those") -> that
+    | "the one you are holding" -> holding
+    | "the one which I told you to" verb -> commanded
+    | ["at least"] "one of" noun
+    | ["either"] noun "or" noun -> disj
+    | "the" adj ["-"] "est" noun [adj] -> most
+    | noun "'s support" -> support
+    | "it" -> it
+    | "a stack which contains two" noun "and" noun -> stack
+det: DET
+adj: ADJ
+   | ADJ ["-"] "er than" noun -> join
+   | ADJ ["-"] "er than every" noun -> each
+   | "not as" ADJ "as" noun -> flipjoin2
+   | "not" adj -> neg
+   | ["sitting"] prep noun [time] -> joint
+   | noun verb ["s"] -> flipjoin
+   | pred
+pred: verb ["s"] noun -> join
+prep: PREP
+    | "to the" DIR "of"
+time: PREPT event -> join
+    | "since we began"
+event: "I told you to put" noun prep noun -> told_put
+     | "you were doing that" -> that
+     | "you started to clean" noun "off" -> cleanoff
