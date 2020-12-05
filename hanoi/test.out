@@ -1,0 +1,21 @@
+>>> on(1..4, right)!
+--> goal(E) :- A = 1, B = 4, C = A..B, right(D), E = on(C,D).
+move(1, middle peg)!
+move(2, right peg)!
+move(1, right peg)!
+move(3, middle peg)!
+move(1, left peg)!
+move(2, middle peg)!
+move(1, middle peg)!
+move(4, right peg)!
+move(1, right peg)!
+move(2, left peg)!
+move(1, left peg)!
+move(3, right peg)!
+move(1, middle peg)!
+move(2, right peg)!
+move(1, right peg)!
+ok.
+
+>>> thanks.
+YOU'RE WELCOME!
