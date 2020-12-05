@@ -73,6 +73,7 @@ def repl(cmd):
         sys.exit(0)
 
     declare = cmd.endswith('.')
+    command = cmd.endswith('!')
     cmd = ldcs.transform(cmd)
     if cmd is None:
         return
@@ -101,11 +102,11 @@ def repl(cmd):
             print(e.stderr.decode('utf-8'), file=sys.stderr)
             print(ClingoExitCode(e.exit_code), file=sys.stderr)
             sys.exit(1)
-    print_results(results, now)
+    print_results(results, now, command)
     counter += 1
 
 
-def print_results(results, now):
+def print_results(results, now, command):
     ok = False
     acts = []
     shows = []
@@ -121,6 +122,8 @@ def print_results(results, now):
         print(replaceall(act, names, names_t[now+t]) + '!')
     if ok:
         print('ok.')
+    elif command:
+        print('failed.')
     shows = [replaceall(show, names, names_t[now]) for show in shows]
     if shows:
         print('that(' + ' | '.join(shows) + ').')

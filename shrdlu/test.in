@@ -50,7 +50,7 @@ mine(block ~red ~supports.pyramid).
 in.box mine?
 
 % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
-stack(red block, red block, green cube | pyramid)!
+#any(stack(red block, red block, green cube | pyramid))!
 
 % WHICH CUBE IS SITTING ON THE TABLE?
 cube on.table?
@@ -58,10 +58,10 @@ cube on.table?
 % IS THERE A LARGE BLOCK BEHIND A PYRAMID?
 large block behind.pyramid?
 
-on(red pyramid, green cube)!
+#any(on(red pyramid, green cube))!
 
 % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
-on(small block, green cube supports.pyramid)!
+#any(on(small block, green cube supports.pyramid))!
 
 % PUT THE LITTLEST PYRAMID ON TOP OF IT.
 on(#most(little, pyramid), small block)!
@@ -108,7 +108,7 @@ block left_of[box; just_before.cleanoff[red cube]]?
 on(blue block, box)!
 
 % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
-on(blue pyramid, block in.box)!
+#any(on(blue pyramid, block in.box))!
 
 % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
 object #each(big, pyramid) X wide'.supports.X?
@@ -120,7 +120,7 @@ steeple$stack(green cube, green cube, pyramid).
 #any(steeple holds.now)?
 
 % BUILD ONE.
-steeple!
+#any(steeple)!
 
 % CALL THE BIGGEST BLOCK "SUPERBLOCK".
 superblock(#most(big, block)).

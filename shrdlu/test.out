@@ -1,6 +1,6 @@
 >>> % PICK UP A BIG RED BLOCK.
 >>> pickup(big red block)!
---> { goal(B) : big(A), red(A), block(A), B = pickup(A) } = 1.
+--> goal(B) :- big(A), red(A), block(A), B = pickup(A).
 pickup(green cube ~supports[red pyramid])!
 put_on(green cube holding, box)!
 pickup(large red block)!
@@ -9,8 +9,8 @@ ok.
 >>> 
 >>> % GRASP THE PYRAMID.
 >>> holding(that pyramid)!
---> { goal(B) : that(A), pyramid(A), B = holding(A) } = 1.
-impossible.
+--> goal(B) :- that(A), pyramid(A), B = holding(A).
+failed.
 
 >>> 
 >>> % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
@@ -19,7 +19,7 @@ impossible.
 that(blue block).
 
 >>> in(that, box)!
---> { goal(C) : that(A), box(B), C = in(A,B) } = 1.
+--> goal(C) :- that(A), box(B), C = in(A,B).
 put_on(large red block, green cube ~supports[red pyramid])!
 pickup(blue block)!
 put_on(blue block, large red block)!
@@ -27,8 +27,9 @@ ok.
 
 >>> 
 >>> in(blue pyramid, box)!
---> { goal(C) : blue(A), pyramid(A), box(B), C = in(A,B) } = 1.
+--> goal(C) :- blue(A), pyramid(A), box(B), C = in(A,B).
 in(blue pyramid, box).
+failed.
 
 >>> 
 >>> % WHAT DOES THE BOX CONTAIN?
@@ -88,7 +89,7 @@ that(false).
 >>> 
 >>> % STACK UP TWO PYRAMIDS.
 >>> stack(pyramid, pyramid)!
---> { goal(C) : pyramid(A), pyramid(B), C = stack(A,B) } = 1.
+--> goal(C) :- pyramid(A), pyramid(B), C = stack(A,B).
 impossible.
 
 >>> 
@@ -120,7 +121,7 @@ that(blue block | green cube supports[large red block] | blue pyramid).
 
 >>> 
 >>> % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
->>> stack(red block, red block, green cube | pyramid)!
+>>> #any(stack(red block, red block, green cube | pyramid))!
 --> { goal(E) : red(A), block(A), red(B), block(B), disjunction1(D), E = stack(A,B,D) } = 1.
     disjunction1(C) :- green(C), cube(C).
     disjunction1(C) :- pyramid(C).
@@ -143,13 +144,14 @@ that(green cube supports[red pyramid]).
 that(large red block | blue block | green cube supports[green pyramid]).
 
 >>> 
->>> on(red pyramid, green cube)!
+>>> #any(on(red pyramid, green cube))!
 --> { goal(C) : red(A), pyramid(A), green(B), cube(B), C = on(A,B) } = 1.
 on(red pyramid, green cube).
+failed.
 
 >>> 
 >>> % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
->>> on(small block, green cube supports.pyramid)!
+>>> #any(on(small block, green cube supports.pyramid))!
 --> { goal(D) : small(A), block(A), green(C), cube(C), supports(C,B), pyramid(B), D = on(A,C) } = 1.
 pickup(red cube)!
 put_on(red cube, green cube supports[red pyramid])!
@@ -158,8 +160,7 @@ ok.
 >>> 
 >>> % PUT THE LITTLEST PYRAMID ON TOP OF IT.
 >>> on(#most(little, pyramid), small block)!
---> { goal(E) : goal1(E) } = 1.
-    goal1(D) :- little(B,A) : pyramid(A), B != A; pyramid(B), small(C), block(C), D = on(B,C).
+--> goal(D) :- little(B,A) : pyramid(A), B != A; pyramid(B), small(C), block(C), D = on(B,C).
 pickup(green pyramid)!
 put_on(green pyramid, red cube)!
 ok.
@@ -251,7 +252,7 @@ that(1).
 
 >>> 
 >>> on(blue block, box)!
---> { goal(C) : blue(A), block(A), box(B), C = on(A,B) } = 1.
+--> goal(C) :- blue(A), block(A), box(B), C = on(A,B).
 pickup(blue pyramid)!
 put_on(blue pyramid, green cube supports[large red block])!
 pickup(blue block)!
@@ -260,9 +261,10 @@ ok.
 
 >>> 
 >>> % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
->>> on(blue pyramid, block in.box)!
+>>> #any(on(blue pyramid, block in.box))!
 --> { goal(D) : blue(A), pyramid(A), block(C), in(C,B), box(B), D = on(A,C) } = 1.
 on(blue pyramid, green cube).
+failed.
 
 >>> 
 >>> % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
@@ -286,7 +288,7 @@ that(false).
 
 >>> 
 >>> % BUILD ONE.
->>> steeple!
+>>> #any(steeple)!
 --> { goal(A) : steeple(A) } = 1.
 pickup(red pyramid)!
 put_on(red pyramid, blue block)!
@@ -326,7 +328,7 @@ that(nonexistent).
 
 >>> 
 >>> left_of(red pyramid, box)!
---> { goal(C) : red(A), pyramid(A), box(B), C = left_of(A,B) } = 1.
+--> goal(C) :- red(A), pyramid(A), box(B), C = left_of(A,B).
 pickup(red pyramid)!
 put_on(red pyramid, table)!
 ok.

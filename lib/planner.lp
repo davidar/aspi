@@ -1,5 +1,5 @@
 #include <incmode>.
-#const imax = 15.
+#const imax = 20.
 
 #program base.
 % Define
