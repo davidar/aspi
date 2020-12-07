@@ -4,3 +4,7 @@ just_before(E,F) :- end_time(T-1,E), start_time(T,F).
 
 multiple(X,Y) :- X \ Y = 0.
 even(X) :- X \ 2 = 0.
+
+show(X,A) :- X = @show(A).
+concatenate(X,A,B) :- X = @concatenate(A,B).
+reverse(X,A) :- X = @reverse(A).

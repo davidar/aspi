@@ -223,7 +223,7 @@ rule_ebnf = r'''
 %import common.WS
 %ignore WS
 
-ATOM: LCASE_LETTER ("_"|LETTER|DIGIT)*
+ATOM: ["@"] LCASE_LETTER ("_"|LETTER|DIGIT)*
 VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
 OPERATOR: "=" | "!=" | "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "/" | "\\" | "**" | "&" | "?" | "^" | ".."
 

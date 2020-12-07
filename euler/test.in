@@ -15,3 +15,5 @@ prime?
 factor[X 1..1000] := prime multiple'[X].
 factor.42?
 #most((>), factor.42)?
+
+show'[S reverse.S] (10..99)*(10..99)?
