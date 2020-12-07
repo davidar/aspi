@@ -48,7 +48,7 @@ def readfiles(*args):
 
 def clingo(lp):
     result = sh.clingo(_ok_code=[ClingoExitCode.SAT],
-                       _in=lp, outf=2, time_limit=2).stdout
+                       _in=lp, outf=2, time_limit=3).stdout
     values = json.loads(result)['Call'][-1]['Witnesses'][0]['Value']
     return values
 
