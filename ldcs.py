@@ -21,12 +21,14 @@ NAME: LCASE_LETTER CNAME
 
 ?start: command
 command: pred "."
+       | define "."
        | ldcs "?"
        | "#" "any" "(" ldcs ")" "!" -> goal_any
        | ldcs "!" -> goal_all
 pred: atom "(" ldcs ("," ldcs)* ")"
     | atom "$" pred
     | bracketed BIN_OP bracketed -> binop
+define: lam ":=" ldcs
 ?bracketed: "(" ldcs ")"
           | constant -> ldcs
           | join -> ldcs
@@ -121,6 +123,12 @@ class LDCS(lark.Transformer):
 
     def binop(self, a, op, b):
         return a + op + b
+
+    def define(self, head, result):
+        lhs = head(result).split(', ')
+        if len(lhs) > 1:
+            self.body += ', ' + ', '.join(lhs[1:])
+        return lhs[0]
 
     def atom(self, name):
         return name
