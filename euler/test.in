@@ -8,6 +8,10 @@ fib[N 2..45] := fib[N-1] + fib[N-2].
 fib[0..45]?
 #sum(even fib[0..45] (<).1000000)?
 
+% Find the largest prime factor of 42.
 composite := N 1..1000 multiple[2..(N-1)].
 prime := 2..1000 ~composite.
 prime?
+factor[X 1..1000] := prime multiple'[X].
+factor.42?
+#most((>), factor.42)?
