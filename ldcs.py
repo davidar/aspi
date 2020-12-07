@@ -8,6 +8,7 @@ import sys
 ebnf = r'''
 %import common.CNAME
 %import common.INT
+%import common.LCASE_LETTER
 %import common.UCASE_LETTER
 %import common.WS
 %ignore WS
@@ -16,6 +17,7 @@ BIN_OP: "<=" | ">=" | "<" | ">" | "+" | "-" | "*" | "/" | "\\" | "**" | "&" | "?
 AGG_OP: "count" | "sum" | "any"
 SUP_OP: "most" | "each"
 VARIABLE: UCASE_LETTER
+NAME: LCASE_LETTER CNAME
 
 ?start: command
 command: pred "."
@@ -24,20 +26,23 @@ command: pred "."
        | ldcs "!" -> goal_all
 pred: atom "(" ldcs ("," ldcs)* ")"
     | atom "$" pred
-    | ldcs BIN_OP ldcs -> binop
-atom: CNAME
+    | bracketed BIN_OP bracketed -> binop
+?bracketed: "(" ldcs ")"
+          | constant -> ldcs
+          | join -> ldcs
+atom: NAME
 ldcs: disj
 disjs: disj ("," disj)*
 disj: conj ("|" conj)*
 conj: lam lam*
+constant: INT
+        | VARIABLE
 ?lam: unary
-    | INT -> constant
-    | VARIABLE -> constant
+    | constant
     | join
     | neg
     | hof
     | unify
-    | multijoin
 ?unary: func
 ?binary: func
 func: atom
@@ -46,11 +51,11 @@ func: atom
     | func "'" -> flip
 join: binary "." lam
     | binary "[" disj "]"
+    | func "[" disjs [";" disjs] "]" -> multijoin
 neg: "~" lam
 hof: "#" AGG_OP "(" disj ")" -> aggregation
    | "#" SUP_OP "(" binary "," disj ")" -> superlative
 unify: pred
-multijoin: func "[" disjs [";" disjs] "]"
 '''
 
 parser = lark.Lark(ebnf)

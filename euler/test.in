@@ -6,3 +6,7 @@ fib(0,0).
 fib(1,1).
 fib(N 2..45, fib'[N-1] + fib'[N-2]).
 #sum(even fib'[0..45] (<).1000000)?
+
+composite(N 1..1000 multiple[2..(N-1)]).
+prime(2..1000 ~composite).
+prime?
