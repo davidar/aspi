@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import atexit
 import collections
 import enum
 import json
@@ -14,6 +15,13 @@ except ImportError:
     import readline
 
 readline.parse_and_bind('tab: complete')
+
+try:
+    readline.read_history_file('history.log')
+except FileNotFoundError:
+    pass
+
+atexit.register(readline.write_history_file, 'history.log')
 
 
 class ClingoExitCode(enum.IntFlag):
