@@ -19,3 +19,7 @@ factor.42?
 % Find the largest palindrome made from the product of two 2-digit numbers.
 show'[S reverse.S] (10..99)*(10..99)?
 #most((>), show'[S reverse.S] (10..99)*(10..99))?
+
+% What is the smallest number divisible by each of the numbers 1 to 10?
+1..10000 #each(multiple, 1..10)?
+#most((<), 1..10000 #each(multiple, 1..10))?

@@ -105,12 +105,14 @@ class LDCS(lark.Transformer[str]):
         if prefix not in self.counts:
             self.counts[prefix] = 0
         self.counts[prefix] += 1
-        return lambda x: prefix + str(self.counts[prefix]) + '(' + x + ')'
+        name = prefix + str(self.counts[prefix])
+        return lambda x: name + '(' + x + ')'
 
     def lift(self, lam: Unary, prefix: str = 'lifted') -> Unary:
         f = self.genpred(prefix)
         z = self.gensym()
-        self.rules.append(f(z) + ' :- ' + lam(z) + '.')
+        rule = f(z) + ' :- ' + lam(z) + '.'
+        self.rules.append(rule.replace(';.', '.'))
         return f
 
     def expand_macro(self, name: str, *args: Sym) -> str:
@@ -125,7 +127,7 @@ class LDCS(lark.Transformer[str]):
         if body:
             value += ' :- ' + body
         value += '.'
-        self.rules.insert(0, value)
+        self.rules.insert(0, value.replace(';.', '.'))
         return '\n'.join(self.rules).replace(';,', ';')
 
     def goal_any(self, vb: CSym) -> str:

@@ -65,5 +65,18 @@ that(121 | 242 | 363 | 484 | 616 | 737 | 858 | 979 | 1001 | 252 | 444 | 636 | 69
     superlative1(J) :- B = @show(J), B = MuS, B = @reverse(A), A = MuS, C = 10, D = 99, E = C..D, F = 10, G = 99, H = F..G, J = E*H.
 that(9009).
 
+>>> 
+>>> % What is the smallest number divisible by each of the numbers 1 to 10?
+>>> 1..10000 #each(multiple, 1..10)?
+--> what(G) :- A = 1, B = 10000, G = A..B, G \ E = 0 : superlative1(E).
+    superlative1(F) :- C = 1, D = 10, F = C..D.
+that(2520 | 5040 | 7560).
+
+>>> #most((<), 1..10000 #each(multiple, 1..10))?
+--> what(I) :- I<G : superlative2(G), I != G; superlative2(I).
+    superlative1(F) :- C = 1, D = 10, F = C..D.
+    superlative2(H) :- A = 1, B = 10000, H = A..B, H \ E = 0 : superlative1(E).
+that(2520).
+
 >>> thanks.
 YOU'RE WELCOME!
