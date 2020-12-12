@@ -94,6 +94,7 @@ class LDCS(lark.Transformer[str]):
         self.count: int = 0
         self.counts: Dict[str, int] = {}
         self.rules: List[str] = []
+        self.macros: Dict[str, Tuple[List[Sym], lark.Tree]] = {}
 
     def gensym(self) -> Sym:
         sym = string.ascii_uppercase[self.count]
@@ -113,7 +114,7 @@ class LDCS(lark.Transformer[str]):
         return f
 
     def expand_macro(self, name: str, *args: Sym) -> str:
-        params, tree = macros[name]
+        params, tree = self.macros[name]
         subst = dict(zip(params, args))
         return RuleBody(subst, self.gensym).transform(tree)
 
@@ -189,7 +190,7 @@ class LDCS(lark.Transformer[str]):
         return lambda x: x + ' = ' + c
 
     def func(self, name: str) -> Variadic:
-        if name in macros:
+        if name in self.macros:
             return lambda *args: self.expand_macro(name, *args)
         return lambda *args: name + '(' + ','.join(args) + ')'
 
@@ -250,6 +251,26 @@ class LDCS(lark.Transformer[str]):
         lams = zip(lams_head + lams_tail, xs + zs)
         body = ', '.join(lam(x) for lam, x in lams)
         return lambda y: rel(*xs, y, *zs) + ', ' + body
+
+    def toASP(self, s: str) -> Optional[str]:
+        try:
+            tree = parser.parse(s)
+            return self.transform(tree)
+        except lark.exceptions.UnexpectedInput as e:
+            print('Syntax error:', e, file=sys.stderr)
+            return None
+        except lark.exceptions.UnexpectedEOF as e:
+            print('Syntax error:', e, file=sys.stderr)
+            return None
+        finally:
+            self.count = 0
+            self.counts = {}
+            self.rules = []
+
+    def add_macro(self, s: str) -> None:
+        tree = rule_parser.parse(s)
+        name, args = RuleHead().transform(tree)
+        self.macros[name] = args, tree
 
 
 rule_ebnf = r'''
@@ -316,30 +337,5 @@ class RuleBody(lark.Transformer[str]):
         return self.subst[name]
 
 
-def transform(s: str) -> Optional[str]:
-    try:
-        tree = parser.parse(s)
-        return LDCS().transform(tree)
-    except lark.exceptions.UnexpectedInput as e:
-        print('Syntax error:', e, file=sys.stderr)
-        return None
-    except lark.exceptions.UnexpectedEOF as e:
-        print('Syntax error:', e, file=sys.stderr)
-        return None
-
-
-macros = {}
-
-
-def add_macro(s: str) -> None:
-    tree = rule_parser.parse(s)
-    name, args = RuleHead().transform(tree)
-    macros[name] = args, tree
-
-
-def main() -> None:
-    print(transform(input()))
-
-
 if __name__ == '__main__':
-    main()
+    print(LDCS().toASP(input()))
