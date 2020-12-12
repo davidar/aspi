@@ -237,13 +237,13 @@ that(2).
 >>> 
 >>> % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
 >>> supports'[red cube, just_before.cleanoff[red cube]]?
---> what(E) :- supports(D,C,E), red(C), cube(C), end_time(F - 1,D), start_time(F,B), cleanoff(B,A), red(A), cube(A).
+--> what(F) :- supports(D,C,F), red(C), cube(C), end_time(E - 1,D), start_time(E,B), cleanoff(B,A), red(A), cube(A).
 that(green pyramid).
 
 >>> 
 >>> % THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
 >>> block left_of[box; just_before.cleanoff[red cube]]?
---> what(E) :- block(E), left_of(C,E,D), end_time(F - 1,C), start_time(F,B), cleanoff(B,A), red(A), cube(A), box(D).
+--> what(F) :- block(F), left_of(C,F,D), end_time(E - 1,C), start_time(E,B), cleanoff(B,A), red(A), cube(A), box(D).
 that(red cube).
 
 >>> #count(that)?
