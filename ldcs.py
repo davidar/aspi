@@ -15,9 +15,8 @@ ebnf = r'''
 %import common.WS
 %ignore WS
 
-BIN_OP: "<=" | ">=" | "<" | ">"
-      | "+" | "-" | "*" | "/"
-      | "\\" | "**" | "&" | "?" | "^" | ".."
+CMP_OP: "<=" | ">=" | "<" | ">"
+BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
 AGG_OP: "count" | "sum" | "any"
 SUP_OP: "most" | "each"
 VARIABLE: UCASE_LETTER
@@ -34,8 +33,7 @@ pred: atom "(" ldcs ("," ldcs)* ")"
     | bracketed BIN_OP bracketed -> binop
 define: lam ":=" ldcs
 ?bracketed: "(" ldcs ")"
-          | constant -> ldcs
-          | join -> ldcs
+          | lam -> ldcs
 atom: NAME
 ldcs: disj
 disjs: disj ("," disj)*
@@ -52,7 +50,7 @@ constant: INT
 ?unary: func
 ?binary: func
 func: atom
-    | "(" BIN_OP ")" -> func_binop
+    | "(" CMP_OP ")" -> func_binop
     | atom "$" func -> compose
     | func "'" -> flip
 join: binary "." lam

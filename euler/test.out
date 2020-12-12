@@ -78,5 +78,15 @@ that(2520 | 5040 | 7560).
     superlative2(H) :- A = 1, B = 10000, H = A..B, H \ E = 0 : superlative1(E).
 that(2520).
 
+>>> 
+>>> % What is the difference between the sum of the squares and the square of the sums?
+>>> #sum((1..100) ** 2)?
+--> what(F) :- F = #sum { E : A = 1, B = 100, C = A..B, D = 2, E = C**D }.
+that(338350).
+
+>>> #sum(1..100) ** 2?
+--> what(F) :- D = #sum { C : A = 1, B = 100, C = A..B }, E = 2, F = D**E.
+that(25502500).
+
 >>> thanks.
 YOU'RE WELCOME!
