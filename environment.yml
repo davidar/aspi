@@ -7,7 +7,12 @@ channels:
 dependencies:
   - python=3.8
   - clingo
+  - flake8
   - lark-parser
+  - mypy
   - sh
   - pytest
   - pytest-console-scripts
+  - pip
+  - pip:
+    - flake8-mypy
