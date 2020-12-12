@@ -7,7 +7,7 @@ import re
 import readline
 import sh  # type: ignore
 import sys
-from typing import cast, Dict, List
+from typing import cast, Dict, List, Optional
 
 import ldcs
 
@@ -68,51 +68,53 @@ class ASPI:
         if cmd == 'thanks.':
             print("YOU'RE WELCOME!")
             sys.exit(0)
+        res = self.eval(cmd)
+        if res is not None:
+            self.print(res)
+            for fact in self.facts:
+                if fact.startswith('moves('):
+                    self.now = int(fact[len('moves('):-1])
+            self.counter += 1
 
-        declare = cmd.endswith('.')
-        command = cmd.endswith('!')
+    def eval(self, cmd: str) -> Optional['Results']:
         lp = self.ldcs.toASP(cmd)
         if lp is None:
-            return
+            return None
         print('-->', '\n    '.join(lp.split('\n')))
         lp += '\n'
-        if declare:
+        if cmd.endswith('.'):
             self.program += lp
             print('understood.\n')
-            return
+            return None
 
         lp += '#const now = ' + str(self.now) + '.\n'
         lp += '#const counter = ' + str(self.counter) + '.\n'
         lp += ''.join(fact + '.\n' for fact in self.facts)
         lp += self.program
         try:
-            res = Results(self, clingo(lp))
+            return Results(self, clingo(lp))
         except sh.ErrorReturnCode as e:
             if e.exit_code == ClingoExitCode.INTERRUPT:
                 print('timeout.\n')
-                return
+                return None
             elif e.exit_code == ClingoExitCode.EXHAUST:
                 print('impossible.\n')
-                return
+                return None
             else:
                 print(e.stderr.decode('utf-8'), file=sys.stderr)
                 print(ClingoExitCode(e.exit_code), file=sys.stderr)
                 sys.exit(1)
+
+    def print(self, res: 'Results') -> None:
         for fact in res.already:
             print(fact + '.')
         for act in res.acts:
             print(act + '!')
         if res.ok:
             print('ok.')
-        elif command:
-            print('failed.')
         if res.shows:
             print('that(' + ' | '.join(res.shows) + ').')
         print()
-        for fact in self.facts:
-            if fact.startswith('moves('):
-                self.now = int(fact[len('moves('):-1])
-        self.counter += 1
 
 
 class Results:

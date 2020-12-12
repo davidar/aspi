@@ -10,7 +10,6 @@ ok.
 >>> % GRASP THE PYRAMID.
 >>> holding(that pyramid)!
 --> goal(B) :- that(A), pyramid(A), B = holding(A).
-failed.
 
 >>> 
 >>> % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
@@ -29,7 +28,6 @@ ok.
 >>> in(blue pyramid, box)!
 --> goal(C) :- blue(A), pyramid(A), box(B), C = in(A,B).
 in(blue pyramid, box).
-failed.
 
 >>> 
 >>> % WHAT DOES THE BOX CONTAIN?
@@ -146,8 +144,7 @@ that(large red block | blue block | green cube supports[green pyramid]).
 >>> 
 >>> #any(on(red pyramid, green cube))!
 --> { goal(C) : red(A), pyramid(A), green(B), cube(B), C = on(A,B) } = 1.
-on(red pyramid, green cube).
-failed.
+on(red pyramid, green cube supports[red pyramid]).
 
 >>> 
 >>> % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
@@ -263,8 +260,7 @@ ok.
 >>> % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
 >>> #any(on(blue pyramid, block in.box))!
 --> { goal(D) : blue(A), pyramid(A), block(C), in(C,B), box(B), D = on(A,C) } = 1.
-on(blue pyramid, green cube).
-failed.
+on(blue pyramid, green cube supports[blue pyramid]).
 
 >>> 
 >>> % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
