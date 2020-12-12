@@ -16,4 +16,6 @@ factor[X 1..1000] := prime multiple'[X].
 factor.42?
 #most((>), factor.42)?
 
+% Find the largest palindrome made from the product of two 2-digit numbers.
 show'[S reverse.S] (10..99)*(10..99)?
+#most((>), show'[S reverse.S] (10..99)*(10..99))?

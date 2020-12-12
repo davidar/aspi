@@ -68,7 +68,6 @@ class LDCS(lark.Transformer):
     def __init__(self):
         self.count = 0
         self.counts = {}
-        self.body = ''
         self.rules = []
 
     def gensym(self):
@@ -94,17 +93,18 @@ class LDCS(lark.Transformer):
         return RuleBody(subst, self.gensym).transform(tree)
 
     def command(self, value):
+        value, body = value
         if len(value) == 1:
             value = 'what(' + value + ')'
-        if self.body:
-            value += ' :- ' + self.body
+        if body:
+            value += ' :- ' + body
         value += '.'
         self.rules.insert(0, value)
         return '\n'.join(self.rules).replace(';,', ';')
 
     def goal_any(self, value):
-        body = self.body
-        if ';' in self.body:
+        value, body = value
+        if ';' in body:
             f = self.genpred('goal')
             self.rules.append(f(value) + ' :- ' + body + '.')
             value = self.gensym()
@@ -113,32 +113,34 @@ class LDCS(lark.Transformer):
         return '\n'.join(self.rules).replace(';,', ';')
 
     def goal_all(self, value):
-        self.rules.insert(0, 'goal(' + value + ') :- ' + self.body + '.')
+        value, body = value
+        self.rules.insert(0, 'goal(' + value + ') :- ' + body + '.')
         return '\n'.join(self.rules).replace(';,', ';')
 
     def pred(self, name, *args):
+        args, bodies = zip(*args)
         if not args:
-            return name
-        return name + '(' + ','.join(args) + ')'
+            return name, None
+        return name + '(' + ','.join(args) + ')', ', '.join(bodies)
 
     def binop(self, a, op, b):
-        return a + op + b
+        a, body1 = a
+        b, body2 = b
+        return a + op + b, body1 + ', ' + body2
 
     def define(self, head, result):
+        result, body = result
         lhs = head(result).split(', ')
         if len(lhs) > 1:
-            self.body += ', ' + ', '.join(lhs[1:])
-        return lhs[0]
+            body = ', '.join(lhs[1:]) + ', ' + body
+        return lhs[0], body
 
     def atom(self, name):
         return name
 
     def ldcs(self, lam):
         x = self.gensym()
-        if self.body:
-            self.body += ', '
-        self.body += lam(x)
-        return x
+        return x, lam(x)
 
     def disjs(self, *args):
         return list(args)
@@ -196,7 +198,7 @@ class LDCS(lark.Transformer):
 
     def superlative(self, op, rel, lam):
         y = self.gensym()
-        if ';' in lam(y):
+        if ' ' in lam(y):
             lam = self.lift(lam, 'superlative')
         if op == 'most':
             return lambda x: rel(x, y) + ' : ' + lam(y) + ', ' + x + ' != ' + y + '; ' + lam(x)
@@ -204,7 +206,8 @@ class LDCS(lark.Transformer):
             return lambda x: rel(x, y) + ' : ' + lam(y) + ';'
 
     def unify(self, pred):
-        return lambda x: x + ' = ' + pred
+        pred, body = pred
+        return lambda x: body + ', ' + x + ' = ' + pred
 
     def multijoin(self, rel, lams_tail, lams_head=[]):
         lams_head.reverse()

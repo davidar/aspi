@@ -187,7 +187,7 @@ that(large red block | blue block | red cube | red pyramid | green pyramid).
 >>> 
 >>> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
 >>> pickup.pyramid before.goal.on(green pyramid, little cube)?
---> what(F) :- green(B), pyramid(B), little(C), cube(C), pickup(F,A), pyramid(A), end_time(G,F), G = 0 .. H - 1, start_time(H,E), goal(E,D), D = on(B,C).
+--> what(F) :- pickup(F,A), pyramid(A), end_time(G,F), G = 0 .. H - 1, start_time(H,E), goal(E,D), green(B), pyramid(B), little(C), cube(C), D = on(B,C).
 that(pickup[green pyramid]).
 
 >>> 
@@ -323,7 +323,7 @@ that(true).
 >>> 
 >>> % WHY DID YOU DROP IT?
 >>> why.put_on(superblock, table)?
---> what(D) :- superblock(A), table(B), why(D,C), C = put_on(A,B).
+--> what(D) :- why(D,C), superblock(A), table(B), C = put_on(A,B).
 that(nonexistent).
 
 >>> 

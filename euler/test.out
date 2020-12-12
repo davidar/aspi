@@ -1,6 +1,6 @@
 >>> % Add all the natural numbers below 1000 that are multiples of 3 or 5.
 >>> #sum(0..999 multiple[3|5])?
---> what(F) :- A = 0, B = 999, F = #sum { E : E = A..B, E \ D = 0, disjunction1(D) }.
+--> what(F) :- F = #sum { E : A = 0, B = 999, E = A..B, E \ D = 0, disjunction1(D) }.
     disjunction1(C) :- C = 3.
     disjunction1(C) :- C = 5.
 that(233168).
@@ -8,29 +8,29 @@ that(233168).
 >>> 
 >>> % Find the sum of all the even-valued terms in the Fibonacci sequence which do not exceed one million.
 >>> fib[0] := 0.
---> fib(B,A) :- B = 0, A = 0.
+--> fib(B,A) :- A = 0, B = 0.
 understood.
 
 >>> fib[1] := 1.
---> fib(B,A) :- B = 1, A = 1.
+--> fib(B,A) :- A = 1, B = 1.
 understood.
 
 >>> fib[N 2..45] := fib[N-1] + fib[N-2].
---> fib(L,C) :- A = 2, B = 45, D = MuN, E = 1, fib(G,F), F = D-E, H = MuN, I = 2, fib(K,J), J = H-I, L = G+K, C = MuN, C = A..B.
+--> fib(L,C) :- C = MuN, A = 2, B = 45, C = A..B, fib(G,F), D = MuN, E = 1, F = D-E, fib(K,J), H = MuN, I = 2, J = H-I, L = G+K.
 understood.
 
 >>> fib[0..45]?
---> what(D) :- A = 0, B = 45, fib(D,C), C = A..B.
+--> what(D) :- fib(D,C), A = 0, B = 45, C = A..B.
 that(0 | 1 | 2 | 3 | 5 | 8 | 13 | 21 | 34 | 55 | 89 | 144 | 233 | 377 | 610 | 987 | 1597 | 2584 | 4181 | 6765 | 10946 | 17711 | 28657 | 46368 | 75025 | 121393 | 196418 | 317811 | 514229 | 832040 | 1346269 | 2178309 | 3524578 | 5702887 | 9227465 | 14930352 | 24157817 | 39088169 | 63245986 | 102334155 | 165580141 | 267914296 | 433494437 | 701408733 | 1134903170).
 
 >>> #sum(even fib[0..45] (<).1000000)?
---> what(F) :- A = 0, B = 45, F = #sum { E : E \ 2 = 0, fib(E,C), C = A..B, E<D, D = 1000000 }.
+--> what(F) :- F = #sum { E : E \ 2 = 0, fib(E,C), A = 0, B = 45, C = A..B, E<D, D = 1000000 }.
 that(1089154).
 
 >>> 
 >>> % Find the largest prime factor of 42.
 >>> composite := N 1..1000 multiple[2..(N-1)].
---> composite(H) :- A = 1, B = 1000, C = 2, D = MuN, E = 1, F = D-E, H = MuN, H = A..B, H \ G = 0, G = C..F.
+--> composite(H) :- H = MuN, A = 1, B = 1000, H = A..B, H \ G = 0, C = 2, D = MuN, E = 1, F = D-E, G = C..F.
 understood.
 
 >>> prime := 2..1000 ~composite.
@@ -42,7 +42,7 @@ understood.
 that(2 | 3 | 5 | 7 | 11 | 13 | 17 | 19 | 23 | 29 | 31 | 37 | 41 | 43 | 47 | 53 | 59 | 61 | 67 | 71 | 73 | 79 | 83 | 89 | 97 | 101 | 103 | 107 | 109 | 113 | 127 | 131 | 137 | 139 | 149 | 151 | 157 | 163 | 167 | 173 | 179 | 181 | 191 | 193 | 197 | 199 | 211 | 223 | 227 | 229 | 233 | 239 | 241 | 251 | 257 | 263 | 269 | 271 | 277 | 281 | 283 | 293 | 307 | 311 | 313 | 317 | 331 | 337 | 347 | 349 | 353 | 359 | 367 | 373 | 379 | 383 | 389 | 397 | 401 | 409 | 419 | 421 | 431 | 433 | 439 | 443 | 449 | 457 | 461 | 463 | 467 | 479 | 487 | 491 | 499 | 503 | 509 | 521 | 523 | 541 | 547 | 557 | 563 | 569 | 571 | 577 | 587 | 593 | 599 | 601 | 607 | 613 | 617 | 619 | 631 | 641 | 643 | 647 | 653 | 659 | 661 | 673 | 677 | 683 | 691 | 701 | 709 | 719 | 727 | 733 | 739 | 743 | 751 | 757 | 761 | 769 | 773 | 787 | 797 | 809 | 811 | 821 | 823 | 827 | 829 | 839 | 853 | 857 | 859 | 863 | 877 | 881 | 883 | 887 | 907 | 911 | 919 | 929 | 937 | 941 | 947 | 953 | 967 | 971 | 977 | 983 | 991 | 997).
 
 >>> factor[X 1..1000] := prime multiple'[X].
---> factor(E,C) :- A = 1, B = 1000, prime(E), D \ E = 0, D = MuX, C = MuX, C = A..B.
+--> factor(E,C) :- C = MuX, A = 1, B = 1000, C = A..B, prime(E), D \ E = 0, D = MuX.
 understood.
 
 >>> factor.42?
@@ -50,13 +50,20 @@ understood.
 that(2 | 3 | 7).
 
 >>> #most((>), factor.42)?
---> what(C) :- C>B : factor(B,A), A = 42, C != B; factor(C,A), A = 42.
+--> what(D) :- D>B : superlative1(B), D != B; superlative1(D).
+    superlative1(C) :- factor(C,A), A = 42.
 that(7).
 
 >>> 
+>>> % Find the largest palindrome made from the product of two 2-digit numbers.
 >>> show'[S reverse.S] (10..99)*(10..99)?
---> what(I) :- C = 10, D = 99, E = C..D, F = 10, G = 99, H = F..G, B = @show(I), B = MuS, B = @reverse(A), A = MuS, I = E*H.
+--> what(I) :- B = @show(I), B = MuS, B = @reverse(A), A = MuS, C = 10, D = 99, E = C..D, F = 10, G = 99, H = F..G, I = E*H.
 that(121 | 242 | 363 | 484 | 616 | 737 | 858 | 979 | 1001 | 252 | 444 | 636 | 696 | 828 | 888 | 494 | 585 | 676 | 767 | 949 | 434 | 686 | 868 | 525 | 555 | 272 | 464 | 656 | 848 | 323 | 595 | 646 | 969 | 414 | 666 | 1881 | 777 | 2002 | 2112 | 575 | 989 | 1771 | 999 | 2772 | 2552 | 1221 | 1551 | 2442 | 3003 | 2992 | 3663 | 2332 | 4004 | 4224 | 4554 | 3773 | 4664 | 5005 | 5115 | 5225 | 5335 | 5445 | 4774 | 6336 | 4884 | 6006 | 7227 | 5775 | 6776 | 7007 | 8118 | 8008 | 8448 | 9009).
+
+>>> #most((>), show'[S reverse.S] (10..99)*(10..99))?
+--> what(K) :- K>I : superlative1(I), K != I; superlative1(K).
+    superlative1(J) :- B = @show(J), B = MuS, B = @reverse(A), A = MuS, C = 10, D = 99, E = C..D, F = 10, G = 99, H = F..G, J = E*H.
+that(9009).
 
 >>> thanks.
 YOU'RE WELCOME!
