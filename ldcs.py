@@ -29,7 +29,6 @@ command: pred [":-" pred ("," pred)*] "."
        | "#" "any" "(" ldcs ")" "!" -> goal_any
        | ldcs "!" -> goal_all
 pred: atom "(" ldcs ("," ldcs)* ")"
-    | "(" ldcs ("," ldcs)* ")" -> tuple
     | atom "$" pred
     | bracketed BIN_OP bracketed -> binop
 define: lam ":=" ldcs
@@ -155,9 +154,6 @@ class LDCS(lark.Transformer[str]):
         if not vals:
             return name, None
         return f"{name}({','.join(vals)})", commas(*bodies)
-
-    def tuple(self, *args: CSym) -> CSym:
-        return self.pred('', *args)
 
     def binop(self, a: CSym, op: str, b: CSym) -> CSym:
         arg1, body1 = a

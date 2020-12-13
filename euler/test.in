@@ -34,6 +34,6 @@ show'[S reverse.S] (10..99)*(10..99)?
 % There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 96. Find the product abc.
 pythag(A 1..100, B 1..100, C 1..100) :- (A**2) = ((B**2) + (C**2)).
 pythag[3,4]?
-(A,B,C) :- pythag(A,B,C)?
-(A,B,C) :- pythag(A,B,C), (A+B+C) = 96?
-(A*B*C) :- pythag(A,B,C), (A+B+C) = 96?
+triple(A,B,C) :- pythag(A,B,C)?
+triple(A,B,C) :- pythag(A,B,C), (A+B+C) = 96?
+A*B*C :- pythag(A,B,C), (A+B+C) = 96?
