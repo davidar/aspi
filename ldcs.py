@@ -23,9 +23,9 @@ VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER CNAME
 
 start: cmd
-?cmd: (unary | join) ":=" ldcs "." -> define
-    | pred [":-" pred ("," pred)*] "." -> command
-    | ldcs [":-" pred ("," pred)*] "?" -> command
+?cmd: (unary | join) ":" ldcs "." -> define
+    | pred [":" pred ("," pred)*] "." -> command
+    | ldcs [":" pred ("," pred)*] "?" -> command
     | "#" "any" "(" ldcs ")" "!" -> goal_any
     | ldcs "!" -> goal_all
 pred: atom "(" ldcs ("," ldcs)* ")"
