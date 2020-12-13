@@ -1,4 +1,4 @@
->>> % Add all the natural numbers below 1000 that are multiples of 3 or 5.
+>>> % 1. Add all the natural numbers below 1000 that are multiples of 3 or 5.
 >>> #sum(0..999 multiple[3|5])?
 --> what(F) :- F = #sum { E : A = 0, B = 999, E = A..B, E \ D = 0, disjunction1(D) }.
     disjunction1(C) :- C = 3.
@@ -6,7 +6,7 @@
 that(233168).
 
 >>> 
->>> % Find the sum of all the even-valued terms in the Fibonacci sequence which do not exceed one million.
+>>> % 2. Find the sum of all the even-valued terms in the Fibonacci sequence which do not exceed one million.
 >>> fib[0]: 0.
 --> fib(B,A) :- A = 0, B = 0.
 understood.
@@ -28,7 +28,7 @@ that(0 | 1 | 2 | 3 | 5 | 8 | 13 | 21 | 34 | 55 | 89 | 144 | 233 | 377 | 610 | 98
 that(1089154).
 
 >>> 
->>> % Find the largest prime factor of 42.
+>>> % 3. Find the largest prime factor of 42.
 >>> composite: N 1..1000 multiple[2..(N-1)].
 --> composite(H) :- H = MuN, A = 1, B = 1000, H = A..B, H \ G = 0, C = 2, D = MuN, E = 1, F = D-E, G = C..F.
 understood.
@@ -55,7 +55,7 @@ that(2 | 3 | 7).
 that(7).
 
 >>> 
->>> % Find the largest palindrome made from the product of two 2-digit numbers.
+>>> % 4. Find the largest palindrome made from the product of two 2-digit numbers.
 >>> show'[S reverse.S] (10..99)*(10..99)?
 --> what(I) :- B = @show(I), B = MuS, B = @reverse(A), A = MuS, C = 10, D = 99, E = C..D, F = 10, G = 99, H = F..G, I = E*H.
 that(121 | 242 | 363 | 484 | 616 | 737 | 858 | 979 | 1001 | 252 | 444 | 636 | 696 | 828 | 888 | 494 | 585 | 676 | 767 | 949 | 434 | 686 | 868 | 525 | 555 | 272 | 464 | 656 | 848 | 323 | 595 | 646 | 969 | 414 | 666 | 1881 | 777 | 2002 | 2112 | 575 | 989 | 1771 | 999 | 2772 | 2552 | 1221 | 1551 | 2442 | 3003 | 2992 | 3663 | 2332 | 4004 | 4224 | 4554 | 3773 | 4664 | 5005 | 5115 | 5225 | 5335 | 5445 | 4774 | 6336 | 4884 | 6006 | 7227 | 5775 | 6776 | 7007 | 8118 | 8008 | 8448 | 9009).
@@ -66,7 +66,7 @@ that(121 | 242 | 363 | 484 | 616 | 737 | 858 | 979 | 1001 | 252 | 444 | 636 | 69
 that(9009).
 
 >>> 
->>> % What is the smallest number divisible by each of the numbers 1 to 10?
+>>> % 5. What is the smallest number divisible by each of the numbers 1 to 10?
 >>> 1..10000 #each(multiple, 1..10)?
 --> what(G) :- A = 1, B = 10000, G = A..B, G \ E = 0 : superlative1(E).
     superlative1(F) :- C = 1, D = 10, F = C..D.
@@ -79,7 +79,7 @@ that(2520 | 5040 | 7560).
 that(2520).
 
 >>> 
->>> % What is the difference between the sum of the squares and the square of the sums?
+>>> % 6. What is the difference between the sum of the squares and the square of the sums?
 >>> #sum((1..100) ** 2)?
 --> what(F) :- F = #sum { E : A = 1, B = 100, C = A..B, D = 2, E = C**D }.
 that(338350).
@@ -89,14 +89,14 @@ that(338350).
 that(25502500).
 
 >>> 
->>> % Find the 101st prime.
+>>> % 7. Find the 101st prime.
 >>> #enumerate(101, prime)?
 --> what(B) :- enumerate(1,A,B), A = 101.
     gather(1,A) :- prime(A).
 that(547).
 
 >>> 
->>> % There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 96. Find the product abc.
+>>> % 9. There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 96. Find the product abc.
 >>> pythag(A 1..100, B 1..100, C 1..100): (A**2) = ((B**2) + (C**2)).
 --> pythag(C,F,I) :- C = MuA, A = 1, B = 100, C = A..B, F = MuB, D = 1, E = 100, F = D..E, I = MuC, G = 1, H = 100, I = G..H, L=S, J = MuA, K = 2, L = J**K, M = MuB, N = 2, O = M**N, P = MuC, Q = 2, R = P**Q, S = O+R.
 understood.
@@ -116,6 +116,12 @@ that(triple(40,24,32) | triple(40,32,24)).
 >>> (A*B)*C: pythag(A,B,C), ((A+B)+C) = 96?
 --> what(E) :- A = MuA, B = MuB, C = A*B, D = MuC, E = C*D, pythag(F,G,H), F = MuA, G = MuB, H = MuC, M=N, I = MuA, J = MuB, K = I+J, L = MuC, M = K+L, N = 96.
 that(30720).
+
+>>> 
+>>> % 10. Calculate the sum of all the primes below one hundred.
+>>> #sum(prime 1..99)?
+--> what(D) :- D = #sum { C : prime(C), A = 1, B = 99, C = A..B }.
+that(1060).
 
 >>> thanks.
 YOU'RE WELCOME!

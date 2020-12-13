@@ -1,14 +1,14 @@
-% Add all the natural numbers below 1000 that are multiples of 3 or 5.
+% 1. Add all the natural numbers below 1000 that are multiples of 3 or 5.
 #sum(0..999 multiple[3|5])?
 
-% Find the sum of all the even-valued terms in the Fibonacci sequence which do not exceed one million.
+% 2. Find the sum of all the even-valued terms in the Fibonacci sequence which do not exceed one million.
 fib[0]: 0.
 fib[1]: 1.
 fib[N 2..45]: fib[N-1] + fib[N-2].
 fib[0..45]?
 #sum(even fib[0..45] (<).1000000)?
 
-% Find the largest prime factor of 42.
+% 3. Find the largest prime factor of 42.
 composite: N 1..1000 multiple[2..(N-1)].
 prime: 2..1000 ~composite.
 prime?
@@ -16,24 +16,27 @@ factor[X 1..1000]: prime multiple'[X].
 factor.42?
 #most((>), factor.42)?
 
-% Find the largest palindrome made from the product of two 2-digit numbers.
+% 4. Find the largest palindrome made from the product of two 2-digit numbers.
 show'[S reverse.S] (10..99)*(10..99)?
 #most((>), show'[S reverse.S] (10..99)*(10..99))?
 
-% What is the smallest number divisible by each of the numbers 1 to 10?
+% 5. What is the smallest number divisible by each of the numbers 1 to 10?
 1..10000 #each(multiple, 1..10)?
 #most((<), 1..10000 #each(multiple, 1..10))?
 
-% What is the difference between the sum of the squares and the square of the sums?
+% 6. What is the difference between the sum of the squares and the square of the sums?
 #sum((1..100) ** 2)?
 #sum(1..100) ** 2?
 
-% Find the 101st prime.
+% 7. Find the 101st prime.
 #enumerate(101, prime)?
 
-% There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 96. Find the product abc.
+% 9. There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 96. Find the product abc.
 pythag(A 1..100, B 1..100, C 1..100): (A**2) = ((B**2) + (C**2)).
 pythag[3,4]?
 triple(A,B,C): pythag(A,B,C)?
 triple(A,B,C): pythag(A,B,C), ((A+B)+C) = 96?
 (A*B)*C: pythag(A,B,C), ((A+B)+C) = 96?
+
+% 10. Calculate the sum of all the primes below one hundred.
+#sum(prime 1..99)?
