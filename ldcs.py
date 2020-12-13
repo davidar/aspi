@@ -104,12 +104,12 @@ class LDCS(lark.Transformer[str]):
             self.counts[prefix] = 0
         self.counts[prefix] += 1
         name = prefix + str(self.counts[prefix])
-        return lambda x: name + '(' + x + ')'
+        return lambda x: f'{name}({x})'
 
     def lift(self, lam: Unary, prefix: str = 'lifted') -> Unary:
         f = self.genpred(prefix)
         z = self.gensym()
-        rule = f(z) + ' :- ' + lam(z) + '.'
+        rule = f'{f(z)} :- {lam(z)}.'
         self.rules.append(rule.replace(';.', '.'))
         return f
 
@@ -121,7 +121,7 @@ class LDCS(lark.Transformer[str]):
     def command(self, vb: CSym) -> str:
         value, body = vb
         if len(value) == 1:
-            value = 'what(' + value + ')'
+            value = f'what({value})'
         if body:
             value += ' :- ' + body
         value += '.'
@@ -133,23 +133,23 @@ class LDCS(lark.Transformer[str]):
         assert body is not None
         if ';' in body:
             f = self.genpred('goal')
-            self.rules.append(f(value) + ' :- ' + body + '.')
+            self.rules.append(f'{f(value)} :- {body}.')
             value = self.gensym()
             body = f(value)
-        self.rules.insert(0, '{ goal(' + value + ') : ' + body + ' } = 1.')
+        self.rules.insert(0, f'{{ goal({value}) : {body} }} = 1.')
         return '\n'.join(self.rules).replace(';,', ';')
 
     def goal_all(self, vb: CSym) -> str:
         value, body = vb
         assert body is not None
-        self.rules.insert(0, 'goal(' + value + ') :- ' + body + '.')
+        self.rules.insert(0, f'goal({value}) :- {body}.')
         return '\n'.join(self.rules).replace(';,', ';')
 
     def pred(self, name: str, *args: CSym) -> CSym:
         vals, bodies = unzip(args)
         if not vals:
             return name, None
-        return name + '(' + ','.join(vals) + ')', commas(*bodies)
+        return f"{name}({','.join(vals)})", commas(*bodies)
 
     def binop(self, a: CSym, op: str, b: CSym) -> CSym:
         arg1, body1 = a
@@ -178,7 +178,7 @@ class LDCS(lark.Transformer[str]):
             return lams[0]
         f = self.genpred('disjunction')
         x = self.gensym()
-        self.rules.extend(f(x) + ' :- ' + lam(x) + '.' for lam in lams)
+        self.rules.extend(f'{f(x)} :- {lam(x)}.' for lam in lams)
         return f
 
     def conj(self, *lams: Unary) -> Unary:
@@ -187,25 +187,25 @@ class LDCS(lark.Transformer[str]):
     def constant(self, c: str) -> Unary:
         if c in string.ascii_uppercase:
             c = 'Mu' + c
-        return lambda x: x + ' = ' + c
+        return lambda x: f'{x} = {c}'
 
     def func(self, name: str) -> Variadic:
         if name in self.macros:
             return lambda *args: self.expand_macro(name, *args)
-        return lambda *args: name + '(' + ','.join(args) + ')'
+        return lambda *args: f"{name}({','.join(args)})"
 
     def func_binop(self, op: str) -> Binary:
         return lambda x, y: x + op + y
 
     def compose(self, name: str, lam: Variadic) -> Variadic:
-        return lambda *args: name + '(' + lam(*args) + ')'
+        return lambda *args: f'{name}({lam(*args)})'
 
     def flip(self, lam: Variadic) -> Variadic:
         return lambda *args: lam(*reversed(args))
 
     def join(self, rel: Binary, lam: Unary) -> Unary:
         y = self.gensym()
-        return lambda x: rel(x, y) + ', ' + lam(y)
+        return lambda x: commas(rel(x, y), lam(y))
 
     def neg(self, lam: Unary) -> Unary:
         if ' ' in lam('_'):
@@ -221,8 +221,8 @@ class LDCS(lark.Transformer[str]):
             return lambda x: f'{x} = #{op} {{ {y} : {lam(y)} }}'
         elif op == 'any':
             f = self.genpred('any')
-            self.rules.append(f('true') + ' :- ' + lam(y) + '.')
-            self.rules.append(f('false') + ' :- not ' + f('true') + '.')
+            self.rules.append(f"{f('true')} :- {lam(y)}.")
+            self.rules.append(f"{f('false')} :- not {f('true')}.")
             return f
         else:
             assert False
@@ -241,7 +241,7 @@ class LDCS(lark.Transformer[str]):
 
     def unify(self, vb: CSym) -> Unary:
         pred, body = vb
-        return lambda x: commas(body, x + ' = ' + pred)
+        return lambda x: commas(body, f'{x} = {pred}')
 
     def multijoin(self, rel: Variadic, lams_tail: List[Unary],
                   lams_head: List[Unary] = []) -> Unary:
@@ -250,7 +250,7 @@ class LDCS(lark.Transformer[str]):
         zs = [self.gensym() for lam in lams_tail]
         lams = zip(lams_head + lams_tail, xs + zs)
         body = ', '.join(lam(x) for lam, x in lams)
-        return lambda y: rel(*xs, y, *zs) + ', ' + body
+        return lambda y: commas(rel(*xs, y, *zs), body)
 
     def toASP(self, s: str) -> Optional[str]:
         try:
@@ -326,7 +326,7 @@ class RuleBody(lark.Transformer[str]):
     def pred(self, name: str, *args: str) -> str:
         if not args:
             name
-        return name + '(' + ','.join(args) + ')'
+        return f"{name}({','.join(args)})"
 
     def predop(self, *args: str) -> str:
         return ' '.join(args)

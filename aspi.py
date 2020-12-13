@@ -87,8 +87,8 @@ class ASPI:
             print('understood.\n')
             return None
 
-        lp += '#const now = ' + str(self.now) + '.\n'
-        lp += '#const counter = ' + str(self.counter) + '.\n'
+        lp += f'#const now = {self.now}.\n'
+        lp += f'#const counter = {self.counter}.\n'
         lp += ''.join(fact + '.\n' for fact in self.facts)
         lp += self.program
         try:
@@ -113,7 +113,7 @@ class ASPI:
         if res.ok:
             print('ok.')
         if res.shows:
-            print('that(' + ' | '.join(res.shows) + ').')
+            print(f"that({' | '.join(res.shows)}).")
         print()
 
 
