@@ -22,16 +22,15 @@ SUP_OP: "most" | "each"
 VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER CNAME
 
-?start: command
-command: pred [":-" pred ("," pred)*] "."
-       | define "."
-       | ldcs [":-" pred ("," pred)*] "?"
-       | "#" "any" "(" ldcs ")" "!" -> goal_any
-       | ldcs "!" -> goal_all
+start: cmd
+?cmd: (unary | join) ":=" ldcs "." -> define
+    | pred [":-" pred ("," pred)*] "." -> command
+    | ldcs [":-" pred ("," pred)*] "?" -> command
+    | "#" "any" "(" ldcs ")" "!" -> goal_any
+    | ldcs "!" -> goal_all
 pred: atom "(" ldcs ("," ldcs)* ")"
     | atom "$" pred
     | bracketed BIN_OP bracketed -> binop
-define: lam ":=" ldcs
 ?bracketed: "(" ldcs ")"
           | lam -> ldcs
 atom: NAME
@@ -120,6 +119,15 @@ class LDCS(lark.Transformer[str]):
         subst = dict(zip(params, args))
         return RuleBody(subst, self.gensym).transform(tree)
 
+    def start(self, rule: str) -> str:
+        self.rules.insert(0, rule + '.')
+        return '\n'.join(self.rules).replace(';,', ';').replace(';.', '.')
+
+    def define(self, head: Unary, vb: CSym) -> str:
+        result, body = vb
+        lhs = head(result).split(', ')
+        return f'{lhs[0]} :- {commas(*lhs[1:], body)}'
+
     def command(self, vb: CSym, *args: CSym) -> str:
         value, body = vb
         if len(value) == 1:
@@ -128,9 +136,7 @@ class LDCS(lark.Transformer[str]):
             body = commas(body, v, b)
         if body:
             value += ' :- ' + body
-        value += '.'
-        self.rules.insert(0, value.replace(';.', '.'))
-        return '\n'.join(self.rules).replace(';,', ';')
+        return value
 
     def goal_any(self, vb: CSym) -> str:
         value, body = vb
@@ -140,14 +146,12 @@ class LDCS(lark.Transformer[str]):
             self.rules.append(f'{f(value)} :- {body}.')
             value = self.gensym()
             body = f(value)
-        self.rules.insert(0, f'{{ goal({value}) : {body} }} = 1.')
-        return '\n'.join(self.rules).replace(';,', ';')
+        return f'{{ goal({value}) : {body} }} = 1'
 
     def goal_all(self, vb: CSym) -> str:
         value, body = vb
         assert body is not None
-        self.rules.insert(0, f'goal({value}) :- {body}.')
-        return '\n'.join(self.rules).replace(';,', ';')
+        return f'goal({value}) :- {body}'
 
     def pred(self, name: str, *args: CSym) -> CSym:
         vals, bodies = unzip(args)
@@ -159,13 +163,6 @@ class LDCS(lark.Transformer[str]):
         arg1, body1 = a
         arg2, body2 = b
         return arg1 + op + arg2, commas(body1, body2)
-
-    def define(self, head: Unary, vb: CSym) -> CSym:
-        result, body = vb
-        lhs = head(result).split(', ')
-        if len(lhs) > 1:
-            body = commas(*lhs[1:], body)
-        return lhs[0], body
 
     def atom(self, name: str) -> str:
         return name
