@@ -16,6 +16,7 @@ readline.parse_and_bind('tab: complete')
 
 try:
     readline.read_history_file('history.log')
+    readline.set_history_length(1000)
 except FileNotFoundError:
     pass
 
