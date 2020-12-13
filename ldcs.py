@@ -23,14 +23,16 @@ VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER CNAME
 
 start: cmd
-?cmd: (unary | join) ":" ldcs "." -> define
-    | pred [":" pred ("," pred)*] "." -> command
-    | ldcs [":" pred ("," pred)*] "?" -> command
+?cmd: (unary | join) ":" ldcs constraints "." -> define
+    | pred constraints "." -> claim
+    | ldcs constraints "?" -> query
     | "#" "any" "(" ldcs ")" "!" -> goal_any
     | ldcs "!" -> goal_all
+constraints: [":" pred ("," pred)*]
 pred: atom "(" ldcs ("," ldcs)* ")"
     | atom "$" pred
     | bracketed BIN_OP bracketed -> binop
+    | "(" "-" bracketed ")" -> negative
 ?bracketed: "(" ldcs ")"
           | lam -> ldcs
 atom: NAME
@@ -123,20 +125,24 @@ class LDCS(lark.Transformer[str]):
         self.rules.insert(0, rule + '.')
         return '\n'.join(self.rules).replace(';,', ';').replace(';.', '.')
 
-    def define(self, head: Unary, vb: CSym) -> str:
+    def define(self, head: Unary, vb: CSym, cond: Optional[str]) -> str:
         result, body = vb
         lhs = head(result).split(', ')
-        return f'{lhs[0]} :- {commas(*lhs[1:], body)}'
+        return f'{lhs[0]} :- {commas(*lhs[1:], body, cond)}'
 
-    def command(self, vb: CSym, *args: CSym) -> str:
+    def claim(self, vb: CSym, cond: Optional[str]) -> str:
         value, body = vb
-        if len(value) == 1:
-            value = f'what({value})'
+        return f'{value} :- {commas(body, cond)}'
+
+    def query(self, vb: CSym, cond: Optional[str]) -> str:
+        value, body = vb
+        return f'what({value}) :- {commas(body, cond)}'
+
+    def constraints(self, *args: CSym) -> Optional[str]:
+        body = None
         for v, b in args:
             body = commas(body, v, b)
-        if body:
-            value += ' :- ' + body
-        return value
+        return body
 
     def goal_any(self, vb: CSym) -> str:
         value, body = vb
@@ -163,6 +169,10 @@ class LDCS(lark.Transformer[str]):
         arg1, body1 = a
         arg2, body2 = b
         return arg1 + op + arg2, commas(body1, body2)
+
+    def negative(self, a: CSym) -> CSym:
+        arg, body = a
+        return '-' + arg, body
 
     def atom(self, name: str) -> str:
         return name
