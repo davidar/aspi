@@ -5,14 +5,14 @@
 fib[0]: 0.
 fib[1]: 1.
 fib[N 2..45]: fib[N-1] + fib[N-2].
-fib[0..45]?
-#sum(even fib[0..45] (<).1000000)?
+fib: fib[0..45].
+#sum(even fib (<).1000000)?
 
 % 3. Find the largest prime factor of 42.
-composite: N 1..1000 multiple[2..(N-1)].
-prime: 2..1000 ~composite.
+composite: N multiple[2..(N-1)] n3.
+prime: (>).1 ~composite n3.
 prime?
-factor[X 1..1000]: prime multiple'[X].
+factor[X n3]: prime multiple'[X].
 factor.42?
 #most((>), factor.42)?
 
@@ -21,8 +21,7 @@ show'[S reverse.S] (10..99)*(10..99)?
 #most((>), show'[S reverse.S] (10..99)*(10..99))?
 
 % 5. What is the smallest number divisible by each of the numbers 1 to 10?
-1..10000 #each(multiple, 1..10)?
-#most((<), 1..10000 #each(multiple, 1..10))?
+#most((<), #each(multiple, 1..10) n4)?
 
 % 6. What is the difference between the sum of the squares and the square of the sums?
 #sum((1..100) ** 2)?
@@ -32,11 +31,11 @@ show'[S reverse.S] (10..99)*(10..99)?
 #enumerate(101, prime)?
 
 % 9. There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 96. Find the product abc.
-pythag(A 1..100, B 1..100, C 1..100): (A**2) = ((B**2) + (C**2)).
+pythag(A n2, B n2, C n2): (A**2) = ((B**2) + (C**2)).
 pythag[3,4]?
 triple(A,B,C): pythag(A,B,C)?
 triple(A,B,C): pythag(A,B,C), ((A+B)+C) = 96?
 (A*B)*C: pythag(A,B,C), ((A+B)+C) = 96?
 
 % 10. Calculate the sum of all the primes below one hundred.
-#sum(prime 1..99)?
+#sum(prime (<).100)?

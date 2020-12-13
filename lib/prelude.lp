@@ -9,6 +9,21 @@ now(now).
 that(X,N) :- history(counter-N, what(X)).
 that(X) :- that(X,1).
 
+n1(X) :- X = 1..9.
+n2(X) :- X = 1..99.
+n3(X) :- X = 1..999.
+n4(X) :- X = 1..9999.
+
+z1(X) :- X = 0..9.
+z2(X) :- X = 0..99.
+z3(X) :- X = 0..999.
+z4(X) :- X = 0..9999.
+
+i1(X) :- X = -9..9.
+i2(X) :- X = -99..99.
+i3(X) :- X = -999..999.
+i4(X) :- X = -9999..9999.
+
 gather(@gather(I,X)) :- gather(I,X).
 enumerate(I,J,X) :- gather(I), (J-1,X) = @sort(I).
 

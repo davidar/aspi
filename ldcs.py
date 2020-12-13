@@ -8,10 +8,11 @@ from typing import cast, Callable, Dict, Iterable, List, \
 # https://arxiv.org/abs/1309.4408
 
 ebnf = r'''
-%import common.CNAME
+%import common.DIGIT
 %import common.INT
 %import common.LCASE_LETTER
 %import common.UCASE_LETTER
+%import common.LETTER
 %import common.WS
 %ignore WS
 
@@ -20,7 +21,7 @@ BIN_OP: CMP_OP | ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
 AGG_OP: "count" | "sum" | "any"
 SUP_OP: "most" | "each"
 VARIABLE: UCASE_LETTER
-NAME: LCASE_LETTER CNAME
+NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
 
 start: cmd
 ?cmd: (unary | join) ":" ldcs constraints "." -> define

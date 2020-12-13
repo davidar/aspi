@@ -19,30 +19,30 @@ understood.
 --> fib(L,C) :- C = MuN, A = 2, B = 45, C = A..B, fib(G,F), D = MuN, E = 1, F = D-E, fib(K,J), H = MuN, I = 2, J = H-I, L = G+K.
 understood.
 
->>> fib[0..45]?
---> what(D) :- fib(D,C), A = 0, B = 45, C = A..B.
-that(0 | 1 | 2 | 3 | 5 | 8 | 13 | 21 | 34 | 55 | 89 | 144 | 233 | 377 | 610 | 987 | 1597 | 2584 | 4181 | 6765 | 10946 | 17711 | 28657 | 46368 | 75025 | 121393 | 196418 | 317811 | 514229 | 832040 | 1346269 | 2178309 | 3524578 | 5702887 | 9227465 | 14930352 | 24157817 | 39088169 | 63245986 | 102334155 | 165580141 | 267914296 | 433494437 | 701408733 | 1134903170).
+>>> fib: fib[0..45].
+--> fib(D) :- fib(D,C), A = 0, B = 45, C = A..B.
+understood.
 
->>> #sum(even fib[0..45] (<).1000000)?
---> what(F) :- F = #sum { E : E \ 2 = 0, fib(E,C), A = 0, B = 45, C = A..B, E<D, D = 1000000 }.
+>>> #sum(even fib (<).1000000)?
+--> what(C) :- C = #sum { B : B \ 2 = 0, fib(B), B<A, A = 1000000 }.
 that(1089154).
 
 >>> 
 >>> % 3. Find the largest prime factor of 42.
->>> composite: N 1..1000 multiple[2..(N-1)].
---> composite(H) :- H = MuN, A = 1, B = 1000, H = A..B, H \ G = 0, C = 2, D = MuN, E = 1, F = D-E, G = C..F.
+>>> composite: N multiple[2..(N-1)] n3.
+--> composite(F) :- F = MuN, F \ E = 0, A = 2, B = MuN, C = 1, D = B-C, E = A..D, n3(F).
 understood.
 
->>> prime: 2..1000 ~composite.
---> prime(C) :- A = 2, B = 1000, C = A..B, not composite(C).
+>>> prime: (>).1 ~composite n3.
+--> prime(B) :- B>A, A = 1, not composite(B), n3(B).
 understood.
 
 >>> prime?
 --> what(A) :- prime(A).
 that(2 | 3 | 5 | 7 | 11 | 13 | 17 | 19 | 23 | 29 | 31 | 37 | 41 | 43 | 47 | 53 | 59 | 61 | 67 | 71 | 73 | 79 | 83 | 89 | 97 | 101 | 103 | 107 | 109 | 113 | 127 | 131 | 137 | 139 | 149 | 151 | 157 | 163 | 167 | 173 | 179 | 181 | 191 | 193 | 197 | 199 | 211 | 223 | 227 | 229 | 233 | 239 | 241 | 251 | 257 | 263 | 269 | 271 | 277 | 281 | 283 | 293 | 307 | 311 | 313 | 317 | 331 | 337 | 347 | 349 | 353 | 359 | 367 | 373 | 379 | 383 | 389 | 397 | 401 | 409 | 419 | 421 | 431 | 433 | 439 | 443 | 449 | 457 | 461 | 463 | 467 | 479 | 487 | 491 | 499 | 503 | 509 | 521 | 523 | 541 | 547 | 557 | 563 | 569 | 571 | 577 | 587 | 593 | 599 | 601 | 607 | 613 | 617 | 619 | 631 | 641 | 643 | 647 | 653 | 659 | 661 | 673 | 677 | 683 | 691 | 701 | 709 | 719 | 727 | 733 | 739 | 743 | 751 | 757 | 761 | 769 | 773 | 787 | 797 | 809 | 811 | 821 | 823 | 827 | 829 | 839 | 853 | 857 | 859 | 863 | 877 | 881 | 883 | 887 | 907 | 911 | 919 | 929 | 937 | 941 | 947 | 953 | 967 | 971 | 977 | 983 | 991 | 997).
 
->>> factor[X 1..1000]: prime multiple'[X].
---> factor(E,C) :- C = MuX, A = 1, B = 1000, C = A..B, prime(E), D \ E = 0, D = MuX.
+>>> factor[X n3]: prime multiple'[X].
+--> factor(C,A) :- A = MuX, n3(A), prime(C), B \ C = 0, B = MuX.
 understood.
 
 >>> factor.42?
@@ -67,15 +67,10 @@ that(9009).
 
 >>> 
 >>> % 5. What is the smallest number divisible by each of the numbers 1 to 10?
->>> 1..10000 #each(multiple, 1..10)?
---> what(G) :- A = 1, B = 10000, G = A..B, G \ E = 0 : superlative1(E).
-    superlative1(F) :- C = 1, D = 10, F = C..D.
-that(2520 | 5040 | 7560).
-
->>> #most((<), 1..10000 #each(multiple, 1..10))?
---> what(I) :- I<G : superlative2(G), I != G; superlative2(I).
-    superlative1(F) :- C = 1, D = 10, F = C..D.
-    superlative2(H) :- A = 1, B = 10000, H = A..B, H \ E = 0 : superlative1(E).
+>>> #most((<), #each(multiple, 1..10) n4)?
+--> what(G) :- G<E : superlative2(E), G != E; superlative2(G).
+    superlative1(D) :- A = 1, B = 10, D = A..B.
+    superlative2(F) :- F \ C = 0 : superlative1(C); n4(F).
 that(2520).
 
 >>> 
@@ -97,8 +92,8 @@ that(547).
 
 >>> 
 >>> % 9. There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 96. Find the product abc.
->>> pythag(A 1..100, B 1..100, C 1..100): (A**2) = ((B**2) + (C**2)).
---> pythag(C,F,I) :- C = MuA, A = 1, B = 100, C = A..B, F = MuB, D = 1, E = 100, F = D..E, I = MuC, G = 1, H = 100, I = G..H, L=S, J = MuA, K = 2, L = J**K, M = MuB, N = 2, O = M**N, P = MuC, Q = 2, R = P**Q, S = O+R.
+>>> pythag(A n2, B n2, C n2): (A**2) = ((B**2) + (C**2)).
+--> pythag(A,B,C) :- A = MuA, n2(A), B = MuB, n2(B), C = MuC, n2(C), F=M, D = MuA, E = 2, F = D**E, G = MuB, H = 2, I = G**H, J = MuC, K = 2, L = J**K, M = I+L.
 understood.
 
 >>> pythag[3,4]?
@@ -107,11 +102,11 @@ that(5).
 
 >>> triple(A,B,C): pythag(A,B,C)?
 --> what(D) :- A = MuA, B = MuB, C = MuC, D = triple(A,B,C), pythag(E,F,G), E = MuA, F = MuB, G = MuC.
-that(triple(5,3,4) | triple(5,4,3) | triple(13,5,12) | triple(10,6,8) | triple(25,7,24) | triple(10,8,6) | triple(17,8,15) | triple(15,9,12) | triple(41,9,40) | triple(26,10,24) | triple(61,11,60) | triple(13,12,5) | triple(15,12,9) | triple(20,12,16) | triple(37,12,35) | triple(85,13,84) | triple(50,14,48) | triple(17,15,8) | triple(25,15,20) | triple(39,15,36) | triple(20,16,12) | triple(34,16,30) | triple(65,16,63) | triple(30,18,24) | triple(82,18,80) | triple(25,20,15) | triple(29,20,21) | triple(52,20,48) | triple(29,21,20) | triple(35,21,28) | triple(75,21,72) | triple(25,24,7) | triple(26,24,10) | triple(30,24,18) | triple(40,24,32) | triple(51,24,45) | triple(74,24,70) | triple(65,25,60) | triple(45,27,36) | triple(35,28,21) | triple(53,28,45) | triple(100,28,96) | triple(34,30,16) | triple(50,30,40) | triple(78,30,72) | triple(40,32,24) | triple(68,32,60) | triple(55,33,44) | triple(65,33,56) | triple(37,35,12) | triple(91,35,84) | triple(39,36,15) | triple(45,36,27) | triple(60,36,48) | triple(85,36,77) | triple(65,39,52) | triple(89,39,80) | triple(41,40,9) | triple(50,40,30) | triple(58,40,42) | triple(85,40,75) | triple(58,42,40) | triple(70,42,56) | triple(55,44,33) | triple(51,45,24) | triple(53,45,28) | triple(75,45,60) | triple(50,48,14) | triple(52,48,20) | triple(60,48,36) | triple(73,48,55) | triple(80,48,64) | triple(85,51,68) | triple(65,52,39) | triple(90,54,72) | triple(73,55,48) | triple(65,56,33) | triple(70,56,42) | triple(95,57,76) | triple(61,60,11) | triple(65,60,25) | triple(68,60,32) | triple(75,60,45) | triple(87,60,63) | triple(100,60,80) | triple(65,63,16) | triple(87,63,60) | triple(80,64,48) | triple(97,65,72) | triple(85,68,51) | triple(74,70,24) | triple(75,72,21) | triple(78,72,30) | triple(90,72,54) | triple(97,72,65) | triple(85,75,40) | triple(95,76,57) | triple(85,77,36) | triple(82,80,18) | triple(89,80,39) | triple(100,80,60) | triple(85,84,13) | triple(91,84,35) | triple(100,96,28)).
+that(triple(5,4,3) | triple(5,3,4) | triple(13,12,5) | triple(10,8,6) | triple(25,24,7) | triple(10,6,8) | triple(17,15,8) | triple(15,12,9) | triple(41,40,9) | triple(26,24,10) | triple(61,60,11) | triple(13,5,12) | triple(15,9,12) | triple(20,16,12) | triple(37,35,12) | triple(85,84,13) | triple(50,48,14) | triple(17,8,15) | triple(25,20,15) | triple(39,36,15) | triple(20,12,16) | triple(34,30,16) | triple(65,63,16) | triple(30,24,18) | triple(82,80,18) | triple(25,15,20) | triple(29,21,20) | triple(52,48,20) | triple(29,20,21) | triple(35,28,21) | triple(75,72,21) | triple(25,7,24) | triple(26,10,24) | triple(30,18,24) | triple(40,32,24) | triple(51,45,24) | triple(74,70,24) | triple(65,60,25) | triple(45,36,27) | triple(35,21,28) | triple(53,45,28) | triple(34,16,30) | triple(50,40,30) | triple(78,72,30) | triple(40,24,32) | triple(68,60,32) | triple(55,44,33) | triple(65,56,33) | triple(37,12,35) | triple(91,84,35) | triple(39,15,36) | triple(45,27,36) | triple(60,48,36) | triple(85,77,36) | triple(65,52,39) | triple(89,80,39) | triple(41,9,40) | triple(50,30,40) | triple(58,42,40) | triple(85,75,40) | triple(58,40,42) | triple(70,56,42) | triple(55,33,44) | triple(51,24,45) | triple(53,28,45) | triple(75,60,45) | triple(50,14,48) | triple(52,20,48) | triple(60,36,48) | triple(73,55,48) | triple(80,64,48) | triple(85,68,51) | triple(65,39,52) | triple(90,72,54) | triple(73,48,55) | triple(65,33,56) | triple(70,42,56) | triple(95,76,57) | triple(61,11,60) | triple(65,25,60) | triple(68,32,60) | triple(75,45,60) | triple(87,63,60) | triple(65,16,63) | triple(87,60,63) | triple(80,48,64) | triple(97,72,65) | triple(85,51,68) | triple(74,24,70) | triple(75,21,72) | triple(78,30,72) | triple(90,54,72) | triple(97,65,72) | triple(85,40,75) | triple(95,57,76) | triple(85,36,77) | triple(82,18,80) | triple(89,39,80) | triple(85,13,84) | triple(91,35,84)).
 
 >>> triple(A,B,C): pythag(A,B,C), ((A+B)+C) = 96?
 --> what(D) :- A = MuA, B = MuB, C = MuC, D = triple(A,B,C), pythag(E,F,G), E = MuA, F = MuB, G = MuC, L=M, H = MuA, I = MuB, J = H+I, K = MuC, L = J+K, M = 96.
-that(triple(40,24,32) | triple(40,32,24)).
+that(triple(40,32,24) | triple(40,24,32)).
 
 >>> (A*B)*C: pythag(A,B,C), ((A+B)+C) = 96?
 --> what(E) :- A = MuA, B = MuB, C = A*B, D = MuC, E = C*D, pythag(F,G,H), F = MuA, G = MuB, H = MuC, M=N, I = MuA, J = MuB, K = I+J, L = MuC, M = K+L, N = 96.
@@ -119,8 +114,8 @@ that(30720).
 
 >>> 
 >>> % 10. Calculate the sum of all the primes below one hundred.
->>> #sum(prime 1..99)?
---> what(D) :- D = #sum { C : prime(C), A = 1, B = 99, C = A..B }.
+>>> #sum(prime (<).100)?
+--> what(C) :- C = #sum { B : prime(B), B<A, A = 100 }.
 that(1060).
 
 >>> thanks.
