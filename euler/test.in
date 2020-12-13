@@ -35,5 +35,5 @@ show'[S reverse.S] (10..99)*(10..99)?
 pythag(A 1..100, B 1..100, C 1..100) :- (A**2) = ((B**2) + (C**2)).
 pythag[3,4]?
 triple(A,B,C) :- pythag(A,B,C)?
-triple(A,B,C) :- pythag(A,B,C), (A+B+C) = 96?
-A*B*C :- pythag(A,B,C), (A+B+C) = 96?
+triple(A,B,C) :- pythag(A,B,C), ((A+B)+C) = 96?
+(A*B)*C :- pythag(A,B,C), ((A+B)+C) = 96?
