@@ -15,20 +15,21 @@ ebnf = r'''
 %import common.WS
 %ignore WS
 
-CMP_OP: "<=" | ">=" | "<" | ">"
-BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
+CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
+BIN_OP: CMP_OP | ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
 AGG_OP: "count" | "sum" | "any"
 SUP_OP: "most" | "each"
 VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER CNAME
 
 ?start: command
-command: pred "."
+command: pred [":-" pred ("," pred)*] "."
        | define "."
-       | ldcs "?"
+       | ldcs [":-" pred ("," pred)*] "?"
        | "#" "any" "(" ldcs ")" "!" -> goal_any
        | ldcs "!" -> goal_all
 pred: atom "(" ldcs ("," ldcs)* ")"
+    | "(" ldcs ("," ldcs)* ")" -> tuple
     | atom "$" pred
     | bracketed BIN_OP bracketed -> binop
 define: lam ":=" ldcs
@@ -120,10 +121,12 @@ class LDCS(lark.Transformer[str]):
         subst = dict(zip(params, args))
         return RuleBody(subst, self.gensym).transform(tree)
 
-    def command(self, vb: CSym) -> str:
+    def command(self, vb: CSym, *args: CSym) -> str:
         value, body = vb
         if len(value) == 1:
             value = f'what({value})'
+        for v, b in args:
+            body = commas(body, v, b)
         if body:
             value += ' :- ' + body
         value += '.'
@@ -152,6 +155,9 @@ class LDCS(lark.Transformer[str]):
         if not vals:
             return name, None
         return f"{name}({','.join(vals)})", commas(*bodies)
+
+    def tuple(self, *args: CSym) -> CSym:
+        return self.pred('', *args)
 
     def binop(self, a: CSym, op: str, b: CSym) -> CSym:
         arg1, body1 = a
