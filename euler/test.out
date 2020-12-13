@@ -88,5 +88,12 @@ that(338350).
 --> what(F) :- D = #sum { C : A = 1, B = 100, C = A..B }, E = 2, F = D**E.
 that(25502500).
 
+>>> 
+>>> % Find the 101st prime.
+>>> #enumerate(101, prime)?
+--> what(B) :- enumerate(1,A,B), A = 101.
+    gather(1,A) :- prime(A).
+that(547).
+
 >>> thanks.
 YOU'RE WELCOME!

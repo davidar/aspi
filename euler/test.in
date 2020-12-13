@@ -27,3 +27,6 @@ show'[S reverse.S] (10..99)*(10..99)?
 % What is the difference between the sum of the squares and the square of the sums?
 #sum((1..100) ** 2)?
 #sum(1..100) ** 2?
+
+% Find the 101st prime.
+#enumerate(101, prime)?

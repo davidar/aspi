@@ -59,6 +59,7 @@ join: binary "." lam
 neg: "~" lam
 hof: "#" AGG_OP "(" disj ")" -> aggregation
    | "#" SUP_OP "(" binary "," disj ")" -> superlative
+   | "#" "enumerate" "(" disj "," disj ")" -> enum
 unify: pred
 '''
 
@@ -89,21 +90,22 @@ def commas(*args: Optional[str]) -> str:
 @lark.v_args(inline=True)
 class LDCS(lark.Transformer[str]):
     def __init__(self) -> None:
-        self.count: int = 0
         self.counts: Dict[str, int] = {}
         self.rules: List[str] = []
         self.macros: Dict[str, Tuple[List[Sym], lark.Tree]] = {}
 
-    def gensym(self) -> Sym:
-        sym = string.ascii_uppercase[self.count]
-        self.count += 1
-        return sym
-
-    def genpred(self, prefix: str) -> Unary:
+    def counter(self, prefix: str = '') -> int:
         if prefix not in self.counts:
             self.counts[prefix] = 0
         self.counts[prefix] += 1
-        name = prefix + str(self.counts[prefix])
+        return self.counts[prefix]
+
+    def gensym(self) -> Sym:
+        sym = string.ascii_uppercase[self.counter()-1]
+        return sym
+
+    def genpred(self, prefix: str) -> Unary:
+        name = prefix + str(self.counter(prefix))
         return lambda x: f'{name}({x})'
 
     def lift(self, lam: Unary, prefix: str = 'lifted') -> Unary:
@@ -239,6 +241,12 @@ class LDCS(lark.Transformer[str]):
         else:
             assert False
 
+    def enum(self, idx: Unary, lam: Unary) -> Unary:
+        i = self.counter('gather')
+        y = self.gensym()
+        self.rules.append(f'gather({i},{y}) :- {lam(y)}.')
+        return lambda x: f'enumerate({i},{y},{x}), {idx(y)}'
+
     def unify(self, vb: CSym) -> Unary:
         pred, body = vb
         return lambda x: commas(body, f'{x} = {pred}')
@@ -263,7 +271,6 @@ class LDCS(lark.Transformer[str]):
             print('Syntax error:', e, file=sys.stderr)
             return None
         finally:
-            self.count = 0
             self.counts = {}
             self.rules = []
 
