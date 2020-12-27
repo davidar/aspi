@@ -5,15 +5,15 @@ understood.
 
 >>> factor[2, (-15)]?
 --> what(D) :- factor(D,B,C), B = 2, A = 15, C = -A.
-that(pair(-3,5)).
+that: pair(-3,5).
 
 >>> factor[(-22), 85]?
 --> what(D) :- factor(D,B,C), A = 22, B = -A, C = 85.
-that(pair(-17,-5)).
+that: pair(-17,-5).
 
 >>> factor[6, (-16)]?
 --> what(D) :- factor(D,B,C), B = 6, A = 16, C = -A.
-that(pair(-2,8)).
+that: pair(-2,8).
 
 >>> thanks.
 YOU'RE WELCOME!

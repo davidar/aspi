@@ -114,7 +114,7 @@ class ASPI:
         if res.ok:
             print('ok.')
         if res.shows:
-            print(f"that({' | '.join(res.shows)}).")
+            print(f"that: {' | '.join(res.shows)}.")
         print()
 
 
