@@ -27,7 +27,7 @@ start: cmd
 ?cmd: (unary | join) ":" ldcs constraints "." -> define
     | pred constraints "." -> claim
     | "#" "fluent" pred constraints "." -> fluent
-    | lam lam* "." -> exist
+    | "#" "some" lam lam* "." -> exist
     | ldcs constraints "?" -> query
     | "#" "any" "(" ldcs ")" "!" -> goal_any
     | ldcs "!" -> goal_all
