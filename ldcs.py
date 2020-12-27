@@ -127,14 +127,14 @@ class LDCS(lark.Transformer[str]):
         self.rules.insert(0, rule + '.')
         return '\n'.join(self.rules).replace(';,', ';').replace(';.', '.')
 
-    def define(self, head: Unary, vb: CSym, cond: Optional[str]) -> str:
-        result, body = vb
-        lhs = head(result).split(', ')
+    def define(self, head: Unary, var_body: CSym, cond: Optional[str]) -> str:
+        var, body = var_body
+        lhs = head(var).split(', ')
         return f'{lhs[0]} :- {commas(*lhs[1:], body, cond)}'
 
-    def claim(self, vb: CSym, cond: Optional[str]) -> str:
-        value, body = vb
-        return f'{value} :- {commas(body, cond)}'
+    def claim(self, head_body: CSym, cond: Optional[str]) -> str:
+        head, body = head_body
+        return f'{head} :- {commas(body, cond)}'
 
     def fluent(self, head_body: CSym, cond: Optional[str]) -> str:
         head, body = head_body
@@ -162,9 +162,9 @@ class LDCS(lark.Transformer[str]):
                              for lam in lams if ', ' not in lam(''))
         return f'describe({name}, {describe})'
 
-    def query(self, vb: CSym, cond: Optional[str]) -> str:
-        value, body = vb
-        return f'what({value}) :- {commas(body, cond)}'
+    def query(self, var_body: CSym, cond: Optional[str]) -> str:
+        var, body = var_body
+        return f'what({var}) :- {commas(body, cond)}'
 
     def constraints(self, *args: CSym) -> Optional[str]:
         body = None
@@ -172,20 +172,20 @@ class LDCS(lark.Transformer[str]):
             body = commas(body, v, b)
         return body
 
-    def goal_any(self, vb: CSym) -> str:
-        value, body = vb
+    def goal_any(self, var_body: CSym) -> str:
+        var, body = var_body
         assert body is not None
         if ';' in body:
             f = self.genpred('goal')
-            self.rules.append(f'{f(value)} :- {body}.')
-            value = self.gensym()
-            body = f(value)
-        return f'{{ goal({value}) : {body} }} = 1'
+            self.rules.append(f'{f(var)} :- {body}.')
+            var = self.gensym()
+            body = f(var)
+        return f'{{ goal({var}) : {body} }} = 1'
 
-    def goal_all(self, vb: CSym) -> str:
-        value, body = vb
+    def goal_all(self, var_body: CSym) -> str:
+        var, body = var_body
         assert body is not None
-        return f'goal({value}) :- {body}'
+        return f'goal({var}) :- {body}'
 
     def pred(self, name: str, *args: CSym) -> CSym:
         vals, bodies = unzip(args)
@@ -285,8 +285,8 @@ class LDCS(lark.Transformer[str]):
         self.rules.append(f'gather({i},{y}) :- {lam(y)}.')
         return lambda x: f'enumerate({i},{y},{x}), {idx(y)}'
 
-    def unify(self, vb: CSym) -> Unary:
-        pred, body = vb
+    def unify(self, pred_body: CSym) -> Unary:
+        pred, body = pred_body
         return lambda x: commas(body, f'{x} = {pred}')
 
     def multijoin(self, rel: Variadic, lams_tail: List[Unary],
