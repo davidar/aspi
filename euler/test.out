@@ -152,5 +152,36 @@ that: 630.
 --> what(B) :- divisor(B,A), that(A).
 that: 1 | 2 | 3 | 5 | 6 | 7 | 9 | 10 | 14 | 15 | 18 | 21 | 30 | 35 | 42 | 45 | 63 | 70 | 90 | 105 | 126 | 210 | 315 | 630.
 
+>>> 
+>>> % 14. Find the longest Collatz sequence using a starting number under ten.
+>>> collatz[N even n3]: N / 2.
+--> collatz(D,A) :- A = MuN, A \ 2 = 0, n3(A), B = MuN, C = 2, D = B/C.
+understood.
+
+>>> collatz[N odd n3]: (3*N) + 1.
+--> collatz(F,A) :- A = MuN, A \ 2 = 1, n3(A), B = 3, C = MuN, D = B*C, E = 1, F = D+E.
+understood.
+
+>>> collatz_steps.1: 0.
+--> collatz_steps(B,A) :- A = 1, B = 0.
+understood.
+
+>>> collatz_steps[N (>).1 n3]: 1 + collatz_steps[collatz.N].
+--> collatz_steps(G,B) :- B = MuN, B>A, A = 1, n3(B), C = 1, collatz_steps(F,E), collatz(E,D), D = MuN, G = C+F.
+understood.
+
+>>> collatz_steps[1..10]?
+--> what(D) :- collatz_steps(D,C), A = 1, B = 10, C = A..B.
+that: 0 | 1 | 7 | 2 | 5 | 8 | 16 | 3 | 19 | 6.
+
+>>> #max(collatz_steps[1..10])?
+--> what(E) :- E = #max { D : collatz_steps(D,C), A = 1, B = 10, C = A..B }.
+that: 19.
+
+>>> #argmax(collatz_steps, 1..10)?
+--> what(G) :- C = #max { F : collatz_steps(F,E), superlative5(E) }, collatz_steps(C,G), superlative5(G).
+    superlative5(D) :- A = 1, B = 10, D = A..B.
+that: 9.
+
 >>> thanks.
 YOU'RE WELCOME!

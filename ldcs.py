@@ -3,7 +3,7 @@ import lark
 import string
 import sys
 from typing import cast, Callable, Dict, Iterable, List, \
-        Literal, Optional, Protocol, Tuple, TypeVar
+        Optional, Protocol, Tuple, TypeVar
 
 # https://arxiv.org/abs/1309.4408
 
@@ -18,8 +18,8 @@ ebnf = r'''
 
 CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
 BIN_OP: CMP_OP | ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
-AGG_OP: "count" | "sum" | "any"
-SUP_OP: "most" | "each"
+AGG_OP: "count" | "sum" | "any" | "min" | "max"
+SUP_OP: "most" | "each" | "argmin" | "argmax"
 VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
 
@@ -251,12 +251,11 @@ class LDCS(lark.Transformer[str]):
             lam = self.lift(lam)
         return lambda x: 'not ' + lam(x)
 
-    def aggregation(self, op: Literal['count', 'sum', 'any'],
-                    lam: Unary) -> Unary:
+    def aggregation(self, op: str, lam: Unary) -> Unary:
         y = self.gensym()
         if ';' in lam(y):
             lam = self.lift(lam, 'aggregation')
-        if op == 'count' or op == 'sum':
+        if op in ('count', 'sum', 'min', 'max'):
             return lambda x: f'{x} = #{op} {{ {y} : {lam(y)} }}'
         elif op == 'any':
             f = self.genpred('any')
@@ -266,8 +265,7 @@ class LDCS(lark.Transformer[str]):
         else:
             assert False
 
-    def superlative(self, op: Literal['most', 'each'],
-                    rel: Binary, lam: Unary) -> Unary:
+    def superlative(self, op: str, rel: Binary, lam: Unary) -> Unary:
         y = self.gensym()
         if ' ' in lam(y):
             lam = self.lift(lam, 'superlative')
@@ -275,6 +273,9 @@ class LDCS(lark.Transformer[str]):
             return lambda x: f'{rel(x, y)} : {lam(y)}, {x} != {y}; {lam(x)}'
         elif op == 'each':
             return lambda x: f'{rel(x, y)} : {lam(y)};'
+        elif op in ('argmin', 'argmax'):
+            agg = self.aggregation(op[3:], self.join(rel, lam))
+            return lambda x: commas(agg(y), rel(y, x), lam(x))
         else:
             assert False
 
