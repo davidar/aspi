@@ -21,9 +21,6 @@ object(X) :- pyramid(X).
 table(table_front_left; table_front_right; table_back_left; table_back_right).
 box(box).
 
-#show describe/2.
-#show describe/3.
-#show describe/4.
 describe(big_red, large, red, block).
 describe(red_cube, red, cube).
 describe(blue_block, blue, block).

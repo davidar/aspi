@@ -26,6 +26,8 @@ NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
 start: cmd
 ?cmd: (unary | join) ":" ldcs constraints "." -> define
     | pred constraints "." -> claim
+    | "#" "fluent" pred constraints "." -> fluent
+    | lam lam* "." -> exist
     | ldcs constraints "?" -> query
     | "#" "any" "(" ldcs ")" "!" -> goal_any
     | ldcs "!" -> goal_all
@@ -113,8 +115,7 @@ class LDCS(lark.Transformer[str]):
     def lift(self, lam: Unary, prefix: str = 'lifted') -> Unary:
         f = self.genpred(prefix)
         z = self.gensym()
-        rule = f'{f(z)} :- {lam(z)}.'
-        self.rules.append(rule.replace(';.', '.'))
+        self.rules.append(f'{f(z)} :- {lam(z)}.')
         return f
 
     def expand_macro(self, name: str, *args: Sym) -> str:
@@ -134,6 +135,32 @@ class LDCS(lark.Transformer[str]):
     def claim(self, vb: CSym, cond: Optional[str]) -> str:
         value, body = vb
         return f'{value} :- {commas(body, cond)}'
+
+    def fluent(self, head_body: CSym, cond: Optional[str]) -> str:
+        head, body = head_body
+        if cond:
+            terms = []
+            for term in commas(body, cond).split(', '):
+                if ' ' in term:
+                    terms.append(term)
+                else:
+                    terms.append(f'holds({term}, Time)')
+            rule = f'holds({head}, Time) :- {commas(*terms)}.'
+            self.rules += [
+                rule,
+                '#program step(t).',
+                rule.replace('Time', 'now+t'),
+                '#program base.',
+                ]
+        return f'{head} :- holds({head})'
+
+    def exist(self, *lams: Unary) -> str:
+        name = 'object' + str(self.counter('object'))
+        for lam in lams:
+            self.rules.append(lam(name).replace(', ', ' :- ', 1) + '.')
+        describe = ', '.join(lam('').replace('()', '')
+                             for lam in lams if ', ' not in lam(''))
+        return f'describe({name}, {describe})'
 
     def query(self, vb: CSym, cond: Optional[str]) -> str:
         value, body = vb
@@ -281,7 +308,7 @@ class LDCS(lark.Transformer[str]):
             print('Syntax error:', e, file=sys.stderr)
             return None
         finally:
-            self.counts = {}
+            self.counts[''] = 0
             self.rules = []
 
     def add_macro(self, s: str) -> None:

@@ -1,9 +1,16 @@
 #program base.
 #show what/1.
 #show history/2.
+#show describe/2.
+#show describe/3.
+#show describe/4.
+#show describe/5.
+
 history(counter, goal(F)) :- goal(F).
 history(counter, what(X)) :- what(X).
 
+true(true).
+false(false).
 now(now).
 
 that(X,N) :- history(counter-N, what(X)).

@@ -1,20 +1,115 @@
->>> on(1..4, right)!
---> goal(E) :- A = 1, B = 4, C = A..B, right(D), E = on(C,D).
-move(1, middle peg)!
-move(2, right peg)!
-move(1, right peg)!
-move(3, middle peg)!
-move(1, left peg)!
-move(2, middle peg)!
-move(1, middle peg)!
-move(4, right peg)!
-move(1, right peg)!
-move(2, left peg)!
-move(1, left peg)!
-move(3, right peg)!
-move(1, middle peg)!
-move(2, right peg)!
-move(1, right peg)!
+>>> tiny disk.
+--> describe(object1, tiny, disk).
+    tiny(object1).
+    disk(object1).
+understood.
+
+>>> small disk big[tiny disk].
+--> describe(object2, small, disk).
+    small(object2).
+    disk(object2).
+    big(object2,A) :- tiny(A), disk(A).
+understood.
+
+>>> big disk big[small disk].
+--> describe(object3, big, disk).
+    big(object3).
+    disk(object3).
+    big(object3,A) :- small(A), disk(A).
+understood.
+
+>>> huge disk big[big disk].
+--> describe(object4, huge, disk).
+    huge(object4).
+    disk(object4).
+    big(object4,A) :- big(A), disk(A).
+understood.
+
+>>> 
+>>> big(A,C): big(A,B), big(B,C).
+--> big(A,B) :- A = MuA, B = MuC, big(C,D), C = MuA, D = MuB, big(E,F), E = MuB, F = MuC.
+understood.
+
+>>> small(A,B): big(B,A).
+--> small(A,B) :- A = MuA, B = MuB, big(C,D), C = MuB, D = MuA.
+understood.
+
+>>> 
+>>> left peg.
+--> describe(object5, left, peg).
+    left(object5).
+    peg(object5).
+understood.
+
+>>> middle peg.
+--> describe(object6, middle, peg).
+    middle(object6).
+    peg(object6).
+understood.
+
+>>> right peg.
+--> describe(object7, right, peg).
+    right(object7).
+    peg(object7).
+understood.
+
+>>> 
+>>> #fluent on(A,B).
+--> on(A,B) :- holds(on(A,B)).
+understood.
+
+>>> #fluent on_same(D,E): on(D,P), on(E,P).
+--> on_same(A,B) :- holds(on_same(A,B)).
+    holds(on_same(A,B), Time) :- A = MuD, B = MuE, holds(on(C,D), Time), C = MuD, D = MuP, holds(on(E,F), Time), E = MuE, F = MuP.
+    #program step(t).
+    holds(on_same(A,B), now+t) :- A = MuD, B = MuE, holds(on(C,D), now+t), C = MuD, D = MuP, holds(on(E,F), now+t), E = MuE, F = MuP.
+    #program base.
+understood.
+
+>>> 
+>>> init: on(disk, left peg).
+--> init(C) :- disk(A), left(B), peg(B), C = on(A,B).
+understood.
+
+>>> 
+>>> action(move(disk, peg)).
+--> action(C) :- disk(A), peg(B), C = move(A,B).
+understood.
+
+>>> demands(move(disk D, peg P), on(disk small.D, P), false).
+--> demands(C,G,H) :- disk(A), A = MuD, peg(B), B = MuP, C = move(A,B), disk(E), small(E,D), D = MuD, F = MuP, G = on(E,F), false(H).
+understood.
+
+>>> demands(move(disk D, peg), on_same(D, disk small.D), false).
+--> demands(C,G,H) :- disk(A), A = MuD, peg(B), C = move(A,B), D = MuD, disk(F), small(F,E), E = MuD, G = on_same(D,F), false(H).
+understood.
+
+>>> deletes(move(disk D, peg), on(D, peg)).
+--> deletes(C,F) :- disk(A), A = MuD, peg(B), C = move(A,B), D = MuD, peg(E), F = on(D,E).
+understood.
+
+>>> adds(move(disk D, peg P), on(D, P)).
+--> adds(C,F) :- disk(A), A = MuD, peg(B), B = MuP, C = move(A,B), D = MuD, E = MuP, F = on(D,E).
+understood.
+
+>>> 
+>>> on(disk, right peg)!
+--> goal(C) :- disk(A), right(B), peg(B), C = on(A,B).
+move(tiny disk, middle peg)!
+move(small disk, right peg)!
+move(tiny disk, right peg)!
+move(big disk, middle peg)!
+move(tiny disk, left peg)!
+move(small disk, middle peg)!
+move(tiny disk, middle peg)!
+move(huge disk, right peg)!
+move(tiny disk, right peg)!
+move(small disk, left peg)!
+move(tiny disk, left peg)!
+move(big disk, right peg)!
+move(tiny disk, middle peg)!
+move(small disk, right peg)!
+move(tiny disk, right peg)!
 ok.
 
 >>> thanks.

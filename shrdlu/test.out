@@ -71,17 +71,17 @@ that(false).
 >>> 
 >>> % CAN A PYRAMID BE SUPPORTED BY A BLOCK?
 >>> #any(pyramid action$put_on.block)?
---> what(C) :- any1(C).
-    any1(true) :- pyramid(B), action(put_on(B,A)), block(A).
-    any1(false) :- not any1(true).
+--> what(C) :- any2(C).
+    any2(true) :- pyramid(B), action(put_on(B,A)), block(A).
+    any2(false) :- not any2(true).
 that(true).
 
 >>> 
 >>> % CAN A PYRAMID SUPPORT A PYRAMID?
 >>> #any(pyramid action$put_on.pyramid)?
---> what(C) :- any1(C).
-    any1(true) :- pyramid(B), action(put_on(B,A)), pyramid(A).
-    any1(false) :- not any1(true).
+--> what(C) :- any3(C).
+    any3(true) :- pyramid(B), action(put_on(B,A)), pyramid(A).
+    any3(false) :- not any3(true).
 that(false).
 
 >>> 
@@ -99,16 +99,16 @@ understood.
 >>> 
 >>> % I OWN BLOCKS WHICH ARE NOT RED BUT I DON'T OWN ANYTHING WHICH SUPPORTS A PYRAMID.
 >>> mine(block ~red ~supports.pyramid).
---> mine(C) :- block(C), not red(C), not lifted1(C).
-    lifted1(B) :- supports(B,A), pyramid(A).
+--> mine(C) :- block(C), not red(C), not lifted2(C).
+    lifted2(B) :- supports(B,A), pyramid(A).
 understood.
 
 >>> 
 >>> % DO I OWN THE BOX?
 >>> #any(box mine)?
---> what(B) :- any1(B).
-    any1(true) :- box(A), mine(A).
-    any1(false) :- not any1(true).
+--> what(B) :- any4(B).
+    any4(true) :- box(A), mine(A).
+    any4(false) :- not any4(true).
 that(false).
 
 >>> 
@@ -277,9 +277,9 @@ understood.
 >>> 
 >>> % ARE THERE ANY STEEPLES NOW?
 >>> #any(steeple holds.now)?
---> what(C) :- any1(C).
-    any1(true) :- steeple(B), holds(B,A), now(A).
-    any1(false) :- not any1(true).
+--> what(C) :- any5(C).
+    any5(true) :- steeple(B), holds(B,A), now(A).
+    any5(false) :- not any5(true).
 that(false).
 
 >>> 
@@ -311,9 +311,9 @@ understood.
 >>> 
 >>> % HAVE YOU PICKED SUPERBLOCK UP SINCE WE BEGAN?
 >>> #any(holding.superblock)?
---> what(C) :- any1(C).
-    any1(true) :- holding(B,A), superblock(A).
-    any1(false) :- not any1(true).
+--> what(C) :- any6(C).
+    any6(true) :- holding(B,A), superblock(A).
+    any6(false) :- not any6(true).
 that(true).
 
 >>> 

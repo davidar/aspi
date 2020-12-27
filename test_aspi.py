@@ -15,7 +15,7 @@ def test_golf(script_runner):
 
 
 def test_hanoi(script_runner):
-    run(script_runner, 'hanoi', True)
+    run(script_runner, 'hanoi')
 
 
 def test_shrdlu(script_runner):

@@ -1,1 +1,24 @@
-on(1..4, right)!
+tiny disk.
+small disk big[tiny disk].
+big disk big[small disk].
+huge disk big[big disk].
+
+big(A,C): big(A,B), big(B,C).
+small(A,B): big(B,A).
+
+left peg.
+middle peg.
+right peg.
+
+#fluent on(A,B).
+#fluent on_same(D,E): on(D,P), on(E,P).
+
+init: on(disk, left peg).
+
+action(move(disk, peg)).
+demands(move(disk D, peg P), on(disk small.D, P), false).
+demands(move(disk D, peg), on_same(D, disk small.D), false).
+deletes(move(disk D, peg), on(D, peg)).
+adds(move(disk D, peg P), on(D, P)).
+
+on(disk, right peg)!

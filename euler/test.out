@@ -61,16 +61,16 @@ that(7).
 that(121 | 242 | 363 | 484 | 616 | 737 | 858 | 979 | 1001 | 252 | 444 | 636 | 696 | 828 | 888 | 494 | 585 | 676 | 767 | 949 | 434 | 686 | 868 | 525 | 555 | 272 | 464 | 656 | 848 | 323 | 595 | 646 | 969 | 414 | 666 | 1881 | 777 | 2002 | 2112 | 575 | 989 | 1771 | 999 | 2772 | 2552 | 1221 | 1551 | 2442 | 3003 | 2992 | 3663 | 2332 | 4004 | 4224 | 4554 | 3773 | 4664 | 5005 | 5115 | 5225 | 5335 | 5445 | 4774 | 6336 | 4884 | 6006 | 7227 | 5775 | 6776 | 7007 | 8118 | 8008 | 8448 | 9009).
 
 >>> #most((>), show'[S reverse.S] (10..99)*(10..99))?
---> what(K) :- K>I : superlative1(I), K != I; superlative1(K).
-    superlative1(J) :- B = @show(J), B = MuS, B = @reverse(A), A = MuS, C = 10, D = 99, E = C..D, F = 10, G = 99, H = F..G, J = E*H.
+--> what(K) :- K>I : superlative2(I), K != I; superlative2(K).
+    superlative2(J) :- B = @show(J), B = MuS, B = @reverse(A), A = MuS, C = 10, D = 99, E = C..D, F = 10, G = 99, H = F..G, J = E*H.
 that(9009).
 
 >>> 
 >>> % 5. What is the smallest number divisible by each of the numbers 1 to 10?
 >>> #most((<), #each(multiple, 1..10) n4)?
---> what(G) :- G<E : superlative2(E), G != E; superlative2(G).
-    superlative1(D) :- A = 1, B = 10, D = A..B.
-    superlative2(F) :- F \ C = 0 : superlative1(C); n4(F).
+--> what(G) :- G<E : superlative4(E), G != E; superlative4(G).
+    superlative3(D) :- A = 1, B = 10, D = A..B.
+    superlative4(F) :- F \ C = 0 : superlative3(C); n4(F).
 that(2520).
 
 >>> 
