@@ -27,7 +27,8 @@ start: cmd
 ?cmd: (func | join) ":" ldcs constraints "." -> define
     | pred constraints "." -> claim
     | "#" "fluent" pred constraints "." -> fluent
-    | "#" "some" lam lam* "." -> exist
+    | lams ":" "#" "some" lams ("|" lams)* "." -> enum
+    | "#" "some" lams ("|" lams)* "." -> exist
     | ldcs constraints "?" -> query
     | "#" "any" "(" ldcs ")" "!" -> goal_any
     | ldcs "!" -> goal_all
@@ -42,7 +43,8 @@ atom: NAME
 ldcs: disj
 disjs: disj ("," disj)*
 disj: conj ("|" conj)*
-conj: lam lam*
+lams: lam lam*
+conj: lams
 constant: INT
         | VARIABLE
 ?lam: func
@@ -61,7 +63,7 @@ join: func "." lam
 neg: "~" lam
 hof: "#" AGG_OP "(" disj ")" -> aggregation
    | "#" SUP_OP "(" func "," disj ")" -> superlative
-   | "#" "enumerate" "(" disj "," disj ")" -> enum
+   | "#" "enumerate" "(" disj "," disj ")" -> enumerate
 unify: pred
 '''
 
@@ -121,8 +123,9 @@ class LDCS(lark.Transformer[str]):
         subst = dict(zip(params, args))
         return RuleBody(subst, self.gensym).transform(tree)
 
-    def start(self, rule: str) -> str:
-        self.rules.insert(0, rule + '.')
+    def start(self, rule: Optional[str]) -> str:
+        if rule:
+            self.rules.insert(0, rule + '.')
         return '\n'.join(self.rules).replace(';,', ';').replace(';.', '.')
 
     def define(self, head: Unary, var_body: CSym, cond: Optional[str]) -> str:
@@ -152,13 +155,17 @@ class LDCS(lark.Transformer[str]):
                 ]
         return f'{head} :- holds({head})'
 
-    def exist(self, *lams: Unary) -> str:
-        name = 'object' + str(self.counter('object'))
-        for lam in lams:
-            self.rules.append(lam(name).replace(', ', ' :- ', 1) + '.')
-        describe = ', '.join(lam('').replace('()', '')
-                             for lam in lams if ', ' not in lam(''))
-        return f'describe({name}, {describe})'
+    def enum(self, heads: List[Unary], *args: List[Unary]) -> None:
+        for lams in args:
+            name = 'object' + str(self.counter('object'))
+            describe = ', '.join(lam('').replace('()', '')
+                                 for lam in lams if ', ' not in lam(''))
+            self.rules.append(f'describe({name}, {describe}).')
+            for lam in heads + lams:
+                self.rules.append(lam(name).replace(', ', ' :- ', 1) + '.')
+
+    def exist(self, *args: List[Unary]) -> None:
+        self.enum([], *args)
 
     def query(self, var_body: CSym, cond: Optional[str]) -> str:
         var, body = var_body
@@ -218,7 +225,10 @@ class LDCS(lark.Transformer[str]):
         self.rules.extend(f'{f(x)} :- {lam(x)}.' for lam in lams)
         return f
 
-    def conj(self, *lams: Unary) -> Unary:
+    def lams(self, *lams: Unary) -> List[Unary]:
+        return list(lams)
+
+    def conj(self, lams: List[Unary]) -> Unary:
         return lambda x: ', '.join(lam(x) for lam in lams)
 
     def constant(self, c: str) -> Unary:
@@ -277,7 +287,7 @@ class LDCS(lark.Transformer[str]):
         else:
             assert False
 
-    def enum(self, idx: Unary, lam: Unary) -> Unary:
+    def enumerate(self, idx: Unary, lam: Unary) -> Unary:
         i = self.counter('gather')
         y = self.gensym()
         self.rules.append(f'gather({i},{y}) :- {lam(y)}.')

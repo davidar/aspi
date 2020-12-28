@@ -1,14 +1,9 @@
-#some tiny disk.
-#some small disk big[tiny disk].
-#some big disk big[small disk].
-#some huge disk big[big disk].
+#some tiny disk | small disk big[tiny disk] | big disk big[small disk] | huge disk big[big disk].
 
 big(A,C): big(A,B), big(B,C).
 small(A,B): big(B,A).
 
-#some left peg.
-#some middle peg.
-#some right peg.
+#some left peg | middle peg | right peg.
 
 #fluent on(A,B).
 #fluent on_same(D,E): on(D,P), on(E,P).

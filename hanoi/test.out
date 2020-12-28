@@ -1,28 +1,19 @@
->>> #some tiny disk.
+>>> #some tiny disk | small disk big[tiny disk] | big disk big[small disk] | huge disk big[big disk].
 --> describe(object1, tiny, disk).
     tiny(object1).
     disk(object1).
-understood.
-
->>> #some small disk big[tiny disk].
---> describe(object2, small, disk).
+    describe(object2, small, disk).
     small(object2).
     disk(object2).
     big(object2,A) :- tiny(A), disk(A).
-understood.
-
->>> #some big disk big[small disk].
---> describe(object3, big, disk).
+    describe(object3, big, disk).
     big(object3).
     disk(object3).
-    big(object3,A) :- small(A), disk(A).
-understood.
-
->>> #some huge disk big[big disk].
---> describe(object4, huge, disk).
+    big(object3,B) :- small(B), disk(B).
+    describe(object4, huge, disk).
     huge(object4).
     disk(object4).
-    big(object4,A) :- big(A), disk(A).
+    big(object4,C) :- big(C), disk(C).
 understood.
 
 >>> 
@@ -35,20 +26,14 @@ understood.
 understood.
 
 >>> 
->>> #some left peg.
+>>> #some left peg | middle peg | right peg.
 --> describe(object5, left, peg).
     left(object5).
     peg(object5).
-understood.
-
->>> #some middle peg.
---> describe(object6, middle, peg).
+    describe(object6, middle, peg).
     middle(object6).
     peg(object6).
-understood.
-
->>> #some right peg.
---> describe(object7, right, peg).
+    describe(object7, right, peg).
     right(object7).
     peg(object7).
 understood.
