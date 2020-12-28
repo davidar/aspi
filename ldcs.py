@@ -24,7 +24,7 @@ VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
 
 start: cmd
-?cmd: (unary | join) ":" ldcs constraints "." -> define
+?cmd: (func | join) ":" ldcs constraints "." -> define
     | pred constraints "." -> claim
     | "#" "fluent" pred constraints "." -> fluent
     | "#" "some" lam lam* "." -> exist
@@ -45,24 +45,22 @@ disj: conj ("|" conj)*
 conj: lam lam*
 constant: INT
         | VARIABLE
-?lam: unary
+?lam: func
     | constant
     | join
     | neg
     | hof
     | unify
-?unary: func
-?binary: func
 func: atom
     | "(" CMP_OP ")" -> func_binop
     | atom "$" func -> compose
     | func "'" -> flip
-join: binary "." lam
-    | binary "[" disj "]"
+join: func "." lam
+    | func "[" disj "]"
     | func "[" disjs [";" disjs] "]" -> multijoin
 neg: "~" lam
 hof: "#" AGG_OP "(" disj ")" -> aggregation
-   | "#" SUP_OP "(" binary "," disj ")" -> superlative
+   | "#" SUP_OP "(" func "," disj ")" -> superlative
    | "#" "enumerate" "(" disj "," disj ")" -> enum
 unify: pred
 '''
