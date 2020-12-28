@@ -24,21 +24,24 @@ VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
 
 start: cmd
-?cmd: (func | join) ":" ldcs constraints "." -> define
-    | pred constraints "." -> claim
-    | "#" "fluent" pred constraints "." -> fluent
+?cmd: (func | join) ":" ldcs clause "." -> define
+    | pred clause "." -> claim
+    | "#" "fluent" pred clause "." -> fluent
     | lams ":" "#" "some" lams ("|" lams)* "." -> enum
     | "#" "some" lams ("|" lams)* "." -> exist
-    | ldcs constraints "?" -> query
+    | "#" "relation" atom "(" rparam ("," rparam)* ")" "." -> relation
+    | ldcs "." -> constraint
+    | ldcs clause "?" -> query
     | "#" "any" "(" ldcs ")" "!" -> goal_any
     | ldcs "!" -> goal_all
-constraints: [":" pred ("," pred)*]
+clause: [":" pred ("," pred)*]
 pred: atom "(" ldcs ("," ldcs)* ")"
     | atom "$" pred
     | bracketed BIN_OP bracketed -> binop
     | "(" "-" bracketed ")" -> negative
 ?bracketed: "(" ldcs ")"
           | lam -> ldcs
+rparam: INT ldcs
 atom: NAME
 ldcs: disj
 disjs: disj ("," disj)*
@@ -167,11 +170,28 @@ class LDCS(lark.Transformer[str]):
     def exist(self, *args: List[Unary]) -> None:
         self.enum([], *args)
 
+    def relation(self, name: str, *params: Tuple[str, CSym]) -> None:
+        bounds = [x for x, _ in params]
+        symbol = [x for _, (x, _) in params]
+        bodies = [x for _, (_, x) in params]
+        for i in range(len(params)):
+            bound = bounds[i]
+            body = bodies[i]
+            args = commas(*symbol)
+            cond = commas(*bodies[:i], *bodies[i+1:])
+            self.rules.append(
+                f'{{ {name}({args}) : {cond} }} = {bound} :- {body}.')
+
+    def constraint(self, var_body: CSym) -> None:
+        var, body = var_body
+        name = 'constraint' + str(self.counter('constraint'))
+        self.rules += [f'{name} :- {body}.', f':- not {name}.']
+
     def query(self, var_body: CSym, cond: Optional[str]) -> str:
         var, body = var_body
         return f'what({var}) :- {commas(body, cond)}'
 
-    def constraints(self, *args: CSym) -> Optional[str]:
+    def clause(self, *args: CSym) -> Optional[str]:
         body = None
         for v, b in args:
             body = commas(body, v, b)
@@ -197,6 +217,9 @@ class LDCS(lark.Transformer[str]):
         if not vals:
             return name, None
         return f"{name}({','.join(vals)})", commas(*bodies)
+
+    def rparam(self, bound: str, param: CSym) -> Tuple[str, CSym]:
+        return bound, param
 
     def binop(self, a: CSym, op: str, b: CSym) -> CSym:
         arg1, body1 = a

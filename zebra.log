@@ -1,0 +1,264 @@
+>>> % 1. There are five houses.
+>>> house: 1..5.
+--> house(C) :- A = 1, B = 5, C = A..B.
+understood.
+
+>>> left(house A, house A+1).
+--> left(A,D) :- house(A), A = MuA, house(D), B = MuA, C = 1, D = B+C.
+understood.
+
+>>> right(A,B): left(B,A).
+--> right(A,B) :- A = MuA, B = MuB, left(C,D), C = MuB, D = MuA.
+understood.
+
+>>> adjacent(A,B): left(A,B).
+--> adjacent(A,B) :- A = MuA, B = MuB, left(C,D), C = MuA, D = MuB.
+understood.
+
+>>> adjacent(A,B): right(A,B).
+--> adjacent(A,B) :- A = MuA, B = MuB, right(C,D), C = MuA, D = MuB.
+understood.
+
+>>> 
+>>> % In the interest of clarity, it must be added that
+>>> % each of the five houses is painted a different colour,
+>>> colour: #some red | green | ivory | yellow | blue.
+--> describe(object1, red).
+    colour(object1).
+    red(object1).
+    describe(object2, green).
+    colour(object2).
+    green(object2).
+    describe(object3, ivory).
+    colour(object3).
+    ivory(object3).
+    describe(object4, yellow).
+    colour(object4).
+    yellow(object4).
+    describe(object5, blue).
+    colour(object5).
+    blue(object5).
+understood.
+
+>>> #relation paint(1 house, 1 colour).
+--> { paint(A, B) : colour(B) } = 1 :- house(A).
+    { paint(A, B) : house(A) } = 1 :- colour(B).
+understood.
+
+>>> 
+>>> % and their inhabitants are of different national extractions,
+>>> person: #some english | spaniard | ukrainian | norwegian | japanese.
+--> describe(object6, english).
+    person(object6).
+    english(object6).
+    describe(object7, spaniard).
+    person(object7).
+    spaniard(object7).
+    describe(object8, ukrainian).
+    person(object8).
+    ukrainian(object8).
+    describe(object9, norwegian).
+    person(object9).
+    norwegian(object9).
+    describe(object10, japanese).
+    person(object10).
+    japanese(object10).
+understood.
+
+>>> #relation in(1 person, 1 house).
+--> { in(A, B) : house(B) } = 1 :- person(A).
+    { in(A, B) : person(A) } = 1 :- house(B).
+understood.
+
+>>> 
+>>> % own different pets,
+>>> pet: #some dog | fox | horse | zebra | snail.
+--> describe(object11, dog).
+    pet(object11).
+    dog(object11).
+    describe(object12, fox).
+    pet(object12).
+    fox(object12).
+    describe(object13, horse).
+    pet(object13).
+    horse(object13).
+    describe(object14, zebra).
+    pet(object14).
+    zebra(object14).
+    describe(object15, snail).
+    pet(object15).
+    snail(object15).
+understood.
+
+>>> #relation own(1 person, 1 pet).
+--> { own(A, B) : pet(B) } = 1 :- person(A).
+    { own(A, B) : person(A) } = 1 :- pet(B).
+understood.
+
+>>> 
+>>> % drink different beverages
+>>> beverage: #some coffee | tea | milk | juice | water.
+--> describe(object16, coffee).
+    beverage(object16).
+    coffee(object16).
+    describe(object17, tea).
+    beverage(object17).
+    tea(object17).
+    describe(object18, milk).
+    beverage(object18).
+    milk(object18).
+    describe(object19, juice).
+    beverage(object19).
+    juice(object19).
+    describe(object20, water).
+    beverage(object20).
+    water(object20).
+understood.
+
+>>> #relation drink(1 person, 1 beverage).
+--> { drink(A, B) : beverage(B) } = 1 :- person(A).
+    { drink(A, B) : person(A) } = 1 :- beverage(B).
+understood.
+
+>>> 
+>>> % and smoke different brands of American cigarettes.
+>>> cig: #some gold | kool | chesterfield | lucky | parliament.
+--> describe(object21, gold).
+    cig(object21).
+    gold(object21).
+    describe(object22, kool).
+    cig(object22).
+    kool(object22).
+    describe(object23, chesterfield).
+    cig(object23).
+    chesterfield(object23).
+    describe(object24, lucky).
+    cig(object24).
+    lucky(object24).
+    describe(object25, parliament).
+    cig(object25).
+    parliament(object25).
+understood.
+
+>>> #relation smoke(1 person, 1 cig).
+--> { smoke(A, B) : cig(B) } = 1 :- person(A).
+    { smoke(A, B) : person(A) } = 1 :- cig(B).
+understood.
+
+>>> 
+>>> % 2. The Englishman lives in the red house.
+>>> english in.paint.red.
+--> constraint1 :- english(C), in(C,B), paint(B,A), red(A).
+    :- not constraint1.
+understood.
+
+>>> 
+>>> % 3. The Spaniard owns the dog.
+>>> spaniard own.dog.
+--> constraint2 :- spaniard(B), own(B,A), dog(A).
+    :- not constraint2.
+understood.
+
+>>> 
+>>> % 4. Coffee is drunk in the green house.
+>>> drink.coffee in.paint.green.
+--> constraint3 :- drink(D,A), coffee(A), in(D,C), paint(C,B), green(B).
+    :- not constraint3.
+understood.
+
+>>> 
+>>> % 5. The Ukrainian drinks tea.
+>>> ukrainian drink.tea.
+--> constraint4 :- ukrainian(B), drink(B,A), tea(A).
+    :- not constraint4.
+understood.
+
+>>> 
+>>> % 6. The green house is immediately to the right of the ivory house.
+>>> paint.green house right[paint.ivory house].
+--> constraint5 :- paint(D,A), green(A), house(D), right(D,C), paint(C,B), ivory(B), house(C).
+    :- not constraint5.
+understood.
+
+>>> 
+>>> % 7. The Old Gold smoker owns snails.
+>>> smoke.gold own.snail.
+--> constraint6 :- smoke(C,A), gold(A), own(C,B), snail(B).
+    :- not constraint6.
+understood.
+
+>>> 
+>>> % 8. Kools are smoked in the yellow house.
+>>> smoke.kool in.paint.yellow.
+--> constraint7 :- smoke(D,A), kool(A), in(D,C), paint(C,B), yellow(B).
+    :- not constraint7.
+understood.
+
+>>> 
+>>> % 9. Milk is drunk in the middle house.
+>>> in.3 drink.milk.
+--> constraint8 :- in(C,A), A = 3, drink(C,B), milk(B).
+    :- not constraint8.
+understood.
+
+>>> 
+>>> % 10. The Norwegian lives in the first house.
+>>> norwegian in.1.
+--> constraint9 :- norwegian(B), in(B,A), A = 1.
+    :- not constraint9.
+understood.
+
+>>> 
+>>> % 11. The man who smokes Chesterfields lives in the house next to the man with the fox.
+>>> smoke.chesterfield in.adjacent.in'.own.fox.
+--> constraint10 :- smoke(F,A), chesterfield(A), in(F,E), adjacent(E,D), in(C,D), own(C,B), fox(B).
+    :- not constraint10.
+understood.
+
+>>> 
+>>> % 12. Kools are smoked in the house next to the house where the horse is kept.
+>>> smoke.kool in.adjacent.in'.own.horse.
+--> constraint11 :- smoke(F,A), kool(A), in(F,E), adjacent(E,D), in(C,D), own(C,B), horse(B).
+    :- not constraint11.
+understood.
+
+>>> 
+>>> % 13. The Lucky Strike smoker drinks orange juice.
+>>> smoke.lucky drink.juice.
+--> constraint12 :- smoke(C,A), lucky(A), drink(C,B), juice(B).
+    :- not constraint12.
+understood.
+
+>>> 
+>>> % 14. The Japanese smokes Parliaments.
+>>> japanese smoke.parliament.
+--> constraint13 :- japanese(B), smoke(B,A), parliament(A).
+    :- not constraint13.
+understood.
+
+>>> 
+>>> % 15. The Norwegian lives next to the blue house.
+>>> norwegian in.adjacent.paint.blue.
+--> constraint14 :- norwegian(D), in(D,C), adjacent(C,B), paint(B,A), blue(A).
+    :- not constraint14.
+understood.
+
+>>> 
+>>> % Now, who drinks water?
+>>> drink.water?
+--> what(B) :- drink(B,A), water(A).
+that: norwegian.
+
+>>> 
+>>> % Who owns the zebra?
+>>> own.zebra?
+--> what(B) :- own(B,A), zebra(A).
+that: japanese.
+
+>>> 
+>>> house(H,C,P,D,S,A): house(H), paint(H,C), in(P,H), drink(P,D), smoke(P,S), own(P,A)?
+--> what(G) :- A = MuH, B = MuC, C = MuP, D = MuD, E = MuS, F = MuA, G = house(A,B,C,D,E,F), house(H), H = MuH, paint(I,J), I = MuH, J = MuC, in(K,L), K = MuP, L = MuH, drink(M,N), M = MuP, N = MuD, smoke(O,P), O = MuP, P = MuS, own(Q,R), Q = MuP, R = MuA.
+that: house(1,yellow,norwegian,water,kool,fox) | house(2,blue,ukrainian,tea,chesterfield,horse) | house(3,red,english,milk,gold,snail) | house(4,ivory,spaniard,juice,lucky,dog) | house(5,green,japanese,coffee,parliament,zebra).
+
+>>> thanks.
+YOU'RE WELCOME!

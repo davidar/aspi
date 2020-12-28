@@ -1,0 +1,77 @@
+% 1. There are five houses.
+house: 1..5.
+left(house A, house A+1).
+right(A,B): left(B,A).
+adjacent(A,B): left(A,B).
+adjacent(A,B): right(A,B).
+
+% In the interest of clarity, it must be added that
+% each of the five houses is painted a different colour,
+colour: #some red | green | ivory | yellow | blue.
+#relation paint(1 house, 1 colour).
+
+% and their inhabitants are of different national extractions,
+person: #some english | spaniard | ukrainian | norwegian | japanese.
+#relation in(1 person, 1 house).
+
+% own different pets,
+pet: #some dog | fox | horse | zebra | snail.
+#relation own(1 person, 1 pet).
+
+% drink different beverages
+beverage: #some coffee | tea | milk | juice | water.
+#relation drink(1 person, 1 beverage).
+
+% and smoke different brands of American cigarettes.
+cig: #some gold | kool | chesterfield | lucky | parliament.
+#relation smoke(1 person, 1 cig).
+
+% 2. The Englishman lives in the red house.
+english in.paint.red.
+
+% 3. The Spaniard owns the dog.
+spaniard own.dog.
+
+% 4. Coffee is drunk in the green house.
+drink.coffee in.paint.green.
+
+% 5. The Ukrainian drinks tea.
+ukrainian drink.tea.
+
+% 6. The green house is immediately to the right of the ivory house.
+paint.green house right[paint.ivory house].
+
+% 7. The Old Gold smoker owns snails.
+smoke.gold own.snail.
+
+% 8. Kools are smoked in the yellow house.
+smoke.kool in.paint.yellow.
+
+% 9. Milk is drunk in the middle house.
+in.3 drink.milk.
+
+% 10. The Norwegian lives in the first house.
+norwegian in.1.
+
+% 11. The man who smokes Chesterfields lives in the house next to the man with the fox.
+smoke.chesterfield in.adjacent.in'.own.fox.
+
+% 12. Kools are smoked in the house next to the house where the horse is kept.
+smoke.kool in.adjacent.in'.own.horse.
+
+% 13. The Lucky Strike smoker drinks orange juice.
+smoke.lucky drink.juice.
+
+% 14. The Japanese smokes Parliaments.
+japanese smoke.parliament.
+
+% 15. The Norwegian lives next to the blue house.
+norwegian in.adjacent.paint.blue.
+
+% Now, who drinks water?
+drink.water?
+
+% Who owns the zebra?
+own.zebra?
+
+house(H,C,P,D,S,A): house(H), paint(H,C), in(P,H), drink(P,D), smoke(P,S), own(P,A)?

@@ -141,7 +141,7 @@ class Results:
             for k, v in self.names.items():
                 if k in d:
                     v += ' ' + d[k]
-                r = r.replace(k, v)
+                r = re.sub('\\b' + k + '\\b', v, r)
             if s == r:
                 return s
             d = {}
