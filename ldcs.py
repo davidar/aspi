@@ -17,28 +17,32 @@ ebnf = r'''
 %ignore WS
 
 CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
-BIN_OP: CMP_OP | ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
-AGG_OP: "count" | "sum" | "any" | "min" | "max"
+BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
+AGG_OP: "count" | "sum" | "min" | "max"
 SUP_OP: "most" | "each" | "argmin" | "argmax"
 VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
 
 start: cmd
-?cmd: (func | join) ":" ldcs clause "." -> define
-    | pred clause "." -> claim
-    | "#" "fluent" pred clause "." -> fluent
+?cmd: "#" "fluent" pred [":" clause] "." -> fluent
     | lams ":" "#" "some" lams ("|" lams)* "." -> enum
     | "#" "some" lams ("|" lams)* "." -> exist
     | "#" "relation" atom "(" rparam ("," rparam)* ")" "." -> relation
-    | ldcs "." -> constraint
-    | ldcs clause "?" -> query
-    | "#" "any" "(" ldcs ")" "!" -> goal_any
-    | ldcs "!" -> goal_all
-clause: [":" pred ("," pred)*]
+    | "#" "any" (ldcs | cmpop) "." -> constraint_any
+    | "#" "any" ldcs "?" -> query_any
+    | "#" "any" ldcs "!" -> goal_any
+    | (func | join) ":" ldcs [":" clause] "." -> define
+    | term [":" clause] "." -> claim
+    | ldcs [":" clause] "?" -> query
+    | ldcs "!" -> goal
+clause: term ("," term)*
+?term: pred
+     | cmpop
 pred: atom "(" ldcs ("," ldcs)* ")"
     | atom "$" pred
-    | bracketed BIN_OP bracketed -> binop
-    | "(" "-" bracketed ")" -> negative
+cmpop: bracketed CMP_OP bracketed -> binop
+binop: bracketed BIN_OP bracketed
+     | "(" "-" bracketed ")" -> negative
 ?bracketed: "(" ldcs ")"
           | lam -> ldcs
 rparam: INT ldcs
@@ -68,6 +72,7 @@ hof: "#" AGG_OP "(" disj ")" -> aggregation
    | "#" SUP_OP "(" func "," disj ")" -> superlative
    | "#" "enumerate" "(" disj "," disj ")" -> enumerate
 unify: pred
+     | binop
 '''
 
 Sym = str
@@ -131,16 +136,13 @@ class LDCS(lark.Transformer[str]):
             self.rules.insert(0, rule + '.')
         return '\n'.join(self.rules).replace(';,', ';').replace(';.', '.')
 
-    def define(self, head: Unary, var_body: CSym, cond: Optional[str]) -> str:
+    def define(self, head: Unary, var_body: CSym,
+               cond: Optional[str] = None) -> str:
         var, body = var_body
         lhs = head(var).split(', ')
         return f'{lhs[0]} :- {commas(*lhs[1:], body, cond)}'
 
-    def claim(self, head_body: CSym, cond: Optional[str]) -> str:
-        head, body = head_body
-        return f'{head} :- {commas(body, cond)}'
-
-    def fluent(self, head_body: CSym, cond: Optional[str]) -> str:
+    def fluent(self, head_body: CSym, cond: Optional[str] = None) -> str:
         head, body = head_body
         if cond:
             terms = []
@@ -182,14 +184,24 @@ class LDCS(lark.Transformer[str]):
             self.rules.append(
                 f'{{ {name}({args}) : {cond} }} = {bound} :- {body}.')
 
-    def constraint(self, var_body: CSym) -> None:
+    def claim(self, head_body: CSym, cond: Optional[str] = None) -> str:
+        head, body = head_body
+        return f'{head} :- {commas(body, cond)}'
+
+    def constraint_any(self, var_body: CSym) -> None:
         var, body = var_body
+        if len(var) > 1:
+            body = commas(var, body)
         name = 'constraint' + str(self.counter('constraint'))
         self.rules += [f'{name} :- {body}.', f':- not {name}.']
 
-    def query(self, var_body: CSym, cond: Optional[str]) -> str:
+    def query(self, var_body: CSym, cond: Optional[str] = None) -> str:
         var, body = var_body
         return f'what({var}) :- {commas(body, cond)}'
+
+    def query_any(self, var_body: CSym) -> None:
+        var, body = var_body
+        self.rules += [f'yes :- {body}.', 'no :- not yes.']
 
     def clause(self, *args: CSym) -> Optional[str]:
         body = None
@@ -207,7 +219,7 @@ class LDCS(lark.Transformer[str]):
             body = f(var)
         return f'{{ goal({var}) : {body} }} = 1'
 
-    def goal_all(self, var_body: CSym) -> str:
+    def goal(self, var_body: CSym) -> str:
         var, body = var_body
         assert body is not None
         return f'goal({var}) :- {body}'
@@ -288,11 +300,6 @@ class LDCS(lark.Transformer[str]):
             lam = self.lift(lam, 'aggregation')
         if op in ('count', 'sum', 'min', 'max'):
             return lambda x: f'{x} = #{op} {{ {y} : {lam(y)} }}'
-        elif op == 'any':
-            f = self.genpred('any')
-            self.rules.append(f"{f('true')} :- {lam(y)}.")
-            self.rules.append(f"{f('false')} :- not {f('true')}.")
-            return f
         else:
             assert False
 

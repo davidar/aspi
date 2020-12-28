@@ -147,98 +147,98 @@ understood.
 
 >>> 
 >>> % 2. The Englishman lives in the red house.
->>> english in.paint.red.
+>>> #any english in.paint.red.
 --> constraint1 :- english(C), in(C,B), paint(B,A), red(A).
     :- not constraint1.
 understood.
 
 >>> 
 >>> % 3. The Spaniard owns the dog.
->>> spaniard own.dog.
+>>> #any spaniard own.dog.
 --> constraint2 :- spaniard(B), own(B,A), dog(A).
     :- not constraint2.
 understood.
 
 >>> 
 >>> % 4. Coffee is drunk in the green house.
->>> drink.coffee in.paint.green.
+>>> #any drink.coffee in.paint.green.
 --> constraint3 :- drink(D,A), coffee(A), in(D,C), paint(C,B), green(B).
     :- not constraint3.
 understood.
 
 >>> 
 >>> % 5. The Ukrainian drinks tea.
->>> ukrainian drink.tea.
+>>> #any ukrainian drink.tea.
 --> constraint4 :- ukrainian(B), drink(B,A), tea(A).
     :- not constraint4.
 understood.
 
 >>> 
 >>> % 6. The green house is immediately to the right of the ivory house.
->>> paint.green house right[paint.ivory house].
+>>> #any paint.green house right[paint.ivory house].
 --> constraint5 :- paint(D,A), green(A), house(D), right(D,C), paint(C,B), ivory(B), house(C).
     :- not constraint5.
 understood.
 
 >>> 
 >>> % 7. The Old Gold smoker owns snails.
->>> smoke.gold own.snail.
+>>> #any smoke.gold own.snail.
 --> constraint6 :- smoke(C,A), gold(A), own(C,B), snail(B).
     :- not constraint6.
 understood.
 
 >>> 
 >>> % 8. Kools are smoked in the yellow house.
->>> smoke.kool in.paint.yellow.
+>>> #any smoke.kool in.paint.yellow.
 --> constraint7 :- smoke(D,A), kool(A), in(D,C), paint(C,B), yellow(B).
     :- not constraint7.
 understood.
 
 >>> 
 >>> % 9. Milk is drunk in the middle house.
->>> in.3 drink.milk.
+>>> #any in.3 drink.milk.
 --> constraint8 :- in(C,A), A = 3, drink(C,B), milk(B).
     :- not constraint8.
 understood.
 
 >>> 
 >>> % 10. The Norwegian lives in the first house.
->>> norwegian in.1.
+>>> #any norwegian in.1.
 --> constraint9 :- norwegian(B), in(B,A), A = 1.
     :- not constraint9.
 understood.
 
 >>> 
 >>> % 11. The man who smokes Chesterfields lives in the house next to the man with the fox.
->>> smoke.chesterfield in.adjacent.in'.own.fox.
+>>> #any smoke.chesterfield in.adjacent.in'.own.fox.
 --> constraint10 :- smoke(F,A), chesterfield(A), in(F,E), adjacent(E,D), in(C,D), own(C,B), fox(B).
     :- not constraint10.
 understood.
 
 >>> 
 >>> % 12. Kools are smoked in the house next to the house where the horse is kept.
->>> smoke.kool in.adjacent.in'.own.horse.
+>>> #any smoke.kool in.adjacent.in'.own.horse.
 --> constraint11 :- smoke(F,A), kool(A), in(F,E), adjacent(E,D), in(C,D), own(C,B), horse(B).
     :- not constraint11.
 understood.
 
 >>> 
 >>> % 13. The Lucky Strike smoker drinks orange juice.
->>> smoke.lucky drink.juice.
+>>> #any smoke.lucky drink.juice.
 --> constraint12 :- smoke(C,A), lucky(A), drink(C,B), juice(B).
     :- not constraint12.
 understood.
 
 >>> 
 >>> % 14. The Japanese smokes Parliaments.
->>> japanese smoke.parliament.
+>>> #any japanese smoke.parliament.
 --> constraint13 :- japanese(B), smoke(B,A), parliament(A).
     :- not constraint13.
 understood.
 
 >>> 
 >>> % 15. The Norwegian lives next to the blue house.
->>> norwegian in.adjacent.paint.blue.
+>>> #any norwegian in.adjacent.paint.blue.
 --> constraint14 :- norwegian(D), in(D,C), adjacent(C,B), paint(B,A), blue(A).
     :- not constraint14.
 understood.

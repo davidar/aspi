@@ -1,5 +1,7 @@
 #program base.
 #show what/1.
+#show yes/0.
+#show no/0.
 #show history/2.
 #show describe/2.
 #show describe/3.

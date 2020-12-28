@@ -62,27 +62,24 @@ that: table.
 
 >>> 
 >>> % CAN THE TABLE PICK UP BLOCKS?
->>> #any(table action$pickup.block)?
---> what(C) :- any1(C).
-    any1(true) :- table(B), action(pickup(B,A)), block(A).
-    any1(false) :- not any1(true).
-that: false.
+>>> #any table action$pickup.block?
+--> yes :- table(B), action(pickup(B,A)), block(A).
+    no :- not yes.
+no.
 
 >>> 
 >>> % CAN A PYRAMID BE SUPPORTED BY A BLOCK?
->>> #any(pyramid action$put_on.block)?
---> what(C) :- any2(C).
-    any2(true) :- pyramid(B), action(put_on(B,A)), block(A).
-    any2(false) :- not any2(true).
-that: true.
+>>> #any pyramid action$put_on.block?
+--> yes :- pyramid(B), action(put_on(B,A)), block(A).
+    no :- not yes.
+yes.
 
 >>> 
 >>> % CAN A PYRAMID SUPPORT A PYRAMID?
->>> #any(pyramid action$put_on.pyramid)?
---> what(C) :- any3(C).
-    any3(true) :- pyramid(B), action(put_on(B,A)), pyramid(A).
-    any3(false) :- not any3(true).
-that: false.
+>>> #any pyramid action$put_on.pyramid?
+--> yes :- pyramid(B), action(put_on(B,A)), pyramid(A).
+    no :- not yes.
+no.
 
 >>> 
 >>> % STACK UP TWO PYRAMIDS.
@@ -105,11 +102,10 @@ understood.
 
 >>> 
 >>> % DO I OWN THE BOX?
->>> #any(box mine)?
---> what(B) :- any4(B).
-    any4(true) :- box(A), mine(A).
-    any4(false) :- not any4(true).
-that: false.
+>>> #any box mine?
+--> yes :- box(A), mine(A).
+    no :- not yes.
+no.
 
 >>> 
 >>> % DO I OWN ANYTHING IN THE BOX?
@@ -119,7 +115,7 @@ that: blue block | green cube supports[large red block] | blue pyramid.
 
 >>> 
 >>> % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
->>> #any(stack(red block, red block, green cube | pyramid))!
+>>> #any stack(red block, red block, green cube | pyramid)!
 --> { goal(E) : red(A), block(A), red(B), block(B), disjunction1(D), E = stack(A,B,D) } = 1.
     disjunction1(C) :- green(C), cube(C).
     disjunction1(C) :- pyramid(C).
@@ -142,13 +138,13 @@ that: green cube supports[red pyramid].
 that: large red block | blue block | green cube supports[green pyramid].
 
 >>> 
->>> #any(on(red pyramid, green cube))!
+>>> #any on(red pyramid, green cube)!
 --> { goal(C) : red(A), pyramid(A), green(B), cube(B), C = on(A,B) } = 1.
 on(red pyramid, green cube supports[red pyramid]).
 
 >>> 
 >>> % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
->>> #any(on(small block, green cube supports.pyramid))!
+>>> #any on(small block, green cube supports.pyramid)!
 --> { goal(D) : small(A), block(A), green(C), cube(C), supports(C,B), pyramid(B), D = on(A,C) } = 1.
 pickup(red cube)!
 put_on(red cube, green cube supports[red pyramid])!
@@ -258,7 +254,7 @@ ok.
 
 >>> 
 >>> % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
->>> #any(on(blue pyramid, block in.box))!
+>>> #any on(blue pyramid, block in.box)!
 --> { goal(D) : blue(A), pyramid(A), block(C), in(C,B), box(B), D = on(A,C) } = 1.
 on(blue pyramid, green cube supports[blue pyramid]).
 
@@ -276,15 +272,14 @@ understood.
 
 >>> 
 >>> % ARE THERE ANY STEEPLES NOW?
->>> #any(steeple holds.now)?
---> what(C) :- any5(C).
-    any5(true) :- steeple(B), holds(B,A), now(A).
-    any5(false) :- not any5(true).
-that: false.
+>>> #any steeple holds.now?
+--> yes :- steeple(B), holds(B,A), now(A).
+    no :- not yes.
+no.
 
 >>> 
 >>> % BUILD ONE.
->>> #any(steeple)!
+>>> #any steeple!
 --> { goal(A) : steeple(A) } = 1.
 pickup(red pyramid)!
 put_on(red pyramid, blue block)!
@@ -310,11 +305,10 @@ understood.
 
 >>> 
 >>> % HAVE YOU PICKED SUPERBLOCK UP SINCE WE BEGAN?
->>> #any(holding.superblock)?
---> what(C) :- any6(C).
-    any6(true) :- holding(B,A), superblock(A).
-    any6(false) :- not any6(true).
-that: true.
+>>> #any holding.superblock?
+--> yes :- holding(B,A), superblock(A).
+    no :- not yes.
+yes.
 
 >>> 
 >>> % WHY DID YOU DROP IT?

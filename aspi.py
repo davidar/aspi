@@ -111,8 +111,8 @@ class ASPI:
             print(fact + '.')
         for act in res.acts:
             print(act + '!')
-        if res.ok:
-            print('ok.')
+        if res.status:
+            print(res.status + '.')
         if res.shows:
             print(f"that: {' | '.join(res.shows)}.")
         print()
@@ -121,7 +121,7 @@ class ASPI:
 class Results:
     def __init__(self, parent: ASPI, results: List[str]) -> None:
         self.parent = parent
-        self.ok = False
+        self.status: Optional[str] = None
         self.acts: List[str] = []
         self.already: List[str] = []
         self.shows: List[str] = []
@@ -165,8 +165,8 @@ class Results:
             self.names[r[0]] = ' '.join(r[1:])
         elif result.startswith('describe_extra('):
             self.parse_describe_extra(result)
-        elif result == 'ok':
-            self.ok = True
+        elif result in ('ok', 'yes', 'no'):
+            self.status = result
 
     def parse_assert(self, result: str) -> None:
         result = result[len('assert('):-1]

@@ -27,46 +27,46 @@ cig: #some gold | kool | chesterfield | lucky | parliament.
 #relation smoke(1 person, 1 cig).
 
 % 2. The Englishman lives in the red house.
-english in.paint.red.
+#any english in.paint.red.
 
 % 3. The Spaniard owns the dog.
-spaniard own.dog.
+#any spaniard own.dog.
 
 % 4. Coffee is drunk in the green house.
-drink.coffee in.paint.green.
+#any drink.coffee in.paint.green.
 
 % 5. The Ukrainian drinks tea.
-ukrainian drink.tea.
+#any ukrainian drink.tea.
 
 % 6. The green house is immediately to the right of the ivory house.
-paint.green house right[paint.ivory house].
+#any paint.green house right[paint.ivory house].
 
 % 7. The Old Gold smoker owns snails.
-smoke.gold own.snail.
+#any smoke.gold own.snail.
 
 % 8. Kools are smoked in the yellow house.
-smoke.kool in.paint.yellow.
+#any smoke.kool in.paint.yellow.
 
 % 9. Milk is drunk in the middle house.
-in.3 drink.milk.
+#any in.3 drink.milk.
 
 % 10. The Norwegian lives in the first house.
-norwegian in.1.
+#any norwegian in.1.
 
 % 11. The man who smokes Chesterfields lives in the house next to the man with the fox.
-smoke.chesterfield in.adjacent.in'.own.fox.
+#any smoke.chesterfield in.adjacent.in'.own.fox.
 
 % 12. Kools are smoked in the house next to the house where the horse is kept.
-smoke.kool in.adjacent.in'.own.horse.
+#any smoke.kool in.adjacent.in'.own.horse.
 
 % 13. The Lucky Strike smoker drinks orange juice.
-smoke.lucky drink.juice.
+#any smoke.lucky drink.juice.
 
 % 14. The Japanese smokes Parliaments.
-japanese smoke.parliament.
+#any japanese smoke.parliament.
 
 % 15. The Norwegian lives next to the blue house.
-norwegian in.adjacent.paint.blue.
+#any norwegian in.adjacent.paint.blue.
 
 % Now, who drinks water?
 drink.water?
