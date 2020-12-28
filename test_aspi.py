@@ -1,8 +1,7 @@
-def run(s, name, plan=False):
-    args = [name + '/world.lp', name + '/actions.lp'] if plan else []
-    ret = s.run('./aspi.py', *args, stdin=open(name + '/test.in', 'r'))
+def run(s, name):
+    ret = s.run('./aspi.py', stdin=open(f'test/{name}.ldcs', 'r'))
     assert ret.success
-    assert ret.stdout == open(name + '/test.out', 'r').read()
+    assert ret.stdout == open(f'test/{name}.log', 'r').read()
     assert ret.stderr == ''
 
 
@@ -18,5 +17,14 @@ def test_hanoi(script_runner):
     run(script_runner, 'hanoi')
 
 
+def test_zebra(script_runner):
+    run(script_runner, 'zebra')
+
+
 def test_shrdlu(script_runner):
-    run(script_runner, 'shrdlu', True)
+    ret = script_runner.run(
+        './aspi.py', 'shrdlu/world.lp', 'shrdlu/actions.lp',
+        stdin=open('shrdlu/test.in', 'r'))
+    assert ret.success
+    assert ret.stdout == open('shrdlu/test.out', 'r').read()
+    assert ret.stderr == ''
