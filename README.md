@@ -1,5 +1,6 @@
 # aspi
 *Answer Set Programming, Interactively*
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/davidar/aspi)
 
 This project started as an interactive shell for [clingo](https://github.com/potassco/clingo), and is gradually morphing into an experimental programming language based on [Lambda Dependency-Based Compositional Semantics](https://arxiv.org/abs/1309.4408). It supports a variety of declarative programming paradigms in a cohesive manner:
 

@@ -1,0 +1,5 @@
+image: continuumio/miniconda3
+
+tasks:
+  - init: conda env create -f environment.yml
+    command: conda activate aspi
