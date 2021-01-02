@@ -2,7 +2,10 @@ image: continuumio/miniconda3
 
 tasks:
   - init: |
-      # https://github.com/ContinuumIO/docker-images/issues/151
-      conda config --prepend pkgs_dirs $HOME/.conda/pkgs
+      conda config --prepend envs_dirs /workspace/.conda/envs
+      conda config --prepend pkgs_dirs /workspace/.conda/pkgs
       conda env create -f environment.yml
-    command: conda activate aspi
+    command: |
+      conda config --prepend envs_dirs /workspace/.conda/envs
+      conda config --prepend pkgs_dirs /workspace/.conda/pkgs
+      conda activate aspi
