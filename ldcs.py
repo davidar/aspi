@@ -71,6 +71,7 @@ neg: "~" lam
 hof: "#" AGG_OP "(" disj ")" -> aggregation
    | "#" SUP_OP "(" func "," disj ")" -> superlative
    | "#" "enumerate" "(" disj "," disj ")" -> enumerate
+   | "#" "product" "(" disj ")" -> product
 unify: pred
      | binop
 '''
@@ -322,6 +323,12 @@ class LDCS(lark.Transformer[str]):
         y = self.gensym()
         self.rules.append(f'gather({i},{y}) :- {lam(y)}.')
         return lambda x: f'enumerate({i},{y},{x}), {idx(y)}'
+
+    def product(self, lam: Unary) -> Unary:
+        i = self.counter('gather')
+        y = self.gensym()
+        self.rules.append(f'gather({i},{y}) :- {lam(y)}.')
+        return lambda x: f'product({i},{x})'
 
     def unify(self, pred_body: CSym) -> Unary:
         pred, body = pred_body

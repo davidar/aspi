@@ -35,9 +35,13 @@ i4(X) :- X = -9999..9999.
 
 gather(@gather(I,X)) :- gather(I,X).
 enumerate(I,J,X) :- gather(I), (J-1,X) = @sort(I).
+product(I,X) :- gather(I), X = @product(I).
 
 #script (python)
 import clingo
+import math
+import sys
+
 def show(a):
     return clingo.String(str(a))
 def concatenate(a, b):
@@ -53,4 +57,6 @@ def gather(i, a):
     return i
 def sort(i):
     return list(enumerate(sorted(gathered[i]))) if i in gathered else []
+def product(i):
+    return math.prod(x.number for x in gathered[i]) % sys.maxsize
 #end.
