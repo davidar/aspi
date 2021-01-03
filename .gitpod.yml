@@ -9,3 +9,7 @@ tasks:
       conda config --prepend envs_dirs /workspace/.conda/envs
       conda config --prepend pkgs_dirs /workspace/.conda/pkgs
       conda activate aspi
+
+vscode:
+  extensions:
+    - abelcour.asp-syntax-highlight@0.0.5:yAlMo8NUD2eEOQeqMkIBTA==
