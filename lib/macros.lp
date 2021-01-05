@@ -9,3 +9,5 @@ odd(X) :- X \ 2 = 1.
 show(X,A) :- X = @show(A).
 concatenate(X,A,B) :- X = @concatenate(A,B).
 reverse(X,A) :- X = @reverse(A).
+substring(X,A) :- X = @substring(A).
+length(X,A) :- X = @length(A).

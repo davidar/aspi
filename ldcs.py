@@ -9,6 +9,7 @@ from typing import cast, Callable, Dict, Iterable, List, \
 
 ebnf = r'''
 %import common.DIGIT
+%import common.ESCAPED_STRING
 %import common.INT
 %import common.LCASE_LETTER
 %import common.UCASE_LETTER
@@ -54,6 +55,7 @@ lams: lam lam*
 conj: lams
 constant: INT
         | VARIABLE
+        | ESCAPED_STRING
 ?lam: func
     | constant
     | join

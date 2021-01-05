@@ -48,6 +48,14 @@ def concatenate(a, b):
     return a.string + b.string
 def reverse(a):
     return clingo.String(a.string[::-1])
+def substring(a):
+    s = a.string
+    n = len(s)
+    for start in range(0,n+1):
+        for end in range(start,n+1):
+            yield s[start:end]
+def length(a):
+    return clingo.Number(len(a.string))
 
 gathered = {}
 def gather(i, a):
