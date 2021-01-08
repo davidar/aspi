@@ -35,7 +35,9 @@ i4(X) :- X = -9999..9999.
 
 gather(@gather(I,X)) :- gather(I,X).
 enumerate(I,J,X) :- gather(I), (J-1,X) = @sort(I).
-product(I,X) :- gather(I), X = @product(I).
+productof(I,X) :- gather(I), X = @productof(I).
+setof(I,X) :- gather(I), X = @setof(I).
+bagof(I,X) :- gather(I), X = @bagof(I).
 
 #script (python)
 import clingo
@@ -65,6 +67,31 @@ def gather(i, a):
     return i
 def sort(i):
     return list(enumerate(sorted(gathered[i]))) if i in gathered else []
-def product(i):
-    return math.prod(x.number for x in gathered[i]) % sys.maxsize
+def productof(i):
+    try:
+        return math.prod(x.number for x in gathered[i]) % sys.maxsize
+    except:
+        return clingo.Function('nan')
+def setof(i):
+    return clingo.Function('set', sorted(gathered[i]))
+def bagof(i):
+    try:
+        return clingo.Function('bag', sorted(a.arguments[0] for a in gathered[i]))
+    except:
+        return clingo.Function('error')
+
+def proof(head, *args):
+    if len(args) == 0:
+        return head
+    body = set()
+    proofs = set()
+    for p in args:
+        if p.type == clingo.SymbolType.Function and p.name == 'proof':
+            for subproof in p.arguments:
+                body.add(subproof.arguments[0])
+                proofs.add(subproof)
+        else:
+            body.add(p)
+    proofs.add(clingo.Tuple([head] + sorted(body)))
+    return clingo.Function('proof', sorted(proofs))
 #end.

@@ -81,7 +81,8 @@ class ASPI:
         lp = self.ldcs.toASP(cmd)
         if lp is None:
             return None
-        print('-->', '\n    '.join(lp.split('\n')))
+        print('-->', '\n    '.join(
+            line for line in lp.split('\n') if '@proof' not in line))
         lp += '\n'
         if cmd.endswith('.'):
             self.program += lp

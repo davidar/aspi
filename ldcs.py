@@ -19,7 +19,7 @@ ebnf = r'''
 
 CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
 BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
-AGG_OP: "count" | "sum" | "min" | "max"
+AGG_OP: "count" | "sum" | "min" | "max" | "product" | "set" | "bag"
 SUP_OP: "most" | "each" | "argmin" | "argmax"
 VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
@@ -73,7 +73,6 @@ neg: "~" lam
 hof: "#" AGG_OP "(" disj ")" -> aggregation
    | "#" SUP_OP "(" func "," disj ")" -> superlative
    | "#" "enumerate" "(" disj "," disj ")" -> enumerate
-   | "#" "product" "(" disj ")" -> product
 unify: pred
      | binop
 '''
@@ -137,6 +136,9 @@ class LDCS(lark.Transformer[str]):
     def start(self, rule: Optional[str]) -> str:
         if rule:
             self.rules.insert(0, rule + '.')
+        for rule in self.rules[:]:
+            if ' :- ' in rule and '{' not in rule:
+                self.rules.append(self.proof(rule))
         return '\n'.join(self.rules).replace(';,', ';').replace(';.', '.')
 
     def define(self, head: Unary, var_body: CSym,
@@ -162,6 +164,20 @@ class LDCS(lark.Transformer[str]):
                 '#program base.',
                 ]
         return f'{head} :- holds({head})'
+
+    def proof(self, rule: str) -> str:
+        head, body = rule[:-1].split(' :- ')
+        terms = []
+        pvars = []
+        for term in body.split(', '):
+            if ' ' in term:
+                terms.append(term)
+            else:
+                var = 'P' + str(self.counter('proof'))
+                terms.append(f'proof({var},{term})')
+                pvars.append(var)
+        prf = ','.join([head] + pvars)
+        return f'proof(@proof({prf}),{head}) :- {commas(*terms)}.'
 
     def enum(self, heads: List[Unary], *args: List[Unary]) -> None:
         for lams in args:
@@ -239,7 +255,7 @@ class LDCS(lark.Transformer[str]):
     def binop(self, a: CSym, op: str, b: CSym) -> CSym:
         arg1, body1 = a
         arg2, body2 = b
-        return arg1 + op + arg2, commas(body1, body2)
+        return f'{arg1} {op} {arg2}', commas(body1, body2)
 
     def negative(self, a: CSym) -> CSym:
         arg, body = a
@@ -280,7 +296,7 @@ class LDCS(lark.Transformer[str]):
         return lambda *args: f"{name}({','.join(args)})"
 
     def func_binop(self, op: str) -> Binary:
-        return lambda x, y: x + op + y
+        return lambda x, y: f'{x} {op} {y}'
 
     def compose(self, name: str, lam: Variadic) -> Variadic:
         return lambda *args: f'{name}({lam(*args)})'
@@ -299,10 +315,18 @@ class LDCS(lark.Transformer[str]):
 
     def aggregation(self, op: str, lam: Unary) -> Unary:
         y = self.gensym()
-        if ';' in lam(y):
+        if ' ' in lam(y):
             lam = self.lift(lam, 'aggregation')
         if op in ('count', 'sum', 'min', 'max'):
             return lambda x: f'{x} = #{op} {{ {y} : {lam(y)} }}'
+        elif op in ('product', 'set'):
+            i = self.counter('gather')
+            self.rules.append(f'gather({i},{y}) :- {lam(y)}.')
+            return lambda x: f'{op}of({i},{x})'
+        elif op == 'bag':
+            i = self.counter('gather')
+            self.rules.append(f'gather({i},({y},P0)) :- proof(P0,{lam(y)}).')
+            return lambda x: f'bagof({i},{x})'
         else:
             assert False
 
@@ -325,12 +349,6 @@ class LDCS(lark.Transformer[str]):
         y = self.gensym()
         self.rules.append(f'gather({i},{y}) :- {lam(y)}.')
         return lambda x: f'enumerate({i},{y},{x}), {idx(y)}'
-
-    def product(self, lam: Unary) -> Unary:
-        i = self.counter('gather')
-        y = self.gensym()
-        self.rules.append(f'gather({i},{y}) :- {lam(y)}.')
-        return lambda x: f'product({i},{x})'
 
     def unify(self, pred_body: CSym) -> Unary:
         pred, body = pred_body
