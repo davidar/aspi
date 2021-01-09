@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import lark
+import re
 import string
 import sys
 from typing import cast, Callable, Dict, Iterable, List, \
@@ -122,10 +123,18 @@ class LDCS(lark.Transformer[str]):
         name = prefix + str(self.counter(prefix))
         return lambda x: f'{name}({x})'
 
-    def lift(self, lam: Unary, prefix: str = 'lifted') -> Unary:
-        f = self.genpred(prefix)
+    def lift(self, lam: Unary, prefix: str) -> Unary:
+        i = self.counter(prefix)
         z = self.gensym()
-        self.rules.append(f'{f(z)} :- {lam(z)}.')
+        vars = sorted(set(re.findall('Mu[A-Z]', lam(z))))
+
+        def f(x: str) -> str:
+            closure = ','.join([str(i)] + vars)
+            return f'{prefix}(({closure}),{x})'
+        if len(vars) > 0:
+            self.rules.append(f'{f(z)} :- {lam(z)}, @context({f("_")}).')
+        else:
+            self.rules.append(f'{f(z)} :- {lam(z)}.')
         return f
 
     def expand_macro(self, name: str, *args: Sym) -> str:
@@ -310,7 +319,7 @@ class LDCS(lark.Transformer[str]):
 
     def neg(self, lam: Unary) -> Unary:
         if ' ' in lam('_'):
-            lam = self.lift(lam)
+            lam = self.lift(lam, 'negation')
         return lambda x: 'not ' + lam(x)
 
     def aggregation(self, op: str, lam: Unary) -> Unary:
@@ -321,8 +330,16 @@ class LDCS(lark.Transformer[str]):
             return lambda x: f'{x} = #{op} {{ {y} : {lam(y)} }}'
         elif op in ('product', 'set'):
             i = self.counter('gather')
-            self.rules.append(f'gather({i},{y}) :- {lam(y)}.')
-            return lambda x: f'{op}of({i},{x})'
+            vars = sorted(set(re.findall('Mu[A-Z]', lam(y))))
+            closure = ','.join([str(i)] + vars)
+
+            def f(x: str) -> str:
+                return f'{op}of(({closure}),{x})'
+            context = ''
+            if len(vars) > 0:
+                context = f', @context({f("_")})'
+            self.rules.append(f'gather(({closure}),{y}) :- {lam(y)}{context}.')
+            return f
         elif op == 'bag':
             i = self.counter('gather')
             self.rules.append(f'gather({i},({y},P0)) :- proof(P0,{lam(y)}).')

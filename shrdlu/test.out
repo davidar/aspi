@@ -44,8 +44,8 @@ that: box.
 >>> 
 >>> % HOW MANY BLOCKS ARE NOT IN THE BOX?
 >>> block ~in.box?
---> what(C) :- block(C), not lifted1(C).
-    lifted1(B) :- in(B,A), box(A).
+--> what(C) :- block(C), not negation((1),C).
+    negation((1),B) :- in(B,A), box(A).
 that: red cube | green cube supports[red pyramid].
 
 >>> 
@@ -96,8 +96,8 @@ understood.
 >>> 
 >>> % I OWN BLOCKS WHICH ARE NOT RED BUT I DON'T OWN ANYTHING WHICH SUPPORTS A PYRAMID.
 >>> mine(block ~red ~supports.pyramid).
---> mine(C) :- block(C), not red(C), not lifted2(C).
-    lifted2(B) :- supports(B,A), pyramid(A).
+--> mine(C) :- block(C), not red(C), not negation((2),C).
+    negation((2),B) :- supports(B,A), pyramid(A).
 understood.
 
 >>> 
@@ -161,8 +161,8 @@ ok.
 >>> 
 >>> % DOES THE SHORTEST THING THE TALLEST PYRAMID'S SUPPORT SUPPORTS SUPPORT ANYTHING GREEN?
 >>> green on.#most(short, on.supports.#most(tall, pyramid))?
---> what(G) :- green(G), on(G,F), short(F,D) : superlative1(D), F != D; superlative1(F).
-    superlative1(E) :- on(E,C), supports(C,B), tall(B,A) : pyramid(A), B != A; pyramid(B).
+--> what(G) :- green(G), on(G,F), short(F,D) : superlative((1),D), F != D; superlative((1),F).
+    superlative((1),E) :- on(E,C), supports(C,B), tall(B,A) : pyramid(A), B != A; pyramid(B).
 that: green pyramid.
 
 >>> 
@@ -224,8 +224,8 @@ that: pickup[green pyramid] | put_on[green pyramid, green cube supports[large re
 >>> 
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
 >>> #count(pickup.object during.that.2)?
---> what(N) :- N = #count { D : aggregation1(D) }.
-    aggregation1(I) :- pickup(I,A), object(A), start_time(J,I), end_time(K,I), start_time(L,C), end_time(M,C), J = L .. M, K = J .. M, I != C, that(C,B), B = 2.
+--> what(R) :- R = #count { D : aggregation((1),D) }.
+    aggregation((1),I) :- pickup(I,A), object(A), start_time(N,I), end_time(O,I), start_time(P,C), end_time(Q,C), N = P .. Q, O = N .. Q, I != C, that(C,B), B = 2.
 that: 2.
 
 >>> 
