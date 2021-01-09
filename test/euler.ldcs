@@ -66,3 +66,8 @@ collatz_steps[N (>).1 n3]: 1 + collatz_steps[collatz.N].
 collatz_steps[1..10]?
 #max(collatz_steps[1..10])?
 #argmax(collatz_steps, 1..10)?
+
+% 20. Find the sum of digits in 10!
+factorial[N 1..12]: product.#set(1..N).
+factorial.10?
+sum.#bag(decimal[substring.show.factorial.10 length'.1])?

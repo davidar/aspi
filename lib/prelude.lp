@@ -36,7 +36,9 @@ i4(X) :- X = -9999..9999.
 gather(@gather(I,X)) :- gather(I,X).
 enumerate(I,J,X) :- gather(I), (J-1,X) = @sort(I).
 setof(I,X) :- gather(I), X = @setof(I).
+proof(@proof(setof(I,X)),setof(I,X)) :- setof(I,X).
 bagof(I,X) :- gather(I), X = @bagof(I).
+proof(@proof(bagof(I,X)),bagof(I,X)) :- bagof(I,X).
 
 #script (python)
 import clingo

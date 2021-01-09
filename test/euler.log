@@ -175,8 +175,8 @@ understood.
 
 >>> divisors[X n3]: count.#set(divisor.X).
 --> divisors(F,A) :- A = MuX, n3(A), F = @countof(E), setof((6,MuX),E).
-    gather((6,MuX),C) :- aggregation((8,MuX),C).
-    aggregation((8,MuX),D) :- divisor(D,B), B = MuX.
+    gather((6,MuX),C) :- aggregation((8,MuX),C), A = MuX, n3(A).
+    aggregation((8,MuX),D) :- divisor(D,B), B = MuX, A = MuX, n3(A).
 understood.
 
 >>> triangle N: divisors.N > 20?
@@ -223,6 +223,24 @@ that: 19.
     superlative((5),D) :- A = 1, B = 10, D = A .. B.
     aggregation((10),G) :- collatz_steps(G,E), superlative((5),E).
 that: 9.
+
+>>> 
+>>> % 20. Find the sum of digits in 10!
+>>> factorial[N 1..12]: product.#set(1..N).
+--> factorial(I,C) :- C = MuN, A = 1, B = 12, C = A .. B, I = @productof(H), setof((7,MuN),H).
+    gather((7,MuN),F) :- aggregation((11,MuN),F), C = MuN, A = 1, B = 12, C = A .. B.
+    aggregation((11,MuN),G) :- D = 1, E = MuN, G = D .. E, C = MuN, A = 1, B = 12, C = A .. B.
+understood.
+
+>>> factorial.10?
+--> what(B) :- factorial(B,A), A = 10.
+that: 3628800.
+
+>>> sum.#bag(decimal[substring.show.factorial.10 length'.1])?
+--> what(U) :- U = @sumof(T), bagof((8),T).
+    gather((8),(F,P0)) :- proof(P0,aggregation((12),F)).
+    aggregation((12),K) :- K = @decimal(E), E = @substring(C,P,Q), R = @length(C), P = 0 .. R, S = R - P, Q = 0 .. S, C = @show(B), factorial(B,A), A = 10, D = @length(E), D = 1.
+that: 27.
 
 >>> thanks.
 YOU'RE WELCOME!

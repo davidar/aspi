@@ -143,13 +143,15 @@ class LDCS(lark.Transformer[str]):
     def expand_contexts(self) -> None:
         for i, rule in enumerate(self.rules):
             if (match := re.search(r'@context\((.*)\)', rule)):
-                template = re.escape(match.group(1)).replace('_', '[A-Z]')
+                template = re.escape(match.group(1)).replace('_', '([A-Z])')
                 for rule2 in self.rules:
                     if ' :- ' in rule2:
                         body = rule2[:-1].split(' :- ')[1].split(', ')
                         for j, term in enumerate(body):
-                            if re.search(template, term):
-                                context = body[j+1:]
+                            if (match2 := re.search(template, term)):
+                                headvar = match2.group(1)
+                                context = [t for t in body[:j] + body[j+1:]
+                                           if headvar not in t]
                                 rule = rule.replace(
                                     match.group(0), commas(*context))
                                 rule = rule.replace(', .', '.')
