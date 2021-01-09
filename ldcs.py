@@ -116,12 +116,7 @@ class LDCS(lark.Transformer[str]):
         return self.counts[prefix]
 
     def gensym(self) -> Sym:
-        sym = string.ascii_uppercase[self.counter()-1]
-        return sym
-
-    def genpred(self, prefix: str) -> Unary:
-        name = prefix + str(self.counter(prefix))
-        return lambda x: f'{name}({x})'
+        return string.ascii_uppercase[self.counter()-1]
 
     def lift(self, lam: Unary, prefix: str) -> Unary:
         i = self.counter(prefix)
@@ -241,10 +236,10 @@ class LDCS(lark.Transformer[str]):
         var, body = var_body
         assert body is not None
         if ';' in body:
-            f = self.genpred('goal')
-            self.rules.append(f'{f(var)} :- {body}.')
+            i = self.counter('goal')
+            self.rules.append(f'goal{i}({var}) :- {body}.')
             var = self.gensym()
-            body = f(var)
+            body = f'goal{i}({var})'
         return f'{{ goal({var}) : {body} }} = 1'
 
     def goal(self, var_body: CSym) -> str:
@@ -283,10 +278,10 @@ class LDCS(lark.Transformer[str]):
     def disj(self, *lams: Unary) -> Unary:
         if len(lams) == 1:
             return lams[0]
-        f = self.genpred('disjunction')
+        i = self.counter('disjunction')
         x = self.gensym()
-        self.rules.extend(f'{f(x)} :- {lam(x)}.' for lam in lams)
-        return f
+        self.rules.extend(f'disjunction{i}({x}) :- {lam(x)}.' for lam in lams)
+        return lambda x: f'disjunction{i}({x})'
 
     def lams(self, *lams: Unary) -> List[Unary]:
         return list(lams)
