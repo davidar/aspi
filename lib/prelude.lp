@@ -80,6 +80,11 @@ def bagof(i):
     except:
         return clingo.Function('error')
 
+def countof(a):
+    return len(a.arguments)
+def sumof(a):
+    return sum(x.number for x in a.arguments) % sys.maxsize
+
 def proof(head, *args):
     if len(args) == 0:
         return head

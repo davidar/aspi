@@ -44,14 +44,13 @@ triple(A,B,C): pythag(A,B,C), ((A+B)+C) = 96?
 #sum(prime (<).100)?
 
 % 12. What is the first triangle number to have over twenty divisors?
-%triangle[N n3]: #sum(1..N).
-%triangle: triangle.n3.
-%triangle (<).100?
-%divisor[X n3]: multiple'[X] n3.
-%divisors[X n3]: #count(divisor.X).
-%triangle N: divisors.N > 20?
-%#most((<), that)?
-%divisor.that?
+triangle: sum.#set(1..N): N = 1..99.
+triangle (<).100?
+divisor[X n3]: multiple'[X] n3.
+divisors[X n3]: count.#set(divisor.X).
+triangle N: divisors.N > 20?
+#most((<), that)?
+divisor.that?
 
 % 14. Find the longest Collatz sequence using a starting number under ten.
 collatz[N even n3]: N / 2.

@@ -11,3 +11,6 @@ concatenate(X,A,B) :- X = @concatenate(A,B).
 reverse(X,A) :- X = @reverse(A).
 substring(X,A) :- X = @substring(A).
 length(X,A) :- X = @length(A).
+
+count(X,L) :- X = @countof(L).
+sum(X,L) :- X = @sumof(L).

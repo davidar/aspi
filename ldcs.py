@@ -140,9 +140,25 @@ class LDCS(lark.Transformer[str]):
         subst = dict(zip(params, args))
         return RuleBody(subst, self.gensym).transform(tree)
 
+    def expand_contexts(self) -> None:
+        for i, rule in enumerate(self.rules):
+            if (match := re.search(r'@context\((.*)\)', rule)):
+                template = re.escape(match.group(1)).replace('_', '[A-Z]')
+                for rule2 in self.rules:
+                    if ' :- ' in rule2:
+                        body = rule2[:-1].split(' :- ')[1].split(', ')
+                        for j, term in enumerate(body):
+                            if re.fullmatch(template, term):
+                                context = body[j+1:]
+                                rule = rule.replace(
+                                    match.group(0), commas(*context))
+                                rule = rule.replace(', .', '.')
+                                self.rules[i] = rule
+
     def start(self, rule: Optional[str]) -> str:
         if rule:
             self.rules.insert(0, rule + '.')
+        self.expand_contexts()
         for rule in self.rules[:]:
             if ' :- ' in rule and '{' not in rule:
                 self.rules.append(self.proof(rule))
@@ -336,7 +352,8 @@ class LDCS(lark.Transformer[str]):
             context = ''
             if len(vars) > 0:
                 context = f', @context({f("_")})'
-            self.rules.append(f'gather(({closure}),{y}) :- {lam(y)}{context}.')
+            rule = f'gather(({closure}),{y}) :- {lam(y)}{context}.'
+            self.rules.insert(0, rule)
             return f
         elif op == 'bag':
             i = self.counter('gather')
