@@ -1,9 +1,9 @@
 >>> % 1. Add all the natural numbers below 1000 that are multiples of 3 or 5.
 >>> #sum(0..999 multiple[3|5])?
---> what(G) :- G = #sum { E : aggregation1(E) }.
+--> what(G) :- G = #sum { E : aggregation((1),E) }.
     disjunction1(C) :- C = 3.
     disjunction1(C) :- C = 5.
-    aggregation1(F) :- A = 0, B = 999, F = A .. B, F \ D = 0, disjunction1(D).
+    aggregation((1),F) :- A = 0, B = 999, F = A .. B, F \ D = 0, disjunction1(D).
 that: 233168.
 
 >>> 
@@ -25,8 +25,8 @@ understood.
 understood.
 
 >>> #set(fib)?
---> what(B) :- setof(1,B).
-    gather(1,A) :- fib(A).
+--> what(B) :- setof((1),B).
+    gather((1),A) :- fib(A).
 that: set(0,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368,75025,121393,196418,317811,514229,832040,1346269,2178309,3524578,5702887,9227465,14930352,24157817,39088169,63245986,102334155,165580141,267914296,433494437,701408733,1134903170).
 
 >>> #bag(fib)?
@@ -39,8 +39,8 @@ that: bag(0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,1
 that: proof((fib(1,2),fib(0,0),fib(1,1)),(fib(2,3),fib(1,1),fib(1,2)),(fib(3,4),fib(1,2),fib(2,3)),(fib(5,5),fib(1,2),fib(2,3),fib(3,4)),(fib(8,6),fib(1,2),fib(2,3),fib(3,4),fib(5,5)),(fib(13,7),fib(1,2),fib(2,3),fib(3,4),fib(5,5),fib(8,6)),(fib(13),fib(1,2),fib(2,3),fib(3,4),fib(5,5),fib(8,6),fib(13,7))).
 
 >>> #sum(even fib (<).1000000)?
---> what(D) :- D = #sum { B : aggregation2(B) }.
-    aggregation2(C) :- C \ 2 = 0, fib(C), C < A, A = 1000000.
+--> what(D) :- D = #sum { B : aggregation((2),B) }.
+    aggregation((2),C) :- C \ 2 = 0, fib(C), C < A, A = 1000000.
 that: 1089154.
 
 >>> 
@@ -66,8 +66,8 @@ understood.
 that: 2 | 3 | 7.
 
 >>> #most((>), factor.42)?
---> what(D) :- D > B : superlative1(B), D != B; superlative1(D).
-    superlative1(C) :- factor(C,A), A = 42.
+--> what(D) :- D > B : superlative((1),B), D != B; superlative((1),D).
+    superlative((1),C) :- factor(C,A), A = 42.
 that: 7.
 
 >>> 
@@ -77,28 +77,28 @@ that: 7.
 that: 121 | 242 | 363 | 484 | 616 | 737 | 858 | 979 | 1001 | 252 | 444 | 636 | 696 | 828 | 888 | 494 | 585 | 676 | 767 | 949 | 434 | 686 | 868 | 525 | 555 | 272 | 464 | 656 | 848 | 323 | 595 | 646 | 969 | 414 | 666 | 1881 | 777 | 2002 | 2112 | 575 | 989 | 1771 | 999 | 2772 | 2552 | 1221 | 1551 | 2442 | 3003 | 2992 | 3663 | 2332 | 4004 | 4224 | 4554 | 3773 | 4664 | 5005 | 5115 | 5225 | 5335 | 5445 | 4774 | 6336 | 4884 | 6006 | 7227 | 5775 | 6776 | 7007 | 8118 | 8008 | 8448 | 9009.
 
 >>> #most((>), show'[S reverse.S] (10..99)*(10..99))?
---> what(K) :- K > I : superlative2(I), K != I; superlative2(K).
-    superlative2(J) :- B = @show(J), B = MuS, B = @reverse(A), A = MuS, C = 10, D = 99, E = C .. D, F = 10, G = 99, H = F .. G, J = E * H.
+--> what(K) :- K > I : superlative((2),I), K != I; superlative((2),K).
+    superlative((2),J) :- B = @show(J), B = MuS, B = @reverse(A), A = MuS, C = 10, D = 99, E = C .. D, F = 10, G = 99, H = F .. G, J = E * H.
 that: 9009.
 
 >>> 
 >>> % 5. What is the smallest number divisible by each of the numbers 1 to 10?
 >>> #most((<), #each(multiple, 1..10) n4)?
---> what(G) :- G < E : superlative4(E), G != E; superlative4(G).
-    superlative3(D) :- A = 1, B = 10, D = A .. B.
-    superlative4(F) :- F \ C = 0 : superlative3(C); n4(F).
+--> what(G) :- G < E : superlative((4),E), G != E; superlative((4),G).
+    superlative((3),D) :- A = 1, B = 10, D = A .. B.
+    superlative((4),F) :- F \ C = 0 : superlative((3),C); n4(F).
 that: 2520.
 
 >>> 
 >>> % 6. What is the difference between the sum of the squares and the square of the sums?
 >>> #sum((1..100) ** 2)?
---> what(G) :- G = #sum { E : aggregation3(E) }.
-    aggregation3(F) :- A = 1, B = 100, C = A .. B, D = 2, F = C ** D.
+--> what(G) :- G = #sum { E : aggregation((3),E) }.
+    aggregation((3),F) :- A = 1, B = 100, C = A .. B, D = 2, F = C ** D.
 that: 338350.
 
 >>> #sum(1..100) ** 2?
---> what(G) :- E = #sum { C : aggregation4(C) }, F = 2, G = E ** F.
-    aggregation4(D) :- A = 1, B = 100, D = A .. B.
+--> what(G) :- E = #sum { C : aggregation((4),C) }, F = 2, G = E ** F.
+    aggregation((4),D) :- A = 1, B = 100, D = A .. B.
 that: 25502500.
 
 >>> 
@@ -133,8 +133,8 @@ that: 30720.
 >>> 
 >>> % 10. Calculate the sum of all the primes below one hundred.
 >>> #sum(prime (<).100)?
---> what(D) :- D = #sum { B : aggregation5(B) }.
-    aggregation5(C) :- prime(C), C < A, A = 100.
+--> what(D) :- D = #sum { B : aggregation((5),B) }.
+    aggregation((5),C) :- prime(C), C < A, A = 100.
 that: 1060.
 
 >>> 
@@ -170,14 +170,14 @@ understood.
 that: 0 | 1 | 7 | 2 | 5 | 8 | 16 | 3 | 19 | 6.
 
 >>> #max(collatz_steps[1..10])?
---> what(F) :- F = #max { D : aggregation6(D) }.
-    aggregation6(E) :- collatz_steps(E,C), A = 1, B = 10, C = A .. B.
+--> what(F) :- F = #max { D : aggregation((6),D) }.
+    aggregation((6),E) :- collatz_steps(E,C), A = 1, B = 10, C = A .. B.
 that: 19.
 
 >>> #argmax(collatz_steps, 1..10)?
---> what(H) :- C = #max { F : aggregation7(F) }, collatz_steps(C,H), superlative5(H).
-    superlative5(D) :- A = 1, B = 10, D = A .. B.
-    aggregation7(G) :- collatz_steps(G,E), superlative5(E).
+--> what(H) :- C = #max { F : aggregation((7),F) }, collatz_steps(C,H), superlative((5),H).
+    superlative((5),D) :- A = 1, B = 10, D = A .. B.
+    aggregation((7),G) :- collatz_steps(G,E), superlative((5),E).
 that: 9.
 
 >>> thanks.

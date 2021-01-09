@@ -118,10 +118,13 @@ class LDCS(lark.Transformer[str]):
     def gensym(self) -> Sym:
         return string.ascii_uppercase[self.counter()-1]
 
-    def lift(self, lam: Unary, prefix: str) -> Unary:
+    def lift(self, lam: Unary, prefix: str, context: bool = True) -> Unary:
+        # TODO: only suppress context for vars not used in the parent context
         i = self.counter(prefix)
         z = self.gensym()
         vars = sorted(set(re.findall('Mu[A-Z]', lam(z))))
+        if not context:
+            vars = []
 
         def f(x: str) -> str:
             closure = ','.join([str(i)] + vars)
@@ -345,7 +348,7 @@ class LDCS(lark.Transformer[str]):
     def superlative(self, op: str, rel: Binary, lam: Unary) -> Unary:
         y = self.gensym()
         if ' ' in lam(y):
-            lam = self.lift(lam, 'superlative')
+            lam = self.lift(lam, 'superlative', False)
         if op == 'most':
             return lambda x: f'{rel(x, y)} : {lam(y)}, {x} != {y}; {lam(x)}'
         elif op == 'each':
