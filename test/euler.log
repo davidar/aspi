@@ -30,8 +30,8 @@ understood.
 that: set(0,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368,75025,121393,196418,317811,514229,832040,1346269,2178309,3524578,5702887,9227465,14930352,24157817,39088169,63245986,102334155,165580141,267914296,433494437,701408733,1134903170).
 
 >>> #bag(fib)?
---> what(B) :- bagof(2,B).
-    gather(2,(A,P0)) :- proof(P0,fib(A)).
+--> what(B) :- bagof((2),B).
+    gather((2),(A,P0)) :- proof(P0,fib(A)).
 that: bag(0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368,75025,121393,196418,317811,514229,832040,1346269,2178309,3524578,5702887,9227465,14930352,24157817,39088169,63245986,102334155,165580141,267914296,433494437,701408733,1134903170).
 
 >>> proof.fib(13)?
@@ -118,10 +118,14 @@ understood.
 --> what(A) :- four_digits(A).
 that: "0319" | "3199" | "1998" | "9989" | "9890" | "8900" | "9000".
 
->>> product.#bag(decimal[substring."9989" length'.1])?
---> what(S) :- S = @productof(R), bagof(4,R).
-    aggregation((5),I) :- I = @decimal(C), C = @substring(A,N,O), P = @length(A), N = 0 .. P, Q = P - N, O = 0 .. Q, A = "9989", B = @length(C), B = 1.
-    gather(4,(D,P0)) :- proof(P0,aggregation((5),D)).
+>>> product.#bag(decimal[substring.S length'.1]): four_digits(S)?
+--> what(S) :- S = @productof(R), bagof((4,MuS),R), four_digits(T), T = MuS.
+    gather((4,MuS),(D,P0)) :- proof(P0,aggregation((5,MuS),D)), four_digits(T), T = MuS.
+    aggregation((5,MuS),I) :- I = @decimal(C), C = @substring(A,N,O), P = @length(A), N = 0 .. P, Q = P - N, O = 0 .. Q, A = MuS, B = @length(C), B = 1, four_digits(T), T = MuS.
+that: 0 | 243 | 648 | 5832.
+
+>>> #max(that)?
+--> what(B) :- B = #max { A : that(A) }.
 that: 5832.
 
 >>> 

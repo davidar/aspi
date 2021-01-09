@@ -148,7 +148,7 @@ class LDCS(lark.Transformer[str]):
                     if ' :- ' in rule2:
                         body = rule2[:-1].split(' :- ')[1].split(', ')
                         for j, term in enumerate(body):
-                            if re.fullmatch(template, term):
+                            if re.search(template, term):
                                 context = body[j+1:]
                                 rule = rule.replace(
                                     match.group(0), commas(*context))
@@ -348,7 +348,7 @@ class LDCS(lark.Transformer[str]):
             lam = self.lift(lam, 'aggregation')
         if op in ('count', 'sum', 'min', 'max'):
             return lambda x: f'{x} = #{op} {{ {y} : {lam(y)} }}'
-        elif op == 'set':
+        elif op in ('set', 'bag'):
             i = self.counter('gather')
             vars = sorted(set(re.findall('Mu[A-Z]', lam(y))))
             closure = ','.join([str(i)] + vars)
@@ -358,13 +358,13 @@ class LDCS(lark.Transformer[str]):
             context = ''
             if len(vars) > 0:
                 context = f', @context({f("_")})'
-            rule = f'gather(({closure}),{y}) :- {lam(y)}{context}.'
+            if op == 'set':
+                rule = f'gather(({closure}),{y}) :- {lam(y)}{context}.'
+            elif op == 'bag':
+                rule = f'gather(({closure}),({y},P0)) :- ' + \
+                       f'proof(P0,{lam(y)}){context}.'
             self.rules.insert(0, rule)
             return f
-        elif op == 'bag':
-            i = self.counter('gather')
-            self.rules.append(f'gather({i},({y},P0)) :- proof(P0,{lam(y)}).')
-            return lambda x: f'bagof({i},{x})'
         else:
             assert False
 
