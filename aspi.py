@@ -85,7 +85,12 @@ class ASPI:
             line for line in lp.split('\n') if '@proof' not in line))
         lp += '\n'
         if cmd.endswith('.'):
-            self.program += lp
+            if cmd.startswith('#macro'):
+                for line in lp.split('\n'):
+                    if line.strip() and '@proof' not in line:
+                        self.ldcs.add_macro(line)
+            else:
+                self.program += lp
             print('understood.\n')
             return None
 

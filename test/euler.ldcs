@@ -36,7 +36,8 @@ show'[S reverse.S] (10..99)*(10..99)?
 % 8. Discover the largest product of four consecutive digits in the 10-digit number.
 four_digits: substring."0319989000" length'.4.
 four_digits?
-product.#bag(decimal[substring.S length'.1]): four_digits(S)?
+#macro char.S: substring.S length'.1.
+product.#bag(decimal.char.S): four_digits(S)?
 #max(that)?
 
 % 9. There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 96. Find the product abc.
@@ -66,6 +67,11 @@ collatz_steps[N (>).1 n3]: 1 + collatz_steps[collatz.N].
 collatz_steps[1..10]?
 #max(collatz_steps[1..10])?
 #argmax(collatz_steps, 1..10)?
+
+% 16. What is the sum of the digits of the number 2^10?
+2**10?
+#macro digit.N: decimal.char.show.N.
+sum.#bag(digit[2**10])?
 
 % 20. Find the sum of digits in 10!
 factorial[N 1..12]: product.#set(1..N).

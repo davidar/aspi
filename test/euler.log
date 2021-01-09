@@ -118,10 +118,14 @@ understood.
 --> what(A) :- four_digits(A).
 that: "0319" | "3199" | "1998" | "9989" | "9890" | "8900" | "9000".
 
->>> product.#bag(decimal[substring.S length'.1]): four_digits(S)?
---> what(S) :- S = @productof(R), bagof((4,MuS),R), four_digits(T), T = MuS.
-    gather((4,MuS),(D,P0)) :- proof(P0,aggregation((5,MuS),D)), four_digits(T), T = MuS.
-    aggregation((5,MuS),I) :- I = @decimal(C), C = @substring(A,N,O), P = @length(A), N = 0 .. P, Q = P - N, O = 0 .. Q, A = MuS, B = @length(C), B = 1, four_digits(T), T = MuS.
+>>> #macro char.S: substring.S length'.1.
+--> char(D,A) :- A = MuS, D = @substring(B,E,F), G = @length(B), E = 0 .. G, H = G - E, F = 0 .. H, B = MuS, C = @length(D), C = 1.
+understood.
+
+>>> product.#bag(decimal.char.S): four_digits(S)?
+--> what(X0) :- X0 = @productof(Z), bagof((4,MuS),Z), four_digits(X1), X1 = MuS.
+    gather((4,MuS),(C,P0)) :- proof(P0,aggregation((5,MuS),C)), four_digits(X1), X1 = MuS.
+    aggregation((5,MuS),K) :- K = @decimal(B), A = S, B = @substring(T,U,V), W = @length(T), U = 0 .. W, X = W - U, V = 0 .. X, T = S, Y = @length(B), Y = 1, A = MuS, four_digits(X1), X1 = MuS.
 that: 0 | 243 | 648 | 5832.
 
 >>> #max(that)?
@@ -225,11 +229,27 @@ that: 19.
 that: 9.
 
 >>> 
+>>> % 16. What is the sum of the digits of the number 2^10?
+>>> 2**10?
+--> what(C) :- A = 2, B = 10, C = A ** B.
+that: 1024.
+
+>>> #macro digit.N: decimal.char.show.N.
+--> digit(E,A) :- A = MuN, E = @decimal(D), C = F, D = @substring(G,H,I), J = @length(G), H = 0 .. J, K = J - H, I = 0 .. K, G = F, L = @length(D), L = 1, C = @show(B), B = MuN.
+understood.
+
+>>> sum.#bag(digit[2**10])?
+--> what(X13) :- X13 = @sumof(X12), bagof((7),X12).
+    gather((7),(D,P0)) :- proof(P0,aggregation((11),D)).
+    aggregation((11),P) :- C = X1, P = @decimal(X2), X3 = X4, X2 = @substring(X5,X6,X7), X8 = @length(X5), X6 = 0 .. X8, X9 = X8 - X6, X7 = 0 .. X9, X5 = X4, X10 = @length(X2), X10 = 1, X3 = @show(X11), X11 = X1, A = 2, B = 10, C = A ** B.
+that: 7.
+
+>>> 
 >>> % 20. Find the sum of digits in 10!
 >>> factorial[N 1..12]: product.#set(1..N).
---> factorial(I,C) :- C = MuN, A = 1, B = 12, C = A .. B, I = @productof(H), setof((7,MuN),H).
-    gather((7,MuN),F) :- aggregation((11,MuN),F), C = MuN, A = 1, B = 12, C = A .. B.
-    aggregation((11,MuN),G) :- D = 1, E = MuN, G = D .. E, C = MuN, A = 1, B = 12, C = A .. B.
+--> factorial(I,C) :- C = MuN, A = 1, B = 12, C = A .. B, I = @productof(H), setof((8,MuN),H).
+    gather((8,MuN),F) :- aggregation((12,MuN),F), C = MuN, A = 1, B = 12, C = A .. B.
+    aggregation((12,MuN),G) :- D = 1, E = MuN, G = D .. E, C = MuN, A = 1, B = 12, C = A .. B.
 understood.
 
 >>> factorial.10?
@@ -237,9 +257,9 @@ understood.
 that: 3628800.
 
 >>> sum.#bag(decimal[substring.show.factorial.10 length'.1])?
---> what(U) :- U = @sumof(T), bagof((8),T).
-    gather((8),(F,P0)) :- proof(P0,aggregation((12),F)).
-    aggregation((12),K) :- K = @decimal(E), E = @substring(C,P,Q), R = @length(C), P = 0 .. R, S = R - P, Q = 0 .. S, C = @show(B), factorial(B,A), A = 10, D = @length(E), D = 1.
+--> what(U) :- U = @sumof(T), bagof((9),T).
+    gather((9),(F,P0)) :- proof(P0,aggregation((13),F)).
+    aggregation((13),K) :- K = @decimal(E), E = @substring(C,P,Q), R = @length(C), P = 0 .. R, S = R - P, Q = 0 .. S, C = @show(B), factorial(B,A), A = 10, D = @length(E), D = 1.
 that: 27.
 
 >>> thanks.

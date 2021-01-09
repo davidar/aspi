@@ -33,7 +33,7 @@ start: cmd
     | "#" "any" (ldcs | cmpop) "." -> constraint_any
     | "#" "any" ldcs "?" -> query_any
     | "#" "any" ldcs "!" -> goal_any
-    | (func | join) ":" ldcs [":" clause] "." -> define
+    | ["#" "macro"] (func | join) ":" ldcs [":" clause] "." -> define
     | term [":" clause] "." -> claim
     | ldcs [":" clause] "?" -> query
     | ldcs "!" -> goal
@@ -116,7 +116,12 @@ class LDCS(lark.Transformer[str]):
         return self.counts[prefix]
 
     def gensym(self) -> Sym:
-        return string.ascii_uppercase[self.counter()-1]
+        i = self.counter() - 1
+        if i < len(string.ascii_uppercase):
+            return string.ascii_uppercase[i]
+        else:
+            i -= len(string.ascii_uppercase)
+            return f'X{i}'
 
     def lift(self, lam: Unary, prefix: str, context: bool = True) -> Unary:
         # TODO: only suppress context for vars not used in the parent context
