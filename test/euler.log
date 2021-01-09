@@ -109,6 +109,22 @@ that: 25502500.
 that: 547.
 
 >>> 
+>>> % 8. Discover the largest product of four consecutive digits in the 10-digit number.
+>>> four_digits: substring."0319989000" length'.4.
+--> four_digits(C) :- C = @substring(A,D,E), F = @length(A), D = 0 .. F, G = F - D, E = 0 .. G, A = "0319989000", B = @length(C), B = 4.
+understood.
+
+>>> four_digits?
+--> what(A) :- four_digits(A).
+that: "0319" | "3199" | "1998" | "9989" | "9890" | "8900" | "9000".
+
+>>> product.#bag(decimal[substring."9989" length'.1])?
+--> what(S) :- S = @productof(R), bagof(4,R).
+    aggregation((5),I) :- I = @decimal(C), C = @substring(A,N,O), P = @length(A), N = 0 .. P, Q = P - N, O = 0 .. Q, A = "9989", B = @length(C), B = 1.
+    gather(4,(D,P0)) :- proof(P0,aggregation((5),D)).
+that: 5832.
+
+>>> 
 >>> % 9. There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 96. Find the product abc.
 >>> pythag(A n2, B n2, C n2): (A**2) = ((B**2) + (C**2)).
 --> pythag(A,B,C) :- A = MuA, n2(A), B = MuB, n2(B), C = MuC, n2(C), F = M, D = MuA, E = 2, F = D ** E, G = MuB, H = 2, I = G ** H, J = MuC, K = 2, L = J ** K, M = I + L.
@@ -133,16 +149,16 @@ that: 30720.
 >>> 
 >>> % 10. Calculate the sum of all the primes below one hundred.
 >>> #sum(prime (<).100)?
---> what(D) :- D = #sum { B : aggregation((5),B) }.
-    aggregation((5),C) :- prime(C), C < A, A = 100.
+--> what(D) :- D = #sum { B : aggregation((6),B) }.
+    aggregation((6),C) :- prime(C), C < A, A = 100.
 that: 1060.
 
 >>> 
 >>> % 12. What is the first triangle number to have over twenty divisors?
 >>> triangle: sum.#set(1..N): N = 1..99.
---> triangle(F) :- F = @sumof(E), setof((4,MuN),E), G = J, G = MuN, H = 1, I = 99, J = H .. I.
-    gather((4,MuN),C) :- aggregation((6,MuN),C), G = J, G = MuN, H = 1, I = 99, J = H .. I.
-    aggregation((6,MuN),D) :- A = 1, B = MuN, D = A .. B, G = J, G = MuN, H = 1, I = 99, J = H .. I.
+--> triangle(F) :- F = @sumof(E), setof((5,MuN),E), G = J, G = MuN, H = 1, I = 99, J = H .. I.
+    gather((5,MuN),C) :- aggregation((7,MuN),C), G = J, G = MuN, H = 1, I = 99, J = H .. I.
+    aggregation((7,MuN),D) :- A = 1, B = MuN, D = A .. B, G = J, G = MuN, H = 1, I = 99, J = H .. I.
 understood.
 
 >>> triangle (<).100?
@@ -154,9 +170,9 @@ that: 1 | 3 | 6 | 10 | 15 | 21 | 28 | 36 | 45 | 55 | 66 | 78 | 91.
 understood.
 
 >>> divisors[X n3]: count.#set(divisor.X).
---> divisors(F,A) :- A = MuX, n3(A), F = @countof(E), setof((5,MuX),E).
-    gather((5,MuX),C) :- aggregation((7,MuX),C).
-    aggregation((7,MuX),D) :- divisor(D,B), B = MuX.
+--> divisors(F,A) :- A = MuX, n3(A), F = @countof(E), setof((6,MuX),E).
+    gather((6,MuX),C) :- aggregation((8,MuX),C).
+    aggregation((8,MuX),D) :- divisor(D,B), B = MuX.
 understood.
 
 >>> triangle N: divisors.N > 20?
@@ -194,14 +210,14 @@ understood.
 that: 0 | 1 | 7 | 2 | 5 | 8 | 16 | 3 | 19 | 6.
 
 >>> #max(collatz_steps[1..10])?
---> what(F) :- F = #max { D : aggregation((8),D) }.
-    aggregation((8),E) :- collatz_steps(E,C), A = 1, B = 10, C = A .. B.
+--> what(F) :- F = #max { D : aggregation((9),D) }.
+    aggregation((9),E) :- collatz_steps(E,C), A = 1, B = 10, C = A .. B.
 that: 19.
 
 >>> #argmax(collatz_steps, 1..10)?
---> what(H) :- C = #max { F : aggregation((9),F) }, collatz_steps(C,H), superlative((5),H).
+--> what(H) :- C = #max { F : aggregation((10),F) }, collatz_steps(C,H), superlative((5),H).
     superlative((5),D) :- A = 1, B = 10, D = A .. B.
-    aggregation((9),G) :- collatz_steps(G,E), superlative((5),E).
+    aggregation((10),G) :- collatz_steps(G,E), superlative((5),E).
 that: 9.
 
 >>> thanks.

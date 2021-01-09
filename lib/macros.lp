@@ -9,8 +9,11 @@ odd(X) :- X \ 2 = 1.
 show(X,A) :- X = @show(A).
 concatenate(X,A,B) :- X = @concatenate(A,B).
 reverse(X,A) :- X = @reverse(A).
-substring(X,A) :- X = @substring(A).
+substring(X,A,S,L) :- X = @substring(A,S,L).
+substring(X,A) :- X = @substring(A,S,L), N = @length(A), S = 0..N, M = N-S, L = 0..M.
 length(X,A) :- X = @length(A).
+decimal(X,A) :- X = @decimal(A).
 
 count(X,L) :- X = @countof(L).
 sum(X,L) :- X = @sumof(L).
+product(X,L) :- X = @productof(L).

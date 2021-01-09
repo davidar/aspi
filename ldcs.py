@@ -20,7 +20,7 @@ ebnf = r'''
 
 CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
 BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
-AGG_OP: "count" | "sum" | "min" | "max" | "product" | "set" | "bag"
+AGG_OP: "count" | "sum" | "min" | "max" | "set" | "bag"
 SUP_OP: "most" | "each" | "argmin" | "argmax"
 VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
@@ -193,7 +193,13 @@ class LDCS(lark.Transformer[str]):
         terms = []
         pvars = []
         for term in body.split(', '):
-            if ' ' in term:
+            if ' = @' in term:
+                terms.append(term)
+                var = 'P' + str(self.counter('proof'))
+                eq = term.replace(' = @', ',')
+                terms.append(f'{var} = eq({eq})')
+                pvars.append(var)
+            elif ' ' in term:
                 terms.append(term)
             else:
                 var = 'P' + str(self.counter('proof'))
@@ -342,7 +348,7 @@ class LDCS(lark.Transformer[str]):
             lam = self.lift(lam, 'aggregation')
         if op in ('count', 'sum', 'min', 'max'):
             return lambda x: f'{x} = #{op} {{ {y} : {lam(y)} }}'
-        elif op in ('product', 'set'):
+        elif op == 'set':
             i = self.counter('gather')
             vars = sorted(set(re.findall('Mu[A-Z]', lam(y))))
             closure = ','.join([str(i)] + vars)

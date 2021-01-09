@@ -33,6 +33,11 @@ show'[S reverse.S] (10..99)*(10..99)?
 % 7. Find the 101st prime.
 #enumerate(101, prime)?
 
+% 8. Discover the largest product of four consecutive digits in the 10-digit number.
+four_digits: substring."0319989000" length'.4.
+four_digits?
+product.#bag(decimal[substring."9989" length'.1])?
+
 % 9. There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 96. Find the product abc.
 pythag(A n2, B n2, C n2): (A**2) = ((B**2) + (C**2)).
 pythag[3,4]?
