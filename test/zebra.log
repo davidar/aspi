@@ -1,10 +1,10 @@
 >>> % 1. There are five houses.
 >>> house: 1..5.
---> house(C) :- A = 1, B = 5, C = A..B.
+--> house(C) :- A = 1, B = 5, C = A .. B.
 understood.
 
 >>> left(house A, house A+1).
---> left(A,D) :- house(A), A = MuA, house(D), B = MuA, C = 1, D = B+C.
+--> left(A,D) :- house(A), A = MuA, house(D), B = MuA, C = 1, D = B + C.
 understood.
 
 >>> right(A,B): left(B,A).

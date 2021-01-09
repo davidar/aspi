@@ -1,8 +1,9 @@
 >>> % 1. Add all the natural numbers below 1000 that are multiples of 3 or 5.
 >>> #sum(0..999 multiple[3|5])?
---> what(F) :- F = #sum { E : A = 0, B = 999, E = A..B, E \ D = 0, disjunction1(D) }.
+--> what(G) :- G = #sum { E : aggregation((1),E) }.
     disjunction1(C) :- C = 3.
     disjunction1(C) :- C = 5.
+    aggregation((1),F) :- A = 0, B = 999, F = A .. B, F \ D = 0, disjunction1(D).
 that: 233168.
 
 >>> 
@@ -16,25 +17,40 @@ understood.
 understood.
 
 >>> fib[N 2..45]: fib[N-1] + fib[N-2].
---> fib(L,C) :- C = MuN, A = 2, B = 45, C = A..B, fib(G,F), D = MuN, E = 1, F = D-E, fib(K,J), H = MuN, I = 2, J = H-I, L = G+K.
+--> fib(L,C) :- C = MuN, A = 2, B = 45, C = A .. B, fib(G,F), D = MuN, E = 1, F = D - E, fib(K,J), H = MuN, I = 2, J = H - I, L = G + K.
 understood.
 
 >>> fib: fib[0..45].
---> fib(D) :- fib(D,C), A = 0, B = 45, C = A..B.
+--> fib(D) :- fib(D,C), A = 0, B = 45, C = A .. B.
 understood.
 
+>>> #set(fib)?
+--> what(B) :- setof((1),B).
+    gather((1),A) :- fib(A).
+that: set(0,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368,75025,121393,196418,317811,514229,832040,1346269,2178309,3524578,5702887,9227465,14930352,24157817,39088169,63245986,102334155,165580141,267914296,433494437,701408733,1134903170).
+
+>>> #bag(fib)?
+--> what(B) :- bagof((2),B).
+    gather((2),(A,P0)) :- proof(P0,fib(A)).
+that: bag(0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368,75025,121393,196418,317811,514229,832040,1346269,2178309,3524578,5702887,9227465,14930352,24157817,39088169,63245986,102334155,165580141,267914296,433494437,701408733,1134903170).
+
+>>> proof.fib(13)?
+--> what(C) :- proof(C,B), A = 13, B = fib(A).
+that: proof((fib(1,2),fib(0,0),fib(1,1)),(fib(2,3),fib(1,1),fib(1,2)),(fib(3,4),fib(1,2),fib(2,3)),(fib(5,5),fib(1,2),fib(2,3),fib(3,4)),(fib(8,6),fib(1,2),fib(2,3),fib(3,4),fib(5,5)),(fib(13,7),fib(1,2),fib(2,3),fib(3,4),fib(5,5),fib(8,6)),(fib(13),fib(1,2),fib(2,3),fib(3,4),fib(5,5),fib(8,6),fib(13,7))).
+
 >>> #sum(even fib (<).1000000)?
---> what(C) :- C = #sum { B : B \ 2 = 0, fib(B), B<A, A = 1000000 }.
+--> what(D) :- D = #sum { B : aggregation((2),B) }.
+    aggregation((2),C) :- C \ 2 = 0, fib(C), C < A, A = 1000000.
 that: 1089154.
 
 >>> 
 >>> % 3. Find the largest prime factor of 42.
 >>> composite: N multiple[2..(N-1)] n3.
---> composite(F) :- F = MuN, F \ E = 0, A = 2, B = MuN, C = 1, D = B-C, E = A..D, n3(F).
+--> composite(F) :- F = MuN, F \ E = 0, A = 2, B = MuN, C = 1, D = B - C, E = A .. D, n3(F).
 understood.
 
 >>> prime: (>).1 ~composite n3.
---> prime(B) :- B>A, A = 1, not composite(B), n3(B).
+--> prime(B) :- B > A, A = 1, not composite(B), n3(B).
 understood.
 
 >>> prime?
@@ -50,50 +66,72 @@ understood.
 that: 2 | 3 | 7.
 
 >>> #most((>), factor.42)?
---> what(D) :- D>B : superlative1(B), D != B; superlative1(D).
-    superlative1(C) :- factor(C,A), A = 42.
+--> what(D) :- D > B : superlative((1),B), D != B; superlative((1),D).
+    superlative((1),C) :- factor(C,A), A = 42.
 that: 7.
 
 >>> 
 >>> % 4. Find the largest palindrome made from the product of two 2-digit numbers.
 >>> show'[S reverse.S] (10..99)*(10..99)?
---> what(I) :- B = @show(I), B = MuS, B = @reverse(A), A = MuS, C = 10, D = 99, E = C..D, F = 10, G = 99, H = F..G, I = E*H.
+--> what(I) :- B = @show(I), B = MuS, B = @reverse(A), A = MuS, C = 10, D = 99, E = C .. D, F = 10, G = 99, H = F .. G, I = E * H.
 that: 121 | 242 | 363 | 484 | 616 | 737 | 858 | 979 | 1001 | 252 | 444 | 636 | 696 | 828 | 888 | 494 | 585 | 676 | 767 | 949 | 434 | 686 | 868 | 525 | 555 | 272 | 464 | 656 | 848 | 323 | 595 | 646 | 969 | 414 | 666 | 1881 | 777 | 2002 | 2112 | 575 | 989 | 1771 | 999 | 2772 | 2552 | 1221 | 1551 | 2442 | 3003 | 2992 | 3663 | 2332 | 4004 | 4224 | 4554 | 3773 | 4664 | 5005 | 5115 | 5225 | 5335 | 5445 | 4774 | 6336 | 4884 | 6006 | 7227 | 5775 | 6776 | 7007 | 8118 | 8008 | 8448 | 9009.
 
 >>> #most((>), show'[S reverse.S] (10..99)*(10..99))?
---> what(K) :- K>I : superlative2(I), K != I; superlative2(K).
-    superlative2(J) :- B = @show(J), B = MuS, B = @reverse(A), A = MuS, C = 10, D = 99, E = C..D, F = 10, G = 99, H = F..G, J = E*H.
+--> what(K) :- K > I : superlative((2),I), K != I; superlative((2),K).
+    superlative((2),J) :- B = @show(J), B = MuS, B = @reverse(A), A = MuS, C = 10, D = 99, E = C .. D, F = 10, G = 99, H = F .. G, J = E * H.
 that: 9009.
 
 >>> 
 >>> % 5. What is the smallest number divisible by each of the numbers 1 to 10?
 >>> #most((<), #each(multiple, 1..10) n4)?
---> what(G) :- G<E : superlative4(E), G != E; superlative4(G).
-    superlative3(D) :- A = 1, B = 10, D = A..B.
-    superlative4(F) :- F \ C = 0 : superlative3(C); n4(F).
+--> what(G) :- G < E : superlative((4),E), G != E; superlative((4),G).
+    superlative((3),D) :- A = 1, B = 10, D = A .. B.
+    superlative((4),F) :- F \ C = 0 : superlative((3),C); n4(F).
 that: 2520.
 
 >>> 
 >>> % 6. What is the difference between the sum of the squares and the square of the sums?
 >>> #sum((1..100) ** 2)?
---> what(F) :- F = #sum { E : A = 1, B = 100, C = A..B, D = 2, E = C**D }.
+--> what(G) :- G = #sum { E : aggregation((3),E) }.
+    aggregation((3),F) :- A = 1, B = 100, C = A .. B, D = 2, F = C ** D.
 that: 338350.
 
 >>> #sum(1..100) ** 2?
---> what(F) :- D = #sum { C : A = 1, B = 100, C = A..B }, E = 2, F = D**E.
+--> what(G) :- E = #sum { C : aggregation((4),C) }, F = 2, G = E ** F.
+    aggregation((4),D) :- A = 1, B = 100, D = A .. B.
 that: 25502500.
 
 >>> 
 >>> % 7. Find the 101st prime.
 >>> #enumerate(101, prime)?
---> what(B) :- enumerate(1,A,B), A = 101.
-    gather(1,A) :- prime(A).
+--> what(B) :- enumerate(3,A,B), A = 101.
+    gather(3,A) :- prime(A).
 that: 547.
+
+>>> 
+>>> % 8. Discover the largest product of four consecutive digits in the 10-digit number.
+>>> four_digits: substring."0319989000" length'.4.
+--> four_digits(C) :- C = @substring(A,D,E), F = @length(A), D = 0 .. F, G = F - D, E = 0 .. G, A = "0319989000", B = @length(C), B = 4.
+understood.
+
+>>> four_digits?
+--> what(A) :- four_digits(A).
+that: "0319" | "3199" | "1998" | "9989" | "9890" | "8900" | "9000".
+
+>>> product.#bag(decimal[substring.S length'.1]): four_digits(S)?
+--> what(S) :- S = @productof(R), bagof((4,MuS),R), four_digits(T), T = MuS.
+    gather((4,MuS),(D,P0)) :- proof(P0,aggregation((5,MuS),D)), four_digits(T), T = MuS.
+    aggregation((5,MuS),I) :- I = @decimal(C), C = @substring(A,N,O), P = @length(A), N = 0 .. P, Q = P - N, O = 0 .. Q, A = MuS, B = @length(C), B = 1, four_digits(T), T = MuS.
+that: 0 | 243 | 648 | 5832.
+
+>>> #max(that)?
+--> what(B) :- B = #max { A : that(A) }.
+that: 5832.
 
 >>> 
 >>> % 9. There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 96. Find the product abc.
 >>> pythag(A n2, B n2, C n2): (A**2) = ((B**2) + (C**2)).
---> pythag(A,B,C) :- A = MuA, n2(A), B = MuB, n2(B), C = MuC, n2(C), F=M, D = MuA, E = 2, F = D**E, G = MuB, H = 2, I = G**H, J = MuC, K = 2, L = J**K, M = I+L.
+--> pythag(A,B,C) :- A = MuA, n2(A), B = MuB, n2(B), C = MuC, n2(C), F = M, D = MuA, E = 2, F = D ** E, G = MuB, H = 2, I = G ** H, J = MuC, K = 2, L = J ** K, M = I + L.
 understood.
 
 >>> pythag[3,4]?
@@ -105,47 +143,48 @@ that: 5.
 that: triple(5,4,3) | triple(5,3,4) | triple(13,12,5) | triple(10,8,6) | triple(25,24,7) | triple(10,6,8) | triple(17,15,8) | triple(15,12,9) | triple(41,40,9) | triple(26,24,10) | triple(61,60,11) | triple(13,5,12) | triple(15,9,12) | triple(20,16,12) | triple(37,35,12) | triple(85,84,13) | triple(50,48,14) | triple(17,8,15) | triple(25,20,15) | triple(39,36,15) | triple(20,12,16) | triple(34,30,16) | triple(65,63,16) | triple(30,24,18) | triple(82,80,18) | triple(25,15,20) | triple(29,21,20) | triple(52,48,20) | triple(29,20,21) | triple(35,28,21) | triple(75,72,21) | triple(25,7,24) | triple(26,10,24) | triple(30,18,24) | triple(40,32,24) | triple(51,45,24) | triple(74,70,24) | triple(65,60,25) | triple(45,36,27) | triple(35,21,28) | triple(53,45,28) | triple(34,16,30) | triple(50,40,30) | triple(78,72,30) | triple(40,24,32) | triple(68,60,32) | triple(55,44,33) | triple(65,56,33) | triple(37,12,35) | triple(91,84,35) | triple(39,15,36) | triple(45,27,36) | triple(60,48,36) | triple(85,77,36) | triple(65,52,39) | triple(89,80,39) | triple(41,9,40) | triple(50,30,40) | triple(58,42,40) | triple(85,75,40) | triple(58,40,42) | triple(70,56,42) | triple(55,33,44) | triple(51,24,45) | triple(53,28,45) | triple(75,60,45) | triple(50,14,48) | triple(52,20,48) | triple(60,36,48) | triple(73,55,48) | triple(80,64,48) | triple(85,68,51) | triple(65,39,52) | triple(90,72,54) | triple(73,48,55) | triple(65,33,56) | triple(70,42,56) | triple(95,76,57) | triple(61,11,60) | triple(65,25,60) | triple(68,32,60) | triple(75,45,60) | triple(87,63,60) | triple(65,16,63) | triple(87,60,63) | triple(80,48,64) | triple(97,72,65) | triple(85,51,68) | triple(74,24,70) | triple(75,21,72) | triple(78,30,72) | triple(90,54,72) | triple(97,65,72) | triple(85,40,75) | triple(95,57,76) | triple(85,36,77) | triple(82,18,80) | triple(89,39,80) | triple(85,13,84) | triple(91,35,84).
 
 >>> triple(A,B,C): pythag(A,B,C), ((A+B)+C) = 96?
---> what(D) :- A = MuA, B = MuB, C = MuC, D = triple(A,B,C), pythag(E,F,G), E = MuA, F = MuB, G = MuC, L=M, H = MuA, I = MuB, J = H+I, K = MuC, L = J+K, M = 96.
+--> what(D) :- A = MuA, B = MuB, C = MuC, D = triple(A,B,C), pythag(E,F,G), E = MuA, F = MuB, G = MuC, L = M, H = MuA, I = MuB, J = H + I, K = MuC, L = J + K, M = 96.
 that: triple(40,32,24) | triple(40,24,32).
 
 >>> (A*B)*C: pythag(A,B,C), ((A+B)+C) = 96?
---> what(E) :- A = MuA, B = MuB, C = A*B, D = MuC, E = C*D, pythag(F,G,H), F = MuA, G = MuB, H = MuC, M=N, I = MuA, J = MuB, K = I+J, L = MuC, M = K+L, N = 96.
+--> what(E) :- A = MuA, B = MuB, C = A * B, D = MuC, E = C * D, pythag(F,G,H), F = MuA, G = MuB, H = MuC, M = N, I = MuA, J = MuB, K = I + J, L = MuC, M = K + L, N = 96.
 that: 30720.
 
 >>> 
 >>> % 10. Calculate the sum of all the primes below one hundred.
 >>> #sum(prime (<).100)?
---> what(C) :- C = #sum { B : prime(B), B<A, A = 100 }.
+--> what(D) :- D = #sum { B : aggregation((6),B) }.
+    aggregation((6),C) :- prime(C), C < A, A = 100.
 that: 1060.
 
 >>> 
 >>> % 12. What is the first triangle number to have over twenty divisors?
->>> triangle[N n3]: #sum(1..N).
---> triangle(E,A) :- A = MuN, n3(A), E = #sum { D : B = 1, C = MuN, D = B..C }.
-understood.
-
->>> triangle: triangle.n3.
---> triangle(B) :- triangle(B,A), n3(A).
+>>> triangle: sum.#set(1..N): N = 1..99.
+--> triangle(F) :- F = @sumof(E), setof((5,MuN),E), G = J, G = MuN, H = 1, I = 99, J = H .. I.
+    gather((5,MuN),C) :- aggregation((7,MuN),C), G = J, G = MuN, H = 1, I = 99, J = H .. I.
+    aggregation((7,MuN),D) :- A = 1, B = MuN, D = A .. B, G = J, G = MuN, H = 1, I = 99, J = H .. I.
 understood.
 
 >>> triangle (<).100?
---> what(B) :- triangle(B), B<A, A = 100.
+--> what(B) :- triangle(B), B < A, A = 100.
 that: 1 | 3 | 6 | 10 | 15 | 21 | 28 | 36 | 45 | 55 | 66 | 78 | 91.
 
 >>> divisor[X n3]: multiple'[X] n3.
 --> divisor(C,A) :- A = MuX, n3(A), B \ C = 0, B = MuX, n3(C).
 understood.
 
->>> divisors[X n3]: #count(divisor.X).
---> divisors(D,A) :- A = MuX, n3(A), D = #count { C : divisor(C,B), B = MuX }.
+>>> divisors[X n3]: count.#set(divisor.X).
+--> divisors(F,A) :- A = MuX, n3(A), F = @countof(E), setof((6,MuX),E).
+    gather((6,MuX),C) :- aggregation((8,MuX),C), A = MuX, n3(A).
+    aggregation((8,MuX),D) :- divisor(D,B), B = MuX, A = MuX, n3(A).
 understood.
 
 >>> triangle N: divisors.N > 20?
---> what(A) :- triangle(A), A = MuN, C>D, divisors(C,B), B = MuN, D = 20.
+--> what(A) :- triangle(A), A = MuN, C > D, divisors(C,B), B = MuN, D = 20.
 that: 630 | 780 | 990.
 
 >>> #most((<), that)?
---> what(B) :- B<A : that(A), B != A; that(B).
+--> what(B) :- B < A : that(A), B != A; that(B).
 that: 630.
 
 >>> divisor.that?
@@ -155,11 +194,11 @@ that: 1 | 2 | 3 | 5 | 6 | 7 | 9 | 10 | 14 | 15 | 18 | 21 | 30 | 35 | 42 | 45 | 6
 >>> 
 >>> % 14. Find the longest Collatz sequence using a starting number under ten.
 >>> collatz[N even n3]: N / 2.
---> collatz(D,A) :- A = MuN, A \ 2 = 0, n3(A), B = MuN, C = 2, D = B/C.
+--> collatz(D,A) :- A = MuN, A \ 2 = 0, n3(A), B = MuN, C = 2, D = B / C.
 understood.
 
 >>> collatz[N odd n3]: (3*N) + 1.
---> collatz(F,A) :- A = MuN, A \ 2 = 1, n3(A), B = 3, C = MuN, D = B*C, E = 1, F = D+E.
+--> collatz(F,A) :- A = MuN, A \ 2 = 1, n3(A), B = 3, C = MuN, D = B * C, E = 1, F = D + E.
 understood.
 
 >>> collatz_steps.1: 0.
@@ -167,21 +206,41 @@ understood.
 understood.
 
 >>> collatz_steps[N (>).1 n3]: 1 + collatz_steps[collatz.N].
---> collatz_steps(G,B) :- B = MuN, B>A, A = 1, n3(B), C = 1, collatz_steps(F,E), collatz(E,D), D = MuN, G = C+F.
+--> collatz_steps(G,B) :- B = MuN, B > A, A = 1, n3(B), C = 1, collatz_steps(F,E), collatz(E,D), D = MuN, G = C + F.
 understood.
 
 >>> collatz_steps[1..10]?
---> what(D) :- collatz_steps(D,C), A = 1, B = 10, C = A..B.
+--> what(D) :- collatz_steps(D,C), A = 1, B = 10, C = A .. B.
 that: 0 | 1 | 7 | 2 | 5 | 8 | 16 | 3 | 19 | 6.
 
 >>> #max(collatz_steps[1..10])?
---> what(E) :- E = #max { D : collatz_steps(D,C), A = 1, B = 10, C = A..B }.
+--> what(F) :- F = #max { D : aggregation((9),D) }.
+    aggregation((9),E) :- collatz_steps(E,C), A = 1, B = 10, C = A .. B.
 that: 19.
 
 >>> #argmax(collatz_steps, 1..10)?
---> what(G) :- C = #max { F : collatz_steps(F,E), superlative5(E) }, collatz_steps(C,G), superlative5(G).
-    superlative5(D) :- A = 1, B = 10, D = A..B.
+--> what(H) :- C = #max { F : aggregation((10),F) }, collatz_steps(C,H), superlative((5),H).
+    superlative((5),D) :- A = 1, B = 10, D = A .. B.
+    aggregation((10),G) :- collatz_steps(G,E), superlative((5),E).
 that: 9.
+
+>>> 
+>>> % 20. Find the sum of digits in 10!
+>>> factorial[N 1..12]: product.#set(1..N).
+--> factorial(I,C) :- C = MuN, A = 1, B = 12, C = A .. B, I = @productof(H), setof((7,MuN),H).
+    gather((7,MuN),F) :- aggregation((11,MuN),F), C = MuN, A = 1, B = 12, C = A .. B.
+    aggregation((11,MuN),G) :- D = 1, E = MuN, G = D .. E, C = MuN, A = 1, B = 12, C = A .. B.
+understood.
+
+>>> factorial.10?
+--> what(B) :- factorial(B,A), A = 10.
+that: 3628800.
+
+>>> sum.#bag(decimal[substring.show.factorial.10 length'.1])?
+--> what(U) :- U = @sumof(T), bagof((8),T).
+    gather((8),(F,P0)) :- proof(P0,aggregation((12),F)).
+    aggregation((12),K) :- K = @decimal(E), E = @substring(C,P,Q), R = @length(C), P = 0 .. R, S = R - P, Q = 0 .. S, C = @show(B), factorial(B,A), A = 10, D = @length(E), D = 1.
+that: 27.
 
 >>> thanks.
 YOU'RE WELCOME!

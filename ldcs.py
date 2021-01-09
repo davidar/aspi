@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import lark
+import re
 import string
 import sys
 from typing import cast, Callable, Dict, Iterable, List, \
@@ -19,7 +20,7 @@ ebnf = r'''
 
 CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
 BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
-AGG_OP: "count" | "sum" | "min" | "max"
+AGG_OP: "count" | "sum" | "min" | "max" | "set" | "bag"
 SUP_OP: "most" | "each" | "argmin" | "argmax"
 VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
@@ -73,7 +74,6 @@ neg: "~" lam
 hof: "#" AGG_OP "(" disj ")" -> aggregation
    | "#" SUP_OP "(" func "," disj ")" -> superlative
    | "#" "enumerate" "(" disj "," disj ")" -> enumerate
-   | "#" "product" "(" disj ")" -> product
 unify: pred
      | binop
 '''
@@ -116,17 +116,23 @@ class LDCS(lark.Transformer[str]):
         return self.counts[prefix]
 
     def gensym(self) -> Sym:
-        sym = string.ascii_uppercase[self.counter()-1]
-        return sym
+        return string.ascii_uppercase[self.counter()-1]
 
-    def genpred(self, prefix: str) -> Unary:
-        name = prefix + str(self.counter(prefix))
-        return lambda x: f'{name}({x})'
-
-    def lift(self, lam: Unary, prefix: str = 'lifted') -> Unary:
-        f = self.genpred(prefix)
+    def lift(self, lam: Unary, prefix: str, context: bool = True) -> Unary:
+        # TODO: only suppress context for vars not used in the parent context
+        i = self.counter(prefix)
         z = self.gensym()
-        self.rules.append(f'{f(z)} :- {lam(z)}.')
+        vars = sorted(set(re.findall('Mu[A-Z]', lam(z))))
+        if not context:
+            vars = []
+
+        def f(x: str) -> str:
+            closure = ','.join([str(i)] + vars)
+            return f'{prefix}(({closure}),{x})'
+        if len(vars) > 0:
+            self.rules.append(f'{f(z)} :- {lam(z)}, @context({f("_")}).')
+        else:
+            self.rules.append(f'{f(z)} :- {lam(z)}.')
         return f
 
     def expand_macro(self, name: str, *args: Sym) -> str:
@@ -134,9 +140,30 @@ class LDCS(lark.Transformer[str]):
         subst = dict(zip(params, args))
         return RuleBody(subst, self.gensym).transform(tree)
 
+    def expand_contexts(self) -> None:
+        for i, rule in enumerate(self.rules):
+            if (match := re.search(r'@context\((.*)\)', rule)):
+                template = re.escape(match.group(1)).replace('_', '([A-Z])')
+                for rule2 in self.rules:
+                    if ' :- ' in rule2:
+                        body = rule2[:-1].split(' :- ')[1].split(', ')
+                        for j, term in enumerate(body):
+                            if (match2 := re.search(template, term)):
+                                headvar = match2.group(1)
+                                context = [t for t in body[:j] + body[j+1:]
+                                           if headvar not in t]
+                                rule = rule.replace(
+                                    match.group(0), commas(*context))
+                                rule = rule.replace(', .', '.')
+                                self.rules[i] = rule
+
     def start(self, rule: Optional[str]) -> str:
         if rule:
             self.rules.insert(0, rule + '.')
+        self.expand_contexts()
+        for rule in self.rules[:]:
+            if ' :- ' in rule and '{' not in rule:
+                self.rules.append(self.proof(rule))
         return '\n'.join(self.rules).replace(';,', ';').replace(';.', '.')
 
     def define(self, head: Unary, var_body: CSym,
@@ -162,6 +189,26 @@ class LDCS(lark.Transformer[str]):
                 '#program base.',
                 ]
         return f'{head} :- holds({head})'
+
+    def proof(self, rule: str) -> str:
+        head, body = rule[:-1].split(' :- ')
+        terms = []
+        pvars = []
+        for term in body.split(', '):
+            if ' = @' in term:
+                terms.append(term)
+                var = 'P' + str(self.counter('proof'))
+                eq = term.replace(' = @', ',')
+                terms.append(f'{var} = eq({eq})')
+                pvars.append(var)
+            elif ' ' in term:
+                terms.append(term)
+            else:
+                var = 'P' + str(self.counter('proof'))
+                terms.append(f'proof({var},{term})')
+                pvars.append(var)
+        prf = ','.join([head] + pvars)
+        return f'proof(@proof({prf}),{head}) :- {commas(*terms)}.'
 
     def enum(self, heads: List[Unary], *args: List[Unary]) -> None:
         for lams in args:
@@ -216,10 +263,10 @@ class LDCS(lark.Transformer[str]):
         var, body = var_body
         assert body is not None
         if ';' in body:
-            f = self.genpred('goal')
-            self.rules.append(f'{f(var)} :- {body}.')
+            i = self.counter('goal')
+            self.rules.append(f'goal{i}({var}) :- {body}.')
             var = self.gensym()
-            body = f(var)
+            body = f'goal{i}({var})'
         return f'{{ goal({var}) : {body} }} = 1'
 
     def goal(self, var_body: CSym) -> str:
@@ -239,7 +286,7 @@ class LDCS(lark.Transformer[str]):
     def binop(self, a: CSym, op: str, b: CSym) -> CSym:
         arg1, body1 = a
         arg2, body2 = b
-        return arg1 + op + arg2, commas(body1, body2)
+        return f'{arg1} {op} {arg2}', commas(body1, body2)
 
     def negative(self, a: CSym) -> CSym:
         arg, body = a
@@ -258,10 +305,10 @@ class LDCS(lark.Transformer[str]):
     def disj(self, *lams: Unary) -> Unary:
         if len(lams) == 1:
             return lams[0]
-        f = self.genpred('disjunction')
+        i = self.counter('disjunction')
         x = self.gensym()
-        self.rules.extend(f'{f(x)} :- {lam(x)}.' for lam in lams)
-        return f
+        self.rules.extend(f'disjunction{i}({x}) :- {lam(x)}.' for lam in lams)
+        return lambda x: f'disjunction{i}({x})'
 
     def lams(self, *lams: Unary) -> List[Unary]:
         return list(lams)
@@ -280,7 +327,7 @@ class LDCS(lark.Transformer[str]):
         return lambda *args: f"{name}({','.join(args)})"
 
     def func_binop(self, op: str) -> Binary:
-        return lambda x, y: x + op + y
+        return lambda x, y: f'{x} {op} {y}'
 
     def compose(self, name: str, lam: Variadic) -> Variadic:
         return lambda *args: f'{name}({lam(*args)})'
@@ -294,22 +341,39 @@ class LDCS(lark.Transformer[str]):
 
     def neg(self, lam: Unary) -> Unary:
         if ' ' in lam('_'):
-            lam = self.lift(lam)
+            lam = self.lift(lam, 'negation')
         return lambda x: 'not ' + lam(x)
 
     def aggregation(self, op: str, lam: Unary) -> Unary:
         y = self.gensym()
-        if ';' in lam(y):
+        if ' ' in lam(y):
             lam = self.lift(lam, 'aggregation')
         if op in ('count', 'sum', 'min', 'max'):
             return lambda x: f'{x} = #{op} {{ {y} : {lam(y)} }}'
+        elif op in ('set', 'bag'):
+            i = self.counter('gather')
+            vars = sorted(set(re.findall('Mu[A-Z]', lam(y))))
+            closure = ','.join([str(i)] + vars)
+
+            def f(x: str) -> str:
+                return f'{op}of(({closure}),{x})'
+            context = ''
+            if len(vars) > 0:
+                context = f', @context({f("_")})'
+            if op == 'set':
+                rule = f'gather(({closure}),{y}) :- {lam(y)}{context}.'
+            elif op == 'bag':
+                rule = f'gather(({closure}),({y},P0)) :- ' + \
+                       f'proof(P0,{lam(y)}){context}.'
+            self.rules.insert(0, rule)
+            return f
         else:
             assert False
 
     def superlative(self, op: str, rel: Binary, lam: Unary) -> Unary:
         y = self.gensym()
         if ' ' in lam(y):
-            lam = self.lift(lam, 'superlative')
+            lam = self.lift(lam, 'superlative', False)
         if op == 'most':
             return lambda x: f'{rel(x, y)} : {lam(y)}, {x} != {y}; {lam(x)}'
         elif op == 'each':
@@ -325,12 +389,6 @@ class LDCS(lark.Transformer[str]):
         y = self.gensym()
         self.rules.append(f'gather({i},{y}) :- {lam(y)}.')
         return lambda x: f'enumerate({i},{y},{x}), {idx(y)}'
-
-    def product(self, lam: Unary) -> Unary:
-        i = self.counter('gather')
-        y = self.gensym()
-        self.rules.append(f'gather({i},{y}) :- {lam(y)}.')
-        return lambda x: f'product({i},{x})'
 
     def unify(self, pred_body: CSym) -> Unary:
         pred, body = pred_body

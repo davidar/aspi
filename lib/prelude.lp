@@ -35,7 +35,10 @@ i4(X) :- X = -9999..9999.
 
 gather(@gather(I,X)) :- gather(I,X).
 enumerate(I,J,X) :- gather(I), (J-1,X) = @sort(I).
-product(I,X) :- gather(I), X = @product(I).
+setof(I,X) :- gather(I), X = @setof(I).
+proof(@proof(setof(I,X)),setof(I,X)) :- setof(I,X).
+bagof(I,X) :- gather(I), X = @bagof(I).
+proof(@proof(bagof(I,X)),bagof(I,X)) :- bagof(I,X).
 
 #script (python)
 import clingo
@@ -48,14 +51,15 @@ def concatenate(a, b):
     return a.string + b.string
 def reverse(a):
     return clingo.String(a.string[::-1])
-def substring(a):
-    s = a.string
-    n = len(s)
-    for start in range(0,n+1):
-        for end in range(start,n+1):
-            yield s[start:end]
+def substring(a, start, length):
+    return a.string[start.number:start.number+length.number]
 def length(a):
     return clingo.Number(len(a.string))
+def decimal(a):
+    try:
+        return clingo.Number(int(a.string))
+    except:
+        return clingo.Function('error')
 
 gathered = {}
 def gather(i, a):
@@ -65,6 +69,33 @@ def gather(i, a):
     return i
 def sort(i):
     return list(enumerate(sorted(gathered[i]))) if i in gathered else []
-def product(i):
-    return math.prod(x.number for x in gathered[i]) % sys.maxsize
+def setof(i):
+    return clingo.Function('set', sorted(gathered[i]))
+def bagof(i):
+    try:
+        return clingo.Function('bag', sorted(a.arguments[0] for a in gathered[i]))
+    except:
+        return clingo.Function('error')
+
+def countof(a):
+    return len(a.arguments)
+def sumof(a):
+    return sum(x.number for x in a.arguments) % sys.maxsize
+def productof(a):
+    return math.prod(x.number for x in a.arguments) % sys.maxsize
+
+def proof(head, *args):
+    if len(args) == 0:
+        return head
+    body = set()
+    proofs = set()
+    for p in args:
+        if p.type == clingo.SymbolType.Function and p.name == 'proof':
+            for subproof in p.arguments:
+                body.add(subproof.arguments[0])
+                proofs.add(subproof)
+        else:
+            body.add(p)
+    proofs.add(clingo.Tuple([head] + sorted(body)))
+    return clingo.Function('proof', sorted(proofs))
 #end.
