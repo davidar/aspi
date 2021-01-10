@@ -127,7 +127,8 @@ class LDCS(lark.Transformer[str]):
             i -= len(string.ascii_uppercase)
             return f'X{i}'
 
-    def lift(self, lam: Unary, prefix: str, context: bool = True) -> Unary:
+    def lift(self, lam: Unary, prefix: str,
+             context: bool = True, ground: bool = False) -> Unary:
         # TODO: only suppress context for vars not used in the parent context
         i = self.counter(prefix)
         z = self.gensym()
@@ -138,29 +139,42 @@ class LDCS(lark.Transformer[str]):
         def f(x: str) -> str:
             closure = ','.join([str(i)] + vars)
             return f'{prefix}(({closure}),{x})'
-        if len(vars) > 0:
-            self.rules.append(f'{f(z)} :- {lam(z)}, @context({f("_")}).')
-        else:
-            self.rules.append(f'{f(z)} :- {lam(z)}.')
+        body = lam(z)
+        if len(vars) > 0 or ground:
+            args = f('_')
+            if ground:
+                args = f'{z},{args}'
+            body += f', @context({args})'
+        self.rules.append(f'{f(z)} :- {body}.')
         return f
 
     def expand_macro(self, name: str, *args: Sym) -> str:
-        params, tree = self.macros[name]
+        params, tree = self.macros[f'{name}/{len(args)}']
         subst = dict(zip(params, args))
         return RuleBody(subst, self.gensym).transform(tree)
 
     def expand_contexts(self) -> None:
         for i, rule in enumerate(self.rules):
             if (match := re.search(r'@context\((.*)\)', rule)):
-                template = re.escape(match.group(1)).replace('_', '([A-Z])')
+                pred = match.group(1)
+                groundvar = None
+                if pred[1] == ',':
+                    groundvar = pred[0]
+                    pred = pred[2:]
+                template = re.escape(pred).replace('_', '([A-Z])')
                 for rule2 in self.rules:
                     if ' :- ' in rule2:
                         body = rule2[:-1].split(' :- ')[1].split(', ')
                         for j, term in enumerate(body):
                             if (match2 := re.search(template, term)):
                                 headvar = match2.group(1)
-                                context = [t for t in body[:j] + body[j+1:]
-                                           if headvar not in t]
+                                context = []
+                                for t in body[:j] + body[j+1:]:
+                                    if 'Mu' in pred and headvar not in t:
+                                        context.append(t)
+                                    elif groundvar and '..' in t and \
+                                            t.startswith(f'{headvar} = '):
+                                        context.append(groundvar + t[1:])
                                 rule = rule.replace(
                                     match.group(0), commas(*context))
                                 rule = rule.replace(', .', '.')
@@ -314,7 +328,10 @@ class LDCS(lark.Transformer[str]):
     def ldcs(self, lam: Unary) -> CSym:
         lam_ = lam('_')
         if lam_.startswith('_ = ') and ', ' not in lam_ and ':' not in lam_:
-            return lam_[len('_ = '):].replace(' ', ''), None
+            x = lam_[len('_ = '):]
+            if x[0] != '"':
+                x = x.replace(' ', '')
+            return x, None
         else:
             x = self.gensym()
             return x, lam(x)
@@ -342,9 +359,12 @@ class LDCS(lark.Transformer[str]):
         return lambda x: f'{x} = {c}'
 
     def func(self, name: str) -> Variadic:
-        if name in self.macros:
-            return lambda *args: self.expand_macro(name, *args)
-        return lambda *args: f"{name}({','.join(args)})"
+        def f(*args):
+            if f'{name}/{len(args)}' in self.macros:
+                return self.expand_macro(name, *args)
+            else:
+                return f"{name}({','.join(args)})"
+        return f
 
     def func_binop(self, op: str) -> Binary:
         return lambda x, y: f'{x} {op} {y}'
@@ -361,7 +381,7 @@ class LDCS(lark.Transformer[str]):
 
     def neg(self, lam: Unary) -> Unary:
         if ' ' in lam('_'):
-            lam = self.lift(lam, 'negation')
+            lam = self.lift(lam, 'negation', True, True)
         return lambda x: 'not ' + lam(x)
 
     def aggregation(self, op: str, lam: Unary) -> Unary:
@@ -438,7 +458,7 @@ class LDCS(lark.Transformer[str]):
     def add_macro(self, s: str) -> None:
         tree = rule_parser.parse(s)
         name, args = RuleHead().transform(tree)
-        self.macros[name] = args, tree
+        self.macros[f'{name}/{len(args)}'] = args, tree
 
 
 rule_ebnf = r'''

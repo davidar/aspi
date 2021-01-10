@@ -28,7 +28,7 @@ This project started as an interactive shell for [clingo](https://github.com/pot
   ```
   collatz[N even n3]: N / 2.
   collatz[N odd n3]: (3*N) + 1.
-  say[N multiple.100 100..900]: concatenate[say[N/100], "hundred"].
+  say[N multiple.100 100..900]: concatenate[say[N/100], " hundred"].
   ```
 - [Automated planning](https://en.wikipedia.org/wiki/Automated_planning_and_scheduling)
   - [Tower of Hanoi solver](test/hanoi.log)

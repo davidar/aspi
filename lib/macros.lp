@@ -8,6 +8,7 @@ odd(X) :- X \ 2 = 1.
 
 show(X,A) :- X = @show(A).
 concatenate(X,A,B) :- X = @concatenate(A,B).
+concatenate(X,A,B,C) :- X = @concatenate(A,Y), Y = @concatenate(B,C).
 reverse(X,A) :- X = @reverse(A).
 substring(X,A,S,L) :- X = @substring(A,S,L).
 substring(X,A) :- X = @substring(A,S,L), N = @length(A), S = 0..N, M = N-S, L = 0..M.
