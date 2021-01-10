@@ -245,6 +245,136 @@ understood.
 that: 7.
 
 >>> 
+>>> % 17. How many letters would be needed to write all the numbers in words from 1 to 1000?
+>>> say.0: "".
+--> say(B,A) :- A = 0, B = "".
+understood.
+
+>>> say.1: "one".
+--> say(B,A) :- A = 1, B = "one".
+understood.
+
+>>> say.2: "two".
+--> say(B,A) :- A = 2, B = "two".
+understood.
+
+>>> say.3: "three".
+--> say(B,A) :- A = 3, B = "three".
+understood.
+
+>>> say.4: "four".
+--> say(B,A) :- A = 4, B = "four".
+understood.
+
+>>> say.5: "five".
+--> say(B,A) :- A = 5, B = "five".
+understood.
+
+>>> say.6: "six".
+--> say(B,A) :- A = 6, B = "six".
+understood.
+
+>>> say.7: "seven".
+--> say(B,A) :- A = 7, B = "seven".
+understood.
+
+>>> say.8: "eight".
+--> say(B,A) :- A = 8, B = "eight".
+understood.
+
+>>> say.9: "nine".
+--> say(B,A) :- A = 9, B = "nine".
+understood.
+
+>>> say.10: "ten".
+--> say(B,A) :- A = 10, B = "ten".
+understood.
+
+>>> say.11: "eleven".
+--> say(B,A) :- A = 11, B = "eleven".
+understood.
+
+>>> say.12: "twelve".
+--> say(B,A) :- A = 12, B = "twelve".
+understood.
+
+>>> say.13: "thirteen".
+--> say(B,A) :- A = 13, B = "thirteen".
+understood.
+
+>>> say.14: "fourteen".
+--> say(B,A) :- A = 14, B = "fourteen".
+understood.
+
+>>> say.15: "fifteen".
+--> say(B,A) :- A = 15, B = "fifteen".
+understood.
+
+>>> say.16: "sixteen".
+--> say(B,A) :- A = 16, B = "sixteen".
+understood.
+
+>>> say.17: "seventeen".
+--> say(B,A) :- A = 17, B = "seventeen".
+understood.
+
+>>> say.18: "eighteen".
+--> say(B,A) :- A = 18, B = "eighteen".
+understood.
+
+>>> say.19: "nineteen".
+--> say(B,A) :- A = 19, B = "nineteen".
+understood.
+
+>>> say.20: "twenty".
+--> say(B,A) :- A = 20, B = "twenty".
+understood.
+
+>>> say.30: "thirty".
+--> say(B,A) :- A = 30, B = "thirty".
+understood.
+
+>>> say.40: "forty".
+--> say(B,A) :- A = 40, B = "forty".
+understood.
+
+>>> say.50: "fifty".
+--> say(B,A) :- A = 50, B = "fifty".
+understood.
+
+>>> say.60: "sixty".
+--> say(B,A) :- A = 60, B = "sixty".
+understood.
+
+>>> say.70: "seventy".
+--> say(B,A) :- A = 70, B = "seventy".
+understood.
+
+>>> say.80: "eighty".
+--> say(B,A) :- A = 80, B = "eighty".
+understood.
+
+>>> say.90: "ninety".
+--> say(B,A) :- A = 90, B = "ninety".
+understood.
+
+>>> say[N 20..99]: concatenate[say[(N/10)*10], say[N\10]].
+--> say(N,C) :- C = MuN, A = 20, B = 99, C = A .. B, N = @concatenate(L,M), say(L,H), D = MuN, E = 10, F = D / E, G = 10, H = F * G, say(M,K), I = MuN, J = 10, K = I \ J.
+understood.
+
+>>> say[N multiple.100 100..900]: concatenate[say[N/100], "hundred"].
+--> say(J,D) :- D = MuN, D \ A = 0, A = 100, B = 100, C = 900, D = B .. C, J = @concatenate(H,I), say(H,G), E = MuN, F = 100, G = E / F, I = "hundred".
+understood.
+
+>>> say[N multiple.1000 1000..9000]: concatenate[say[N/1000], "thousand"].
+--> say(J,D) :- D = MuN, D \ A = 0, A = 1000, B = 1000, C = 9000, D = B .. C, J = @concatenate(H,I), say(H,G), E = MuN, F = 1000, G = E / F, I = "thousand".
+understood.
+
+>>> say[1..1000]?
+--> what(D) :- say(D,C), A = 1, B = 1000, C = A .. B.
+that: "one" | "two" | "three" | "four" | "five" | "six" | "seven" | "eight" | "nine" | "ten" | "eleven" | "twelve" | "thirteen" | "fourteen" | "fifteen" | "sixteen" | "seventeen" | "eighteen" | "nineteen" | "twenty" | "twentyone" | "twentytwo" | "twentythree" | "twentyfour" | "twentyfive" | "twentysix" | "twentyseven" | "twentyeight" | "twentynine" | "thirty" | "thirtyone" | "thirtytwo" | "thirtythree" | "thirtyfour" | "thirtyfive" | "thirtysix" | "thirtyseven" | "thirtyeight" | "thirtynine" | "forty" | "fortyone" | "fortytwo" | "fortythree" | "fortyfour" | "fortyfive" | "fortysix" | "fortyseven" | "fortyeight" | "fortynine" | "fifty" | "fiftyone" | "fiftytwo" | "fiftythree" | "fiftyfour" | "fiftyfive" | "fiftysix" | "fiftyseven" | "fiftyeight" | "fiftynine" | "sixty" | "sixtyone" | "sixtytwo" | "sixtythree" | "sixtyfour" | "sixtyfive" | "sixtysix" | "sixtyseven" | "sixtyeight" | "sixtynine" | "seventy" | "seventyone" | "seventytwo" | "seventythree" | "seventyfour" | "seventyfive" | "seventysix" | "seventyseven" | "seventyeight" | "seventynine" | "eighty" | "eightyone" | "eightytwo" | "eightythree" | "eightyfour" | "eightyfive" | "eightysix" | "eightyseven" | "eightyeight" | "eightynine" | "ninety" | "ninetyone" | "ninetytwo" | "ninetythree" | "ninetyfour" | "ninetyfive" | "ninetysix" | "ninetyseven" | "ninetyeight" | "ninetynine" | "onehundred" | "twohundred" | "threehundred" | "fourhundred" | "fivehundred" | "sixhundred" | "sevenhundred" | "eighthundred" | "ninehundred" | "onethousand".
+
+>>> 
 >>> % 20. Find the sum of digits in 10!
 >>> factorial[N 1..12]: product.#set(1..N).
 --> factorial(I,C) :- C = MuN, A = 1, B = 12, C = A .. B, I = @productof(H), setof((8,MuN),H).
