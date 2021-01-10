@@ -3,7 +3,7 @@ import lark
 import re
 import string
 import sys
-from typing import cast, Callable, Dict, Iterable, List, \
+from typing import Callable, Dict, Iterable, List, \
         Optional, Protocol, Tuple, TypeVar
 
 # https://arxiv.org/abs/1309.4408
@@ -94,8 +94,12 @@ parser = lark.Lark(ebnf)
 
 
 def unzip(pairs: Iterable[Tuple[S, T]]) -> Tuple[List[S], List[T]]:
-    a, b = zip(*pairs)
-    return cast(List[S], a), cast(List[T], b)
+    xs = []
+    ys = []
+    for x, y in pairs:
+        xs.append(x)
+        ys.append(y)
+    return xs, ys
 
 
 def commas(*args: Optional[str]) -> str:
@@ -169,7 +173,10 @@ class LDCS(lark.Transformer[str]):
         for rule in self.rules[:]:
             if ' :- ' in rule and '{' not in rule:
                 self.rules.append(self.proof(rule))
-        return '\n'.join(self.rules).replace(';,', ';').replace(';.', '.')
+        return '\n'.join(self.rules) \
+                   .replace(';,', ';') \
+                   .replace(';.', '.') \
+                   .replace(' :- .', '.')
 
     def define(self, head: Unary, var_body: CSym,
                cond: Optional[str] = None) -> str:
@@ -208,7 +215,7 @@ class LDCS(lark.Transformer[str]):
                 pvars.append(var)
             elif ' ' in term:
                 terms.append(term)
-            else:
+            elif term.strip():
                 var = 'P' + str(self.counter('proof'))
                 terms.append(f'proof({var},{term})')
                 pvars.append(var)
@@ -291,6 +298,10 @@ class LDCS(lark.Transformer[str]):
     def binop(self, a: CSym, op: str, b: CSym) -> CSym:
         arg1, body1 = a
         arg2, body2 = b
+        if not arg1.isalnum():
+            arg1 = f'({arg1})'
+        if not arg2.isalnum():
+            arg2 = f'({arg2})'
         return f'{arg1} {op} {arg2}', commas(body1, body2)
 
     def negative(self, a: CSym) -> CSym:
@@ -301,8 +312,12 @@ class LDCS(lark.Transformer[str]):
         return name
 
     def ldcs(self, lam: Unary) -> CSym:
-        x = self.gensym()
-        return x, lam(x)
+        lam_ = lam('_')
+        if lam_.startswith('_ = ') and ', ' not in lam_ and ':' not in lam_:
+            return lam_[len('_ = '):].replace(' ', ''), None
+        else:
+            x = self.gensym()
+            return x, lam(x)
 
     def disjs(self, *args: str) -> List[str]:
         return list(args)
@@ -341,8 +356,8 @@ class LDCS(lark.Transformer[str]):
         return lambda *args: lam(*reversed(args))
 
     def join(self, rel: Binary, lam: Unary) -> Unary:
-        y = self.gensym()
-        return lambda x: commas(rel(x, y), lam(y))
+        y, body = self.ldcs(lam)
+        return lambda x: commas(rel(x, y), body)
 
     def neg(self, lam: Unary) -> Unary:
         if ' ' in lam('_'):
@@ -402,11 +417,9 @@ class LDCS(lark.Transformer[str]):
     def multijoin(self, rel: Variadic, lams_tail: List[Unary],
                   lams_head: List[Unary] = []) -> Unary:
         lams_head.reverse()
-        xs = [self.gensym() for lam in lams_head]
-        zs = [self.gensym() for lam in lams_tail]
-        lams = zip(lams_head + lams_tail, xs + zs)
-        body = ', '.join(lam(x) for lam, x in lams)
-        return lambda y: commas(rel(*xs, y, *zs), body)
+        xs, b1 = unzip(self.ldcs(lam) for lam in lams_head)
+        zs, b2 = unzip(self.ldcs(lam) for lam in lams_tail)
+        return lambda y: commas(rel(*xs, y, *zs), commas(*b1, *b2))
 
     def toASP(self, s: str) -> Optional[str]:
         try:
@@ -469,6 +482,13 @@ class RuleHead(lark.Transformer[Tuple[str, List[str]]]):
         return str(name), [str(arg) for arg in args]
 
 
+def unparen(s: str) -> str:
+    if s[0] == '(' and s[-1] == ')':
+        return s[1:-1]
+    else:
+        return s
+
+
 @lark.v_args(inline=True)
 class RuleBody(lark.Transformer[str]):
     def __init__(self, subst: Dict[Sym, Sym], gensym: Callable[[], Sym]):
@@ -481,7 +501,7 @@ class RuleBody(lark.Transformer[str]):
     def pred(self, name: str, *args: str) -> str:
         if not args:
             name
-        return f"{name}({','.join(args)})"
+        return f"{name}({','.join(unparen(arg) for arg in args)})"
 
     def predop(self, *args: str) -> str:
         return ' '.join(args)
@@ -489,7 +509,10 @@ class RuleBody(lark.Transformer[str]):
     def var(self, name: Sym) -> Sym:
         if name not in self.subst:
             self.subst[name] = self.gensym()
-        return self.subst[name]
+        expr = self.subst[name]
+        if not expr.isalnum():
+            expr = f'({expr})'
+        return expr
 
 
 if __name__ == '__main__':

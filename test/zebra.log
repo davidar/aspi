@@ -1,22 +1,22 @@
 >>> % 1. There are five houses.
 >>> house: 1..5.
---> house(C) :- A = 1, B = 5, C = A .. B.
+--> house(1..5).
 understood.
 
 >>> left(house A, house A+1).
---> left(A,D) :- house(A), A = MuA, house(D), B = MuA, C = 1, D = B + C.
+--> left(A,B) :- house(A), A = MuA, house(B), B = MuA + 1.
 understood.
 
 >>> right(A,B): left(B,A).
---> right(A,B) :- A = MuA, B = MuB, left(C,D), C = MuB, D = MuA.
+--> right(MuA,MuB) :- left(MuB,MuA).
 understood.
 
 >>> adjacent(A,B): left(A,B).
---> adjacent(A,B) :- A = MuA, B = MuB, left(C,D), C = MuA, D = MuB.
+--> adjacent(MuA,MuB) :- left(MuA,MuB).
 understood.
 
 >>> adjacent(A,B): right(A,B).
---> adjacent(A,B) :- A = MuA, B = MuB, right(C,D), C = MuA, D = MuB.
+--> adjacent(MuA,MuB) :- right(MuA,MuB).
 understood.
 
 >>> 
@@ -197,14 +197,14 @@ understood.
 >>> 
 >>> % 9. Milk is drunk in the middle house.
 >>> #any in.3 drink.milk.
---> constraint8 :- in(C,A), A = 3, drink(C,B), milk(B).
+--> constraint8 :- in(B,3), drink(B,A), milk(A).
     :- not constraint8.
 understood.
 
 >>> 
 >>> % 10. The Norwegian lives in the first house.
 >>> #any norwegian in.1.
---> constraint9 :- norwegian(B), in(B,A), A = 1.
+--> constraint9 :- norwegian(A), in(A,1).
     :- not constraint9.
 understood.
 
@@ -257,7 +257,7 @@ that: japanese.
 
 >>> 
 >>> house(H,C,P,D,S,A): house(H), paint(H,C), in(P,H), drink(P,D), smoke(P,S), own(P,A)?
---> what(G) :- A = MuH, B = MuC, C = MuP, D = MuD, E = MuS, F = MuA, G = house(A,B,C,D,E,F), house(H), H = MuH, paint(I,J), I = MuH, J = MuC, in(K,L), K = MuP, L = MuH, drink(M,N), M = MuP, N = MuD, smoke(O,P), O = MuP, P = MuS, own(Q,R), Q = MuP, R = MuA.
+--> what(house(MuH,MuC,MuP,MuD,MuS,MuA)) :- house(MuH), paint(MuH,MuC), in(MuP,MuH), drink(MuP,MuD), smoke(MuP,MuS), own(MuP,MuA).
 that: house(1,yellow,norwegian,water,kool,fox) | house(2,blue,ukrainian,tea,chesterfield,horse) | house(3,red,english,milk,gold,snail) | house(4,ivory,spaniard,juice,lucky,dog) | house(5,green,japanese,coffee,parliament,zebra).
 
 >>> thanks.

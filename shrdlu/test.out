@@ -180,7 +180,7 @@ that: large red block | blue block | red cube | red pyramid | green pyramid.
 >>> 
 >>> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
 >>> pickup.pyramid before.goal.on(green pyramid, little cube)?
---> what(F) :- pickup(F,A), pyramid(A), end_time(G,F), G = 0 .. H - 1, start_time(H,E), goal(E,D), green(B), pyramid(B), little(C), cube(C), D = on(B,C).
+--> what(H) :- pickup(H,A), pyramid(A), end_time(I,H), I = 0 .. J - 1, start_time(J,E), goal(E,D), green(B), pyramid(B), little(C), cube(C), D = on(B,C).
 that: pickup[green pyramid].
 
 >>> 
@@ -191,13 +191,13 @@ that: pickup[green pyramid].
 >>> 
 >>> % WHEN DID YOU PICK IT UP?
 >>> event during'.that?
---> what(B) :- event(B), start_time(C,A), end_time(D,A), start_time(E,B), end_time(F,B), C = E .. F, D = C .. F, A != B, that(A).
+--> what(F) :- event(F), start_time(G,A), end_time(H,A), start_time(I,F), end_time(J,F), G = I .. J, H = G .. J, A != F, that(A).
 that: goal.stack(large red block, red cube, green cube supports[large red block]).
 
 >>> 
 >>> % WHY?
 >>> why.that.2?
---> what(C) :- why(C,B), that(B,A), A = 2.
+--> what(B) :- why(B,A), that(A,2).
 that: put_on[green pyramid, green cube supports[large red block]] | pickup[red cube].
 
 >>> 
@@ -218,26 +218,26 @@ that: goal.stack(large red block, red cube, green cube supports[large red block]
 >>> 
 >>> % HOW DID YOU DO IT?
 >>> event during.that?
---> what(B) :- event(B), start_time(C,B), end_time(D,B), start_time(E,A), end_time(F,A), C = E .. F, D = C .. F, B != A, that(A).
+--> what(F) :- event(F), start_time(G,F), end_time(H,F), start_time(I,A), end_time(J,A), G = I .. J, H = G .. J, F != A, that(A).
 that: pickup[green pyramid] | put_on[green pyramid, green cube supports[large red block]] | pickup[red cube] | put_on[red cube, large red block].
 
 >>> 
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
 >>> #count(pickup.object during.that.2)?
---> what(R) :- R = #count { D : aggregation((1),D) }.
-    aggregation((1),I) :- pickup(I,A), object(A), start_time(N,I), end_time(O,I), start_time(P,C), end_time(Q,C), N = P .. Q, O = N .. Q, I != C, that(C,B), B = 2.
+--> what(Q) :- Q = #count { C : aggregation((1),C) }.
+    aggregation((1),H) :- pickup(H,A), object(A), start_time(M,H), end_time(N,H), start_time(O,B), end_time(P,B), M = O .. P, N = M .. P, H != B, that(B,2).
 that: 2.
 
 >>> 
 >>> % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
 >>> supports'[red cube, just_before.cleanoff[red cube]]?
---> what(F) :- supports(D,C,F), red(C), cube(C), end_time(E - 1,D), start_time(E,B), cleanoff(B,A), red(A), cube(A).
+--> what(G) :- supports(E,C,G), red(C), cube(C), end_time(F - 1,E), start_time(F,B), cleanoff(B,A), red(A), cube(A).
 that: green pyramid.
 
 >>> 
 >>> % THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
 >>> block left_of[box; just_before.cleanoff[red cube]]?
---> what(F) :- block(F), left_of(C,F,D), end_time(E - 1,C), start_time(E,B), cleanoff(B,A), red(A), cube(A), box(D).
+--> what(G) :- block(G), left_of(D,G,F), end_time(E - 1,D), start_time(E,B), cleanoff(B,A), red(A), cube(A), box(F).
 that: red cube.
 
 >>> #count(that)?
@@ -262,7 +262,7 @@ on(blue pyramid, green cube supports[blue pyramid]).
 >>> 
 >>> % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
 >>> object #each(big, pyramid) X wide'.supports.X?
---> what(D) :- object(D), big(D,A) : pyramid(A); D = MuX, wide(C,D), supports(C,B), B = MuX.
+--> what(C) :- object(C), big(C,A) : pyramid(A); C = MuX, wide(B,C), supports(B,MuX).
 that: blue block.
 
 >>> 

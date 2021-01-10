@@ -18,11 +18,11 @@ understood.
 
 >>> 
 >>> big(A,C): big(A,B), big(B,C).
---> big(A,B) :- A = MuA, B = MuC, big(C,D), C = MuA, D = MuB, big(E,F), E = MuB, F = MuC.
+--> big(MuA,MuC) :- big(MuA,MuB), big(MuB,MuC).
 understood.
 
 >>> small(A,B): big(B,A).
---> small(A,B) :- A = MuA, B = MuB, big(C,D), C = MuB, D = MuA.
+--> small(MuA,MuB) :- big(MuB,MuA).
 understood.
 
 >>> 
@@ -40,14 +40,14 @@ understood.
 
 >>> 
 >>> #fluent on(A,B).
---> on(A,B) :- holds(on(A,B)).
+--> on(MuA,MuB) :- holds(on(MuA,MuB)).
 understood.
 
 >>> #fluent on_same(D,E): on(D,P), on(E,P).
---> on_same(A,B) :- holds(on_same(A,B)).
-    holds(on_same(A,B), Time) :- A = MuD, B = MuE, holds(on(C,D), Time), C = MuD, D = MuP, holds(on(E,F), Time), E = MuE, F = MuP.
+--> on_same(MuD,MuE) :- holds(on_same(MuD,MuE)).
+    holds(on_same(MuD,MuE), Time) :- holds(on(MuD,MuP), Time), holds(on(MuE,MuP), Time).
     #program step(t).
-    holds(on_same(A,B), now+t) :- A = MuD, B = MuE, holds(on(C,D), now+t), C = MuD, D = MuP, holds(on(E,F), now+t), E = MuE, F = MuP.
+    holds(on_same(MuD,MuE), now+t) :- holds(on(MuD,MuP), now+t), holds(on(MuE,MuP), now+t).
     #program base.
 understood.
 
@@ -62,19 +62,19 @@ understood.
 understood.
 
 >>> demands(move(disk D, peg P), on(disk small.D, P), false).
---> demands(C,G,H) :- disk(A), A = MuD, peg(B), B = MuP, C = move(A,B), disk(E), small(E,D), D = MuD, F = MuP, G = on(E,F), false(H).
+--> demands(C,E,F) :- disk(A), A = MuD, peg(B), B = MuP, C = move(A,B), disk(D), small(D,MuD), E = on(D,MuP), false(F).
 understood.
 
 >>> demands(move(disk D, peg), on_same(D, disk small.D), false).
---> demands(C,G,H) :- disk(A), A = MuD, peg(B), C = move(A,B), D = MuD, disk(F), small(F,E), E = MuD, G = on_same(D,F), false(H).
+--> demands(C,E,F) :- disk(A), A = MuD, peg(B), C = move(A,B), disk(D), small(D,MuD), E = on_same(MuD,D), false(F).
 understood.
 
 >>> deletes(move(disk D, peg), on(D, peg)).
---> deletes(C,F) :- disk(A), A = MuD, peg(B), C = move(A,B), D = MuD, peg(E), F = on(D,E).
+--> deletes(C,E) :- disk(A), A = MuD, peg(B), C = move(A,B), peg(D), E = on(MuD,D).
 understood.
 
 >>> adds(move(disk D, peg P), on(D, P)).
---> adds(C,F) :- disk(A), A = MuD, peg(B), B = MuP, C = move(A,B), D = MuD, E = MuP, F = on(D,E).
+--> adds(C,on(MuD,MuP)) :- disk(A), A = MuD, peg(B), B = MuP, C = move(A,B).
 understood.
 
 >>> 

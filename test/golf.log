@@ -1,18 +1,18 @@
 >>> % https://codegolf.stackexchange.com/questions/216269/factorise-a-quadratic
 >>> factor[P+Q, P*Q]: pair(P i2, Q (>).P i2).
---> factor(J,E,F) :- A = MuP, B = MuQ, E = A + B, C = MuP, D = MuQ, F = C * D, G = MuP, i2(G), I = MuQ, I > H, H = MuP, i2(I), J = pair(G,I).
+--> factor(C,MuP+MuQ,MuP*MuQ) :- A = MuP, i2(A), B = MuQ, B > MuP, i2(B), C = pair(A,B).
 understood.
 
 >>> factor[2, (-15)]?
---> what(D) :- factor(D,B,C), B = 2, A = 15, C = -A.
+--> what(A) :- factor(A,2,-15).
 that: pair(-3,5).
 
 >>> factor[(-22), 85]?
---> what(D) :- factor(D,B,C), A = 22, B = -A, C = 85.
+--> what(A) :- factor(A,-22,85).
 that: pair(-17,-5).
 
 >>> factor[6, (-16)]?
---> what(D) :- factor(D,B,C), B = 6, A = 16, C = -A.
+--> what(A) :- factor(A,6,-16).
 that: pair(-2,8).
 
 >>> thanks.
