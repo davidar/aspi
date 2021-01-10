@@ -24,6 +24,12 @@ This project started as an interactive shell for [clingo](https://github.com/pot
   mine: block ~red ~supports.pyramid.
   in.box mine?
   ```
+- [Predicating type specifiers](https://www.cs.cmu.edu/Groups/AI/html/cltl/clm/node47.html)
+  ```
+  collatz[N even n3]: N / 2.
+  collatz[N odd n3]: (3*N) + 1.
+  say[N multiple.100 100..900]: concatenate[say[N/100], "hundred"].
+  ```
 - [Automated planning](https://en.wikipedia.org/wiki/Automated_planning_and_scheduling)
   - [Tower of Hanoi solver](test/hanoi.log)
   - [SHRDLU-inspired dialogue](shrdlu/test.out)
