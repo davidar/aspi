@@ -109,8 +109,19 @@ say[N multiple.1000 1000..9000]: concatenate[say[N/1000], " thousand"].
 say[1..1000]?
 say'."seven hundred and forty two"?
 count.#bag(char.say[1..100] ~" ")?
+#undef say.
 
 % 20. Find the sum of digits in 10!
 factorial[N 1..12]: product.#set(1..N).
 factorial.10?
 sum.#bag(decimal[substring.show.factorial.10 length'.1])?
+
+% 21. Evaluate the sum of all amicable numbers under 1000.
+proper_divisor[N n3]: 1..(N-1) multiple'.N.
+aliquot[N n3]: sum.#set(proper_divisor.N).
+perfect(A): aliquot(A,A).
+perfect?
+amicable(A,B): aliquot(A,B), aliquot(B,A), A != B.
+amicable: amicable.n3.
+amicable?
+#sum(amicable (<).1000)?

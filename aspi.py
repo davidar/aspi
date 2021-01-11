@@ -66,6 +66,15 @@ class ASPI:
     def repl(self, cmd: str) -> None:
         if not cmd or cmd.startswith('%'):
             return
+        if cmd.startswith('#undef '):
+            name = cmd[len('#undef '):-1]
+            lines = self.program.split('\n')
+            for i in reversed(range(len(lines))):
+                line = lines[i]
+                if line.startswith(name) or f'@proof({name}' in line:
+                    lines.pop(i)
+            self.program = '\n'.join(lines)
+            return
         if cmd == 'thanks.':
             print("YOU'RE WELCOME!")
             sys.exit(0)

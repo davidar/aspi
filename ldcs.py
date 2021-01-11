@@ -359,7 +359,7 @@ class LDCS(lark.Transformer[str]):
         return lambda x: f'{x} = {c}'
 
     def func(self, name: str) -> Variadic:
-        def f(*args):
+        def f(*args: Sym) -> str:
             if f'{name}/{len(args)}' in self.macros:
                 return self.expand_macro(name, *args)
             else:
