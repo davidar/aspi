@@ -463,6 +463,7 @@ class LDCS(lark.Transformer[str]):
 
 rule_ebnf = r'''
 %import common.DIGIT
+%import common.ESCAPED_STRING
 %import common.INT
 %import common.LETTER
 %import common.LCASE_LETTER
@@ -483,6 +484,7 @@ pred: ATOM [ "(" value ("," value)* ")" ]
 ?value: pred
       | var
       | INT
+      | ESCAPED_STRING
 var: VARIABLE
 head: ATOM "(" var ("," var)* ")"
 '''

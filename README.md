@@ -24,6 +24,21 @@ This project started as an interactive shell for [clingo](https://github.com/pot
   mine: block ~red ~supports.pyramid.
   in.box mine?
   ```
+- [Definite clause grammars](https://en.wikipedia.org/wiki/Definite_clause_grammar)
+  ```
+  #macro words[A,B]: concatenate[A, " ", B].
+  sentence[s(N,V)]: words[noun_phrase.N, verb_phrase.V].
+  noun_phrase[np(D,N)]: words[det D, noun N].
+  verb_phrase[vp(V,N)]: words[verb V, noun_phrase.N].
+  det: "a" | "the".
+  noun: "bat" | "cat".
+  verb: "eats".
+  parse.S: sentence'.S.
+  ```
+  ```
+  >>> parse."the bat eats a cat"?
+  that: s(np("the","bat"),vp("eats",np("a","cat"))).
+  ```
 - [Predicating type specifiers](https://www.cs.cmu.edu/Groups/AI/html/cltl/clm/node47.html)
   ```
   collatz[N even n3]: N / 2.

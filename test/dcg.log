@@ -1,0 +1,42 @@
+>>> #macro words[A,B]: concatenate[A, " ", B].
+--> words(B,MuA,MuB) :- B = @concatenate(MuA,C), C = @concatenate(" ",MuB).
+understood.
+
+>>> sentence[s(N,V)]: words[noun_phrase.N, verb_phrase.V].
+--> sentence(D,s(MuN,MuV)) :- D = @concatenate(A,E), E = @concatenate(" ",B), noun_phrase(A,MuN), verb_phrase(B,MuV).
+understood.
+
+>>> noun_phrase[np(D,N)]: words[det D, noun N].
+--> noun_phrase(D,np(MuD,MuN)) :- D = @concatenate(A,E), E = @concatenate(" ",B), det(A), A = MuD, noun(B), B = MuN.
+understood.
+
+>>> verb_phrase[vp(V,N)]: words[verb V, noun_phrase.N].
+--> verb_phrase(D,vp(MuV,MuN)) :- D = @concatenate(A,E), E = @concatenate(" ",B), verb(A), A = MuV, noun_phrase(B,MuN).
+understood.
+
+>>> det: "a" | "the".
+--> det(B) :- disjunction1(B).
+    disjunction1(A) :- A = "a".
+    disjunction1(A) :- A = "the".
+understood.
+
+>>> noun: "bat" | "cat".
+--> noun(B) :- disjunction2(B).
+    disjunction2(A) :- A = "bat".
+    disjunction2(A) :- A = "cat".
+understood.
+
+>>> verb: "eats".
+--> verb("eats").
+understood.
+
+>>> parse.S: sentence'.S.
+--> parse(A,MuS) :- sentence(MuS,A).
+understood.
+
+>>> parse."the bat eats a cat"?
+--> what(A) :- parse(A,"the bat eats a cat").
+that: s(np("the","bat"),vp("eats",np("a","cat"))).
+
+>>> thanks.
+YOU'RE WELCOME!
