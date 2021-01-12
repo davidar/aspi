@@ -2,7 +2,7 @@
 *[Answer Set Programming](https://en.wikipedia.org/wiki/Answer_set_programming), Interactively*
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/davidar/aspi)
 
-This project started as an interactive shell for [clingo](https://github.com/potassco/clingo), and is gradually morphing into an experimental programming language based on [Lambda Dependency-Based Compositional Semantics](https://arxiv.org/abs/1309.4408). It supports a variety of declarative programming paradigms in a cohesive manner:
+This project started as an interactive shell for [clingo](https://github.com/potassco/clingo), and is gradually morphing into an experimental programming language based on [Lambda Dependency-Based Compositional Semantics](https://arxiv.org/abs/1309.4408) (λdcs). It supports a variety of declarative programming paradigms in a cohesive manner:
 
 - [Functional programming](https://en.wikipedia.org/wiki/Functional_programming)
   ```
@@ -50,3 +50,165 @@ This project started as an interactive shell for [clingo](https://github.com/pot
   - [SHRDLU-inspired dialogue](shrdlu/test.out)
 
 The language is still unstable and lacking much documentation yet, but there are several example programs in this repo, e.g. [solutions to Project Euler-like problems](test/euler.log).
+
+## Syntax
+
+λdcs can be used to write logic programs in a concise, [pointfree](https://wiki.haskell.org/Pointfree) manner. Below are a number of examples comparing how λdcs expressions translate to standard logic programs.
+
+<table>
+<thead><tr><th scope="col"></th><th scope="col">λdcs</th><th scope="col">ASP logic program</th></tr></thead>
+<tbody>
+<tr><th scope="row">Unary predicate</th>
+<td>
+
+```
+seattle?
+```
+
+</td><td>
+
+```prolog
+what(A) :- seattle(A).
+```
+
+</td></tr>
+<tr><th scope="row">Join binary to unary predicate</th>
+<td>
+
+```
+place_of_birth.seattle?
+```
+
+</td><td>
+
+```prolog
+what(B) :- place_of_birth(B,A), seattle(A).
+```
+
+</td></tr>
+<tr><th scope="row">Reverse operator</th>
+<td>
+
+```
+place_of_birth'.john?
+```
+
+</td><td>
+
+```prolog
+what(B) :- place_of_birth(A,B), john(A).
+```
+
+</td></tr>
+<tr><th scope="row">Join chain</th>
+<td>
+
+```
+children.place_of_birth.seattle?
+```
+
+</td><td>
+
+```prolog
+what(C) :- children(C,B),
+           place_of_birth(B,A),
+           seattle(A).
+```
+
+</td></tr>
+<tr><th scope="row">Intersection</th>
+<td>
+
+```
+profession.scientist place_of_birth.seattle?
+```
+
+</td><td>
+
+```prolog
+what(C) :- profession(C,A), scientist(A),
+           place_of_birth(C,B), seattle(B).
+```
+
+</td></tr>
+<tr><th scope="row">Union</th>
+<td>
+
+```
+oregon | washington | type.canadian_province?
+```
+
+</td><td>
+
+```prolog
+what(C) :- disjunction(C).
+disjunction(B) :- oregon(B).
+disjunction(B) :- washington(B).
+disjunction(B) :- type(B,A),
+                  canadian_province(A).
+```
+
+</td></tr>
+<tr><th scope="row">Negation</th>
+<td>
+
+```
+type.us_state ~border.california?
+```
+
+</td><td>
+
+```prolog
+what(D) :- type(D,A), us_state(A),
+           not negation(D).
+negation(C) :- border(C,B), california(B).
+```
+
+</td></tr>
+<tr><th scope="row">Aggregation</th>
+<td>
+
+```
+#count(type.us_state)?
+```
+
+</td><td>
+
+```prolog
+what(C) :- C = #count { B : type(B,A),
+                            us_state(A) }.
+```
+
+</td></tr>
+<tr><th scope="row">μ abstraction</th>
+<td>
+
+```
+X children.influenced.X?
+```
+
+</td><td>
+
+```prolog
+what(B) :- B = MuX, children(B,A),
+           influenced(A,MuX).
+```
+
+</td></tr>
+<tr><th scope="row">λ abstraction</th>
+<td>
+
+```
+number_of_children.X: #count(children'.X).
+```
+
+</td><td>
+
+```prolog
+number_of_children(B,MuX) :-
+  B = #count { A : children(MuX,A) }.
+```
+
+</td></tr>
+</tbody>
+</table>
