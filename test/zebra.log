@@ -1,6 +1,6 @@
 >>> % 1. There are five houses.
 >>> house: 1..5.
---> house(1..5).
+--> house(A) :- A = 1 .. 5.
 understood.
 
 >>> left(house A, house A+1).

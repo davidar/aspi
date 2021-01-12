@@ -33,9 +33,9 @@ start: cmd
     | "#" "any" (ldcs | cmpop) "." -> constraint_any
     | "#" "any" ldcs "?" -> query_any
     | "#" "any" ldcs "!" -> goal_any
-    | ["#" "macro"] (func | join) ":" ldcs [":" clause] "." -> define
+    | ["#" "macro"] (func | join) ":" ldcs "." -> define
     | term [":" clause] "." -> claim
-    | ldcs [":" clause] "?" -> query
+    | ldcs "?" -> query
     | ldcs "!" -> goal
 clause: term ("," term)*
 ?term: pred
@@ -49,7 +49,7 @@ binop: bracketed BIN_OP bracketed
           | lam -> ldcs
 rparam: INT ldcs
 atom: NAME
-ldcs: disj
+ldcs: disj [":" clause]
 disjs: disj ("," disj)*
 disj: conj ("|" conj)*
 lams: lam lam*
@@ -71,7 +71,7 @@ join: func "." lam
     | func "[" disj "]"
     | func "[" disjs [";" disjs] "]" -> multijoin
 neg: "~" lam
-hof: "#" AGG_OP "(" disj ")" -> aggregation
+hof: "#" AGG_OP "(" ldcs ")" -> aggregation
    | "#" SUP_OP "(" func "," disj ")" -> superlative
    | "#" "enumerate" "(" disj "," disj ")" -> enumerate
 unify: pred
@@ -127,25 +127,30 @@ class LDCS(lark.Transformer[str]):
             i -= len(string.ascii_uppercase)
             return f'X{i}'
 
-    def lift(self, lam: Unary, prefix: str,
+    def lift(self, var_body: CSym, prefix: str,
              context: bool = True, ground: bool = False) -> Unary:
         # TODO: only suppress context for vars not used in the parent context
+        #       this has functional effects for aggregations
+        var, body = var_body
         i = self.counter(prefix)
-        z = self.gensym()
-        vars = sorted(set(re.findall('Mu[A-Z]', lam(z))))
-        if not context:
-            vars = []
+        vars = []
+        if context:
+            vars = sorted(set(re.findall('Mu[A-Z]', commas(var, body))))
+        if var[0] not in string.ascii_uppercase:
+            ground = False
 
         def f(x: str) -> str:
             closure = ','.join([str(i)] + vars)
             return f'{prefix}(({closure}),{x})'
-        body = lam(z)
         if len(vars) > 0 or ground:
             args = f('_')
             if ground:
-                args = f'{z},{args}'
-            body += f', @context({args})'
-        self.rules.append(f'{f(z)} :- {body}.')
+                args = f'{var},{args}'
+            body = commas(body, f'@context({args})')
+        if body:
+            self.rules.append(f'{f(var)} :- {body}.')
+        else:
+            self.rules.append(f'{f(var)}.')
         return f
 
     def expand_macro(self, name: str, *args: Sym) -> str:
@@ -271,9 +276,12 @@ class LDCS(lark.Transformer[str]):
         name = 'constraint' + str(self.counter('constraint'))
         self.rules += [f'{name} :- {body}.', f':- not {name}.']
 
-    def query(self, var_body: CSym, cond: Optional[str] = None) -> str:
+    def query(self, var_body: CSym) -> str:
         var, body = var_body
-        return f'what({var}) :- {commas(body, cond)}'
+        if body:
+            return f'what({var}) :- {body}'
+        else:
+            return f'what({var})'
 
     def query_any(self, var_body: CSym) -> None:
         var, body = var_body
@@ -325,16 +333,19 @@ class LDCS(lark.Transformer[str]):
     def atom(self, name: str) -> str:
         return name
 
-    def ldcs(self, lam: Unary) -> CSym:
+    def ldcs(self, lam: Unary, cond: Optional[str] = None) -> CSym:
         lam_ = lam('_')
-        if lam_.startswith('_ = ') and ', ' not in lam_ and ':' not in lam_:
+        if lam_.startswith('_ = ') and \
+                ', ' not in lam_ and \
+                '{' not in lam_ and \
+                '..' not in lam_:
             x = lam_[len('_ = '):]
             if x[0] != '"':
                 x = x.replace(' ', '')
-            return x, None
+            return x, cond
         else:
             x = self.gensym()
-            return x, lam(x)
+            return x, commas(lam(x), cond)
 
     def disjs(self, *args: str) -> List[str]:
         return list(args)
@@ -381,31 +392,36 @@ class LDCS(lark.Transformer[str]):
 
     def neg(self, lam: Unary) -> Unary:
         if ' ' in lam('_'):
-            lam = self.lift(lam, 'negation', True, True)
+            lam = self.lift(self.ldcs(lam), 'negation', True, True)
         return lambda x: 'not ' + lam(x)
 
-    def aggregation(self, op: str, lam: Unary) -> Unary:
-        y = self.gensym()
-        if ' ' in lam(y):
-            lam = self.lift(lam, 'aggregation')
+    def aggregation(self, op: str, var_body: CSym,
+                    cond: Optional[str] = None) -> Unary:
+        var, body = var_body
+        body = commas(body, cond)
+        if ' ' in body:
+            var, body = self.ldcs(self.lift((var, body), 'aggregation'))
         if op in ('count', 'sum', 'min', 'max'):
-            return lambda x: f'{x} = #{op} {{ {y} : {lam(y)} }}'
+            if body:
+                return lambda x: f'{x} = #{op} {{ {var} : {body} }}'
+            else:
+                return lambda x: f'{x} = #{op} {{ {var} }}'
         elif op in ('set', 'bag'):
             i = self.counter('gather')
-            vars = sorted(set(re.findall('Mu[A-Z]', lam(y))))
+            vars = sorted(set(re.findall('Mu[A-Z]', commas(var, body))))
             closure = ','.join([str(i)] + vars)
 
             def f(x: str) -> str:
                 return f'{op}of(({closure}),{x})'
-            context = ''
+            context = None
             if len(vars) > 0:
-                context = f', @context({f("_")})'
+                context = f'@context({f("_")})'
             if op == 'set':
-                rule = f'gather(({closure}),{y}) :- {lam(y)}{context}.'
+                rule = f'gather(({closure}),{var}) :- {commas(body, context)}'
             elif op == 'bag':
-                rule = f'gather(({closure}),({y},P0)) :- ' + \
-                       f'proof(P0,{lam(y)}){context}.'
-            self.rules.insert(0, rule)
+                rule = f'gather(({closure}),({var},P0)) :- ' + \
+                       commas(f'proof(P0,{body})', context)
+            self.rules.insert(0, rule + '.')
             return f
         else:
             assert False
@@ -413,13 +429,13 @@ class LDCS(lark.Transformer[str]):
     def superlative(self, op: str, rel: Binary, lam: Unary) -> Unary:
         y = self.gensym()
         if ' ' in lam(y):
-            lam = self.lift(lam, 'superlative', False)
+            lam = self.lift(self.ldcs(lam), 'superlative', False)
         if op == 'most':
             return lambda x: f'{rel(x, y)} : {lam(y)}, {x} != {y}; {lam(x)}'
         elif op == 'each':
             return lambda x: f'{rel(x, y)} : {lam(y)};'
         elif op in ('argmin', 'argmax'):
-            agg = self.aggregation(op[3:], self.join(rel, lam))
+            agg = self.aggregation(op[3:], self.ldcs(self.join(rel, lam)))
             return lambda x: commas(agg(y), rel(y, x), lam(x))
         else:
             assert False
