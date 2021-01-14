@@ -126,3 +126,9 @@ amicable(A,B): aliquot(A,B), aliquot(B,A), A != B.
 amicable: amicable.n3.
 amicable?
 #sum(amicable (<).1000)?
+
+% 23. Find the largest even positive integer which cannot be written as the sum of two abundant numbers.
+abundant(N n3): N < aliquot.N.
+abundant?
+~(abundant + abundant) n3?
+#max(that even)?

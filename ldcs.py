@@ -70,7 +70,7 @@ func: atom
 join: func "." lam
     | func "[" disj "]"
     | func "[" disjs [";" disjs] "]" -> multijoin
-neg: "~" lam
+neg: "~" bracketed
 hof: "#" AGG_OP "(" ldcs ")" -> aggregation
    | "#" SUP_OP "(" func "," disj ")" -> superlative
    | "#" "enumerate" "(" disj "," disj ")" -> enumerate
@@ -390,9 +390,8 @@ class LDCS(lark.Transformer[str]):
         y, body = self.ldcs(lam)
         return lambda x: commas(rel(x, y), body)
 
-    def neg(self, lam: Unary) -> Unary:
-        if ' ' in lam('_'):
-            lam = self.lift(self.ldcs(lam), 'negation', True, True)
+    def neg(self, var_body: CSym) -> Unary:
+        lam = self.lift(var_body, 'negation', True, True)
         return lambda x: 'not ' + lam(x)
 
     def aggregation(self, op: str, var_body: CSym,

@@ -96,8 +96,9 @@ understood.
 >>> 
 >>> % I OWN BLOCKS WHICH ARE NOT RED BUT I DON'T OWN ANYTHING WHICH SUPPORTS A PYRAMID.
 >>> mine(block ~red ~supports.pyramid).
---> mine(C) :- block(C), not red(C), not negation((2),C).
-    negation((2),B) :- supports(B,A), pyramid(A).
+--> mine(D) :- block(D), not negation((2),D), not negation((3),D).
+    negation((2),A) :- red(A).
+    negation((3),C) :- supports(C,B), pyramid(B).
 understood.
 
 >>> 
