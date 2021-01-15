@@ -175,7 +175,8 @@ class LDCS(lark.Transformer[str]):
                                 headvar = match2.group(1)
                                 context = []
                                 for t in body[:j] + body[j+1:]:
-                                    if 'Mu' in pred and headvar not in t:
+                                    if not re.search(fr'\b{headvar}\b', t) \
+                                            and 'Mu' in pred:
                                         context.append(t)
                                     elif groundvar and '..' in t and \
                                             t.startswith(f'{headvar} = '):
