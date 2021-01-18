@@ -40,6 +40,7 @@ start: cmd
 clause: term ("," term)*
 ?term: pred
      | cmpop
+     | "#" "each" "(" term "," term ")" -> foreach
 pred: atom "(" ldcs ("," ldcs)* ")"
     | atom "$" pred
 cmpop: bracketed CMP_OP bracketed -> binop
@@ -326,6 +327,9 @@ class LDCS(lark.Transformer[str]):
         if not arg2.isalnum():
             arg2 = f'({arg2})'
         return f'{arg1} {op} {arg2}', commas(body1, body2)
+
+    def foreach(self, lit: CSym, cond: CSym) -> CSym:
+        return f'{commas(*lit)} : {commas(*cond)};', None
 
     def negative(self, a: CSym) -> CSym:
         arg, body = a
