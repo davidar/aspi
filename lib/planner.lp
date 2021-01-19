@@ -22,6 +22,7 @@ already(F) :- goal(F), holds(F,now).
 { apply(A, now+t) : action(A) } = 1.
 
 % Test
+demands(A,F, false) :- demands_not(A,F).
 :- apply(A, now+t), demands(A,F, true), not holds(F, now+t-1).
 :- apply(A, now+t), demands(A,F, false),    holds(F, now+t-1).
 

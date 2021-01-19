@@ -33,10 +33,12 @@ start: cmd
     | "#" "any" (ldcs | cmpop) "." -> constraint_any
     | "#" "any" ldcs "?" -> query_any
     | "#" "any" ldcs "!" -> goal_any
-    | ["#" "macro"] (func | join) ":" ldcs "." -> define
+    | ["#" "macro"] define_heads ":" ldcs "." -> define
+    | ldcs "::" define_heads "." -> reverse_define
     | term [":" clause] "." -> claim
     | ldcs "?" -> query
     | ldcs "!" -> goal
+define_heads: (func | join)+
 clause: term ("," term)*
 ?term: pred
      | cmpop
@@ -199,11 +201,14 @@ class LDCS(lark.Transformer[str]):
                    .replace(';.', '.') \
                    .replace(' :- .', '.')
 
-    def define(self, head: Unary, var_body: CSym,
-               cond: Optional[str] = None) -> str:
+    def define(self, heads: List[Unary], var_body: CSym) -> None:
         var, body = var_body
-        lhs = head(var).split(', ')
-        return f'{lhs[0]} :- {commas(*lhs[1:], body, cond)}'
+        for head in reversed(heads):
+            lhs = head(var).split(', ')
+            self.rules.insert(0, f'{lhs[0]} :- {commas(*lhs[1:], body)}.')
+
+    def reverse_define(self, var_body: CSym, heads: List[Unary]) -> None:
+        return self.define(heads, var_body)
 
     def fluent(self, head_body: CSym, cond: Optional[str] = None) -> str:
         head, body = head_body
@@ -309,6 +314,9 @@ class LDCS(lark.Transformer[str]):
         var, body = var_body
         assert body is not None
         return f'goal({var}) :- {body}'
+
+    def define_heads(self, *args: Unary) -> List[Unary]:
+        return list(args)
 
     def pred(self, name: str, *args: CSym) -> CSym:
         vals, bodies = unzip(args)

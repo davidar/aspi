@@ -10,10 +10,6 @@ small(A,B): big(B,A).
 
 init: on(disk, left peg).
 
-action(move(disk, peg)).
-demands(move(disk D, peg P), on(disk small.D, P), false).
-demands(move(disk D, peg), on_same(D, disk small.D), false).
-deletes(move(disk D, peg), on(D, peg)).
-adds(move(disk D, peg P), on(D, P)).
+move(disk D, peg P) :: action demands_not.on(disk small.D, P) demands_not.on_same(D, disk small.D) deletes.on(D, peg) adds.on(D, P).
 
 on(disk, right peg)!
