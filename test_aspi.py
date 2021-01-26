@@ -17,6 +17,10 @@ def test_hanoi(script_runner):
     run(script_runner, 'hanoi')
 
 
+def test_shortest_path(script_runner):
+    run(script_runner, 'shortest-path')
+
+
 def test_zebra(script_runner):
     run(script_runner, 'zebra')
 

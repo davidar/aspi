@@ -1,0 +1,77 @@
+>>> edge["BOS","JFK"]:  187.
+--> edge(187,"BOS","JFK").
+understood.
+
+>>> edge["BOS","MIA"]: 1258.
+--> edge(1258,"BOS","MIA").
+understood.
+
+>>> edge["JFK","DFW"]: 1391.
+--> edge(1391,"JFK","DFW").
+understood.
+
+>>> edge["JFK","SFO"]: 2582.
+--> edge(2582,"JFK","SFO").
+understood.
+
+>>> edge["JFK","MIA"]: 1090.
+--> edge(1090,"JFK","MIA").
+understood.
+
+>>> edge["MIA","DFW"]: 1121.
+--> edge(1121,"MIA","DFW").
+understood.
+
+>>> edge["MIA","LAX"]: 2342.
+--> edge(2342,"MIA","LAX").
+understood.
+
+>>> edge["DFW","ORD"]:  802.
+--> edge(802,"DFW","ORD").
+understood.
+
+>>> edge["DFW","LAX"]: 1235.
+--> edge(1235,"DFW","LAX").
+understood.
+
+>>> edge["LAX","ORD"]: 1749.
+--> edge(1749,"LAX","ORD").
+understood.
+
+>>> 
+>>> % TODO: handle cycles:
+>>> % edge["ORD","DFW"]:  802.
+>>> 
+>>> node(A): edge(X,A,B).
+--> node(MuA) :- edge(MuX,MuA,MuB).
+understood.
+
+>>> node(A): edge(Y,B,A).
+--> node(MuA) :- edge(MuY,MuB,MuA).
+understood.
+
+>>> 
+>>> start: "BOS".
+--> start("BOS").
+understood.
+
+>>> 
+>>> paths.B: path[A] + edge[A,B].
+--> paths(C,MuB) :- path(A,MuA), edge(B,MuA,MuB), C = A + B.
+understood.
+
+>>> path[node B ~start]: #min(paths.B).
+--> path(D,B) :- node(B), B = MuB, not negation((1),B), D = #min { C : paths(C,MuB) }.
+    negation((1),A) :- start(A).
+understood.
+
+>>> path.start: 0.
+--> path(0,A) :- start(A).
+understood.
+
+>>> result(A, path.A)?
+--> what(B) :- path(A,MuA), B = result(MuA,A).
+that: result("BOS",0) | result("JFK",187) | result("MIA",1258) | result("DFW",1578) | result("SFO",2769) | result("LAX",2813) | result("ORD",2380).
+
+>>> thanks.
+YOU'RE WELCOME!

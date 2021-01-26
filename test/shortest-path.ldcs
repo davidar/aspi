@@ -1,0 +1,23 @@
+edge["BOS","JFK"]:  187.
+edge["BOS","MIA"]: 1258.
+edge["JFK","DFW"]: 1391.
+edge["JFK","SFO"]: 2582.
+edge["JFK","MIA"]: 1090.
+edge["MIA","DFW"]: 1121.
+edge["MIA","LAX"]: 2342.
+edge["DFW","ORD"]:  802.
+edge["DFW","LAX"]: 1235.
+edge["LAX","ORD"]: 1749.
+
+% TODO: handle cycles:
+% edge["ORD","DFW"]:  802.
+
+node(A): edge(X,A,B).
+node(A): edge(Y,B,A).
+
+start: "BOS".
+
+paths.B: path[A] + edge[A,B].
+path[node B ~start]: #min(paths.B).
+path.start: 0.
+result(A, path.A)?
