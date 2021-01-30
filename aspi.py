@@ -7,7 +7,7 @@ import re
 import readline
 import sh  # type: ignore
 import sys
-from typing import cast, Dict, List, Optional
+from typing import cast, Dict, List, Optional, Union
 
 import ldcs
 
@@ -134,7 +134,15 @@ class ASPI:
         if res.status:
             print(res.status + '.')
         if res.shows:
-            print(f"that: {' | '.join(res.shows)}.")
+            terms: List[Union[str, int]] = []
+            for r in res.shows:
+                if r.isnumeric():
+                    terms.append(int(r))
+                else:
+                    terms.append(r)
+            terms.sort()
+            that = ' | '.join(str(t) for t in terms)
+            print(f'that: {that}.')
         print()
 
 

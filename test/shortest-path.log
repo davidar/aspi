@@ -77,7 +77,7 @@ understood.
 
 >>> result(A, path.A)?
 --> what(B) :- path(A,MuA), B = result(MuA,A).
-that: result("BOS",0) | result("JFK",187) | result("MIA",1258) | result("DFW",1578) | result("SFO",2769) | result("LAX",2813) | result("ORD",2380).
+that: result("BOS",0) | result("DFW",1578) | result("JFK",187) | result("LAX",2813) | result("MIA",1258) | result("ORD",2380) | result("SFO",2769).
 
 >>> 
 >>> % via goal-directed planning

@@ -37,7 +37,7 @@ in(blue pyramid, box).
 >>> % WHAT DOES THE BOX CONTAIN?
 >>> contains'.box?
 --> what(B) :- contains(A,B), box(A).
-that: green cube supports[blue block] | blue pyramid | blue block.
+that: blue block | blue pyramid | green cube supports[blue block].
 
 >>> 
 >>> % WHAT IS THE PYRAMID SUPPORTED BY?
@@ -50,7 +50,7 @@ that: box.
 >>> block ~in.box?
 --> what(C) :- block(C), not negation((1),C).
     negation((1),B) :- in(B,A), box(A).
-that: large red block | red cube | green cube supports[red pyramid].
+that: green cube supports[red pyramid] | large red block | red cube.
 
 >>> 
 >>> % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
@@ -116,7 +116,7 @@ no.
 >>> % DO I OWN ANYTHING IN THE BOX?
 >>> in.box mine?
 --> what(B) :- in(B,A), box(A), mine(B).
-that: green cube supports[blue block] | blue pyramid | blue block.
+that: blue block | blue pyramid | green cube supports[blue block].
 
 >>> 
 >>> % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
@@ -142,7 +142,7 @@ that: green cube supports[red pyramid].
 >>> % IS THERE A LARGE BLOCK BEHIND A PYRAMID?
 >>> large block behind.pyramid?
 --> what(B) :- large(B), block(B), behind(B,A), pyramid(A).
-that: green cube supports[blue block] | blue block.
+that: blue block | green cube supports[blue block].
 
 >>> 
 >>> #any on(red pyramid, green cube)!
@@ -185,7 +185,7 @@ that: red.
 >>> % HOW MANY THINGS ARE ON TOP OF GREEN CUBES?
 >>> above[green cube]?
 --> what(B) :- above(B,A), green(A), cube(A).
-that: blue block | red cube | red pyramid | green pyramid.
+that: blue block | green pyramid | red cube | red pyramid.
 
 >>> 
 >>> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
@@ -202,13 +202,13 @@ that: pickup[green pyramid] | pickup[green pyramid] | pickup[green pyramid].
 >>> % WHEN DID YOU PICK IT UP?
 >>> event during'.that?
 --> what(F) :- event(F), start_time(G,A), end_time(H,A), start_time(I,F), end_time(J,F), G = I .. J, H = G .. J, A != F, that(A).
-that: goal.stack(red cube, large red block, green pyramid) | goal.on(red cube, green cube supports[red pyramid]).
+that: goal.on(red cube, green cube supports[red pyramid]) | goal.stack(red cube, large red block, green pyramid).
 
 >>> 
 >>> % WHY?
 >>> why.that.2?
 --> what(B) :- why(B,A), that(A,2).
-that: put_on[green pyramid, red cube] | put_on[green pyramid, green cube supports[blue block]] | pickup[red cube] | put_on[green pyramid, large red block] | pickup[red cube].
+that: pickup[red cube] | pickup[red cube] | put_on[green pyramid, green cube supports[blue block]] | put_on[green pyramid, large red block] | put_on[green pyramid, red cube].
 
 >>> 
 >>> that pickup.cube?
@@ -219,7 +219,7 @@ that: pickup[red cube] | pickup[red cube].
 >>> % WHY DID YOU DO THAT?
 >>> why.that?
 --> what(B) :- why(B,A), that(A).
-that: put_on[red cube, large red block] | put_on[red cube, green cube supports[red pyramid]].
+that: put_on[red cube, green cube supports[red pyramid]] | put_on[red cube, large red block].
 
 >>> why.that?
 --> what(B) :- why(B,A), that(A).
@@ -229,7 +229,7 @@ that: goal.on(red cube, green cube supports[red pyramid]) | pickup[green pyramid
 >>> % HOW DID YOU DO IT?
 >>> event during.that?
 --> what(F) :- event(F), start_time(G,F), end_time(H,F), start_time(I,A), end_time(J,A), G = I .. J, H = G .. J, F != A, that(A).
-that: pickup[green pyramid] | put_on[green pyramid, green cube supports[blue block]] | pickup[red cube] | put_on[red cube, green cube supports[red pyramid]].
+that: pickup[green pyramid] | pickup[red cube] | put_on[green pyramid, green cube supports[blue block]] | put_on[red cube, green cube supports[red pyramid]].
 
 >>> 
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
@@ -331,7 +331,7 @@ put_on(red pyramid, red cube)!
 >>> % IS THERE ANYTHING TO THE RIGHT OF THE RED PYRAMID?
 >>> right_of[red pyramid]?
 --> what(B) :- right_of(B,A), red(A), pyramid(A).
-that: box | blue block | blue pyramid.
+that: blue block | blue pyramid | box.
 
 >>> 
 >>> thanks.
