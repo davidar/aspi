@@ -312,8 +312,10 @@ class LDCS(lark.Transformer[str]):
 
     def goal(self, var_body: CSym) -> str:
         var, body = var_body
-        assert body is not None
-        return f'goal({var}) :- {body}'
+        if body is None:
+            return f'goal({var})'
+        else:
+            return f'goal({var}) :- {body}'
 
     def define_heads(self, *args: Unary) -> List[Unary]:
         return list(args)

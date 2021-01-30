@@ -7,7 +7,7 @@ import re
 import readline
 import sh  # type: ignore
 import sys
-from typing import cast, Dict, List, Optional
+from typing import cast, Dict, List, Optional, Union
 
 import ldcs
 
@@ -34,19 +34,19 @@ class ClingoExitCode(enum.IntFlag):
     NO_RUN = 128  # Search not started because of syntax or command line error.
 
 
-def readfiles(*args: str) -> str:
-    s = ''
-    for name in args:
-        with open(name, 'r') as f:
-            s += f.read()
-    return s
-
-
 def clingo(lp: str) -> List[str]:
-    result = sh.clingo(_ok_code=[ClingoExitCode.SAT],
-                       _in=lp, outf=2, time_limit=3).stdout
-    values = json.loads(result)['Call'][-1]['Witnesses'][0]['Value']
-    return cast(List[str], values)
+    result = json.loads(sh.clingo(
+        outf=2, time_limit=4, _in=lp,
+        _ok_code=[
+            ClingoExitCode.SAT,
+            ClingoExitCode.SAT | ClingoExitCode.EXHAUST
+        ]).stdout)
+    witness = result['Call'][-1]['Witnesses'][-1]
+    if result['Result'] == 'OPTIMUM FOUND':
+        costs = result['Models']['Costs']
+        assert costs == witness['Costs']
+        print(f"cost: {costs[0]}.")
+    return cast(List[str], witness['Value'])
 
 
 class ASPI:
@@ -55,8 +55,9 @@ class ASPI:
         self.facts = set(['moves(0)'])
         self.ldcs = ldcs.LDCS()
         self.now = 0
-        self.program = readfiles('lib/prelude.lp', 'lib/planner.lp',
-                                 'lib/plans.lp', *libs)
+        self.program = ''
+        for lib in ['lib/prelude.lp', 'lib/plans.lp'] + libs:
+            self.program += f'#include "{lib}".\n'
 
         with open('lib/macros.lp', 'r') as f:
             for line in f:
@@ -107,6 +108,8 @@ class ASPI:
         lp += f'#const counter = {self.counter}.\n'
         lp += ''.join(fact + '.\n' for fact in self.facts)
         lp += self.program
+        if cmd.endswith('!'):
+            lp += '#include "lib/planner.lp".\n'
         try:
             return Results(self, clingo(lp))
         except sh.ErrorReturnCode as e:
@@ -119,6 +122,8 @@ class ASPI:
             else:
                 print(e.stderr.decode('utf-8'), file=sys.stderr)
                 print(ClingoExitCode(e.exit_code), file=sys.stderr)
+                for i, line in enumerate(lp.split('\n')):
+                    print(i, line, file=sys.stderr)
                 sys.exit(1)
 
     def print(self, res: 'Results') -> None:
@@ -129,7 +134,15 @@ class ASPI:
         if res.status:
             print(res.status + '.')
         if res.shows:
-            print(f"that: {' | '.join(res.shows)}.")
+            terms: List[Union[str, int]] = []
+            for r in res.shows:
+                if r.isnumeric():
+                    terms.append(int(r))
+                else:
+                    terms.append(r)
+            terms.sort()
+            that = ' | '.join(str(t) for t in terms)
+            print(f'that: {that}.')
         print()
 
 
@@ -219,4 +232,7 @@ if __name__ == '__main__':
             print('^C')
             continue
         print(cmd)
-        aspi.repl(cmd)
+        if cmd == '#reset.':
+            aspi = ASPI(sys.argv[1:])
+        else:
+            aspi.repl(cmd)

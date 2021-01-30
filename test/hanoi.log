@@ -57,17 +57,19 @@ understood.
 understood.
 
 >>> 
->>> move(disk D, peg P) :: action demands_not.on(disk small.D, P) demands_not.on_same(D, disk small.D) deletes.on(D, peg) adds.on(D, P).
+>>> move(disk D, peg P) :: action demands_not.on(disk small.D, P) demands_not.on_same(D, disk small.D) deletes.on(D, peg) adds.on(D, P) costs.1.
 --> action(C) :- disk(A), A = MuD, peg(B), B = MuP, C = move(A,B).
     demands_not(C,E) :- disk(D), small(D,MuD), E = on(D,MuP), disk(A), A = MuD, peg(B), B = MuP, C = move(A,B).
     demands_not(C,G) :- disk(F), small(F,MuD), G = on_same(MuD,F), disk(A), A = MuD, peg(B), B = MuP, C = move(A,B).
     deletes(C,I) :- peg(H), I = on(MuD,H), disk(A), A = MuD, peg(B), B = MuP, C = move(A,B).
     adds(C,on(MuD,MuP)) :- disk(A), A = MuD, peg(B), B = MuP, C = move(A,B).
+    costs(C,1) :- disk(A), A = MuD, peg(B), B = MuP, C = move(A,B).
 understood.
 
 >>> 
 >>> on(disk, right peg)!
 --> goal(C) :- disk(A), right(B), peg(B), C = on(A,B).
+cost: 15.
 move(tiny disk, middle peg)!
 move(small disk, right peg)!
 move(tiny disk, right peg)!
@@ -83,7 +85,6 @@ move(big disk, right peg)!
 move(tiny disk, middle peg)!
 move(small disk, right peg)!
 move(tiny disk, right peg)!
-ok.
 
 >>> thanks.
 YOU'RE WELCOME!
