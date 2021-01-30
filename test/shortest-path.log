@@ -81,10 +81,6 @@ that: result("BOS",0) | result("JFK",187) | result("MIA",1258) | result("DFW",15
 
 >>> 
 >>> % via goal-directed planning
->>> tmax: 3.
---> tmax(3).
-understood.
-
 >>> init: at(start).
 --> init(B) :- start(A), B = at(A).
 understood.

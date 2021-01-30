@@ -1,9 +1,13 @@
 #program base.
 % Define
 state(F,0) :- init(F).
+action(nop).
+costs(nop, 0).
+tmax(20).
 
 % Generate
 { apply(A,T) : action(A) } = 1 :- T = 1..M, tmax(M).
+{ finished(T) : T = 0..M, tmax(M) } = 1.
 
 % Test
 :- apply(A,T), demands(A,F), not holds(F,T-1), T = 1..M, tmax(M).
@@ -12,6 +16,9 @@ state(F,0) :- init(F).
 success(F,T) :- holds(F,T).
 success(A,T) :- apply(A,T).
 :- tmax(M), goal(G), not success(G,M).
+
+:- finished(F), apply(nop, T), T <= F.
+:- finished(F), apply(A,T), A != nop, T > F.
 
 % Optimise
 :~ apply(A,T), costs(A,C), T = 1..M, tmax(M). [C,T]
@@ -28,9 +35,9 @@ already(F) :- goal(F), holds(F,now).
 % Display
 ok :- tmax(M), goal(G), success(G,M).
 retract(moves(now)) :- ok.
-assert(moves(M)) :- ok, tmax(M).
-assert(apply(A,T)) :- ok, apply(A,T), T = 1..M, tmax(M).
-assert(plan_interval(counter, now+1, M)) :- ok, tmax(M).
+assert(moves(M)) :- ok, finished(M).
+assert(apply(A,T)) :- ok, apply(A,T), T = 1..M, finished(M).
+assert(plan_interval(counter, now+1, M)) :- ok, finished(M).
 #show assert/1.
 #show retract/1.
 #show ok/0.

@@ -34,28 +34,19 @@ class ClingoExitCode(enum.IntFlag):
     NO_RUN = 128  # Search not started because of syntax or command line error.
 
 
-def readfiles(*args: str) -> str:
-    s = ''
-    for name in args:
-        with open(name, 'r') as f:
-            s += f.read()
-    return s
-
-
 def clingo(lp: str) -> List[str]:
     result = json.loads(sh.clingo(
-        0, outf=2, time_limit=3, _in=lp,
+        outf=2, time_limit=3, _in=lp,
         _ok_code=[
             ClingoExitCode.SAT,
             ClingoExitCode.SAT | ClingoExitCode.EXHAUST
         ]).stdout)
-    if result['Result'] == 'SATISFIABLE':
-        witness = 0
-    elif result['Result'] == 'OPTIMUM FOUND':
-        witness = result['Models']['Optimal']
-        print(f"costs: {result['Models']['Costs'][0]}.")
-    values = result['Call'][-1]['Witnesses'][witness]['Value']
-    return cast(List[str], values)
+    witness = result['Call'][-1]['Witnesses'][-1]
+    if result['Result'] == 'OPTIMUM FOUND':
+        costs = result['Models']['Costs']
+        assert costs == witness['Costs']
+        print(f"costs: {costs[0]}.")
+    return cast(List[str], witness['Value'])
 
 
 class ASPI:
@@ -65,7 +56,7 @@ class ASPI:
         self.ldcs = ldcs.LDCS()
         self.now = 0
         self.program = ''
-        for lib in ['lib/prelude.lp', 'lib/planner.lp', 'lib/plans.lp'] + libs:
+        for lib in ['lib/prelude.lp', 'lib/plans.lp'] + libs:
             self.program += f'#include "{lib}".\n'
 
         with open('lib/macros.lp', 'r') as f:
@@ -117,6 +108,8 @@ class ASPI:
         lp += f'#const counter = {self.counter}.\n'
         lp += ''.join(fact + '.\n' for fact in self.facts)
         lp += self.program
+        if cmd.endswith('!'):
+            lp += '#include "lib/planner.lp".\n'
         try:
             return Results(self, clingo(lp))
         except sh.ErrorReturnCode as e:
