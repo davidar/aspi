@@ -1,49 +1,36 @@
-#include <incmode>.
-#const imax = 20.
-
 #program base.
 % Define
 state(F,0) :- init(F).
 
 % Generate
-{ apply(A,T) : action(A) } = 1 :- T = 1..now.
+{ apply(A,T) : action(A) } = 1 :- T = 1..M, tmax(M).
+
+% Test
+:- apply(A,T), demands(A,F), not holds(F,T-1), T = 1..M, tmax(M).
+:- apply(A,T), demands_not(A,F), holds(F,T-1), T = 1..M, tmax(M).
+
+success(F,T) :- holds(F,T).
+success(A,T) :- apply(A,T).
+:- tmax(M), goal(G), not success(G,M).
+
+% Optimise
+:~ apply(A,T), costs(A,C), T = 1..M, tmax(M). [C,T]
 
 % Define
 state(F,T) :- apply(A,T), adds(A,F).
 del  (F,T) :- apply(A,T), deletes(A,F).
-state(F,T) :- state(F,T-1), not del(F,T), T = 1..now.
+state(F,T) :- state(F,T-1), not del(F,T), T = 1..M, tmax(M).
 holds(F,T) :- state(F,T).
 
 #show already/1.
 already(F) :- goal(F), holds(F,now).
 
-#program step(t).
-% Generate
-{ apply(A, now+t) : action(A) } = 1.
-
-% Test
-demands(A,F, false) :- demands_not(A,F).
-:- apply(A, now+t), demands(A,F, true), not holds(F, now+t-1).
-:- apply(A, now+t), demands(A,F, false),    holds(F, now+t-1).
-
-% Define
-state(F, now+t) :- apply(A, now+t), adds(A,F).
-del  (F, now+t) :- apply(A, now+t), deletes(A,F).
-state(F, now+t) :- state(F, now+t-1), not del(F, now+t).
-holds(F, now+t) :- state(F, now+t).
-
 % Display
-retract(moves(now)).
-assert(moves(now+t)) :- query(t).
-assert(apply(A, now+t)) :- apply(A, now+t).
-assert(plan_interval(counter, now+1, now+t)) :- query(t).
-ok.
+ok :- tmax(M), goal(G), success(G,M).
+retract(moves(now)) :- ok.
+assert(moves(M)) :- ok, tmax(M).
+assert(apply(A,T)) :- ok, apply(A,T), T = 1..M, tmax(M).
+assert(plan_interval(counter, now+1, M)) :- ok, tmax(M).
 #show assert/1.
 #show retract/1.
 #show ok/0.
-
-#program check(t).
-% Test
-success(F, now+t) :- holds(F, now+t).
-success(A, now+t) :- apply(A, now+t).
-:- query(t), goal(G), not success(G, now+t).

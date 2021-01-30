@@ -12,12 +12,21 @@ edge["LAX","ORD"]: 1749.
 % TODO: handle cycles:
 % edge["ORD","DFW"]:  802.
 
-node(A): edge(X,A,B).
-node(A): edge(Y,B,A).
+edge(A,B): edge(X,A,B).
+
+node(A): edge(A,B).
+node(A): edge(B,A).
 
 start: "BOS".
 
+% via recurrence equation
 paths.B: path[A] + edge[A,B].
 path[node B ~start]: #min(paths.B).
 path.start: 0.
 result(A, path.A)?
+
+% via goal-directed planning
+tmax: 3.
+init: at(start).
+go(A,B): edge(A,B) :: action demands.at(A) deletes.at(A) adds.at(B) costs.edge[A,B].
+at("ORD")!

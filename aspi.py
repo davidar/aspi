@@ -43,9 +43,18 @@ def readfiles(*args: str) -> str:
 
 
 def clingo(lp: str) -> List[str]:
-    result = sh.clingo(_ok_code=[ClingoExitCode.SAT],
-                       _in=lp, outf=2, time_limit=3).stdout
-    values = json.loads(result)['Call'][-1]['Witnesses'][0]['Value']
+    result = json.loads(sh.clingo(
+        0, outf=2, time_limit=3, _in=lp,
+        _ok_code=[
+            ClingoExitCode.SAT,
+            ClingoExitCode.SAT | ClingoExitCode.EXHAUST
+        ]).stdout)
+    if result['Result'] == 'SATISFIABLE':
+        witness = 0
+    elif result['Result'] == 'OPTIMUM FOUND':
+        witness = result['Models']['Optimal']
+        print(f"costs: {result['Models']['Costs'][0]}.")
+    values = result['Call'][-1]['Witnesses'][witness]['Value']
     return cast(List[str], values)
 
 
@@ -55,8 +64,9 @@ class ASPI:
         self.facts = set(['moves(0)'])
         self.ldcs = ldcs.LDCS()
         self.now = 0
-        self.program = readfiles('lib/prelude.lp', 'lib/planner.lp',
-                                 'lib/plans.lp', *libs)
+        self.program = ''
+        for lib in ['lib/prelude.lp', 'lib/planner.lp', 'lib/plans.lp'] + libs:
+            self.program += f'#include "{lib}".\n'
 
         with open('lib/macros.lp', 'r') as f:
             for line in f:
@@ -119,6 +129,8 @@ class ASPI:
             else:
                 print(e.stderr.decode('utf-8'), file=sys.stderr)
                 print(ClingoExitCode(e.exit_code), file=sys.stderr)
+                for i, line in enumerate(lp.split('\n')):
+                    print(i, line, file=sys.stderr)
                 sys.exit(1)
 
     def print(self, res: 'Results') -> None:

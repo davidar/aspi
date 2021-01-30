@@ -42,12 +42,17 @@ understood.
 >>> % TODO: handle cycles:
 >>> % edge["ORD","DFW"]:  802.
 >>> 
->>> node(A): edge(X,A,B).
---> node(MuA) :- edge(MuX,MuA,MuB).
+>>> edge(A,B): edge(X,A,B).
+--> edge(MuA,MuB) :- edge(MuX,MuA,MuB).
 understood.
 
->>> node(A): edge(Y,B,A).
---> node(MuA) :- edge(MuY,MuB,MuA).
+>>> 
+>>> node(A): edge(A,B).
+--> node(MuA) :- edge(MuA,MuB).
+understood.
+
+>>> node(A): edge(B,A).
+--> node(MuA) :- edge(MuB,MuA).
 understood.
 
 >>> 
@@ -56,6 +61,7 @@ understood.
 understood.
 
 >>> 
+>>> % via recurrence equation
 >>> paths.B: path[A] + edge[A,B].
 --> paths(C,MuB) :- path(A,MuA), edge(B,MuA,MuB), C = A + B.
 understood.
@@ -72,6 +78,32 @@ understood.
 >>> result(A, path.A)?
 --> what(B) :- path(A,MuA), B = result(MuA,A).
 that: result("BOS",0) | result("JFK",187) | result("MIA",1258) | result("DFW",1578) | result("SFO",2769) | result("LAX",2813) | result("ORD",2380).
+
+>>> 
+>>> % via goal-directed planning
+>>> tmax: 3.
+--> tmax(3).
+understood.
+
+>>> init: at(start).
+--> init(B) :- start(A), B = at(A).
+understood.
+
+>>> go(A,B): edge(A,B) :: action demands.at(A) deletes.at(A) adds.at(B) costs.edge[A,B].
+--> action(go(MuA,MuB)) :- edge(MuA,MuB).
+    demands(go(MuA,MuB),at(MuA)) :- edge(MuA,MuB).
+    deletes(go(MuA,MuB),at(MuA)) :- edge(MuA,MuB).
+    adds(go(MuA,MuB),at(MuB)) :- edge(MuA,MuB).
+    costs(go(MuA,MuB),A) :- edge(A,MuA,MuB), edge(MuA,MuB).
+understood.
+
+>>> at("ORD")!
+--> goal(at("ORD")).
+costs: 2380.
+go("BOS", "JFK")!
+go("JFK", "DFW")!
+go("DFW", "ORD")!
+ok.
 
 >>> thanks.
 YOU'RE WELCOME!
