@@ -1,4 +1,14 @@
 #program base.
+state(F,0) :- init(F).
+action(nop).
+costs(nop, 0).
+tmax(now + 20).
+
+state(F,T) :- apply(A,T), adds(A,F).
+del  (F,T) :- apply(A,T), deletes(A,F).
+state(F,T) :- state(F,T-1), not del(F,T), T = 1..M, tmax(M).
+holds(F,T) :- state(F,T).
+
 holds(X) :- holds(X, now).
 history(F) :- history(C,F).
 command(G) :- history(goal(G)).

@@ -28,20 +28,18 @@ describe(P, C, pyramid) :- pyramid(P), colour(C,P).
 describe(T, table) :- table(T).
 describe(C, green, cube) :- green(C), cube(C).
 
-#program check(t).
 #show describe_extra/3.
-describe_extra(now+t, C, holding) :-
-  green(C), cube(C), holds(holding(C), now+t).
-describe_extra(now+t, C, supports(X)) :-
-  green(C), cube(C), holds(supports(C,X), now+t).
-describe_extra(now+t, C, not_supports(X)) :-
-  green(C), cube(C), not holds(supporter(C), now+t),
-  green(G), cube(G),    holds(supports(G,X), now+t), C != G, C != X.
-describe_extra(now+t, C, on(X)) :-
-  green(C), cube(C), not holds(supporter(C), now+t),
-  green(G), cube(G), not holds(supporter(G), now+t), C != G,
-  holds(on(C,X), now+t), not table(X).
-#program base.
+describe_extra(T, C, holding) :-
+  green(C), cube(C), holds(holding(C), T).
+describe_extra(T, C, supports(X)) :-
+  green(C), cube(C), holds(supports(C,X), T).
+describe_extra(T, C, not_supports(X)) :-
+  green(C), cube(C), not holds(supporter(C), T),
+  green(G), cube(G),    holds(supports(G,X), T), C != G, C != X.
+describe_extra(T, C, on(X)) :-
+  green(C), cube(C), not holds(supporter(C), T),
+  green(G), cube(G), not holds(supporter(G), T), C != G,
+  holds(on(C,X), T), not table(X).
 
 location(box).
 location(X) :- table(X), not init(on(box, X)).
@@ -96,21 +94,6 @@ holds(supporter(X), T) :- holds(supports(X,Y), T).
 holds(behind(B,A), T) :- holds(above(B,X), T), holds(above(A,Y), T), table(X), table(Y), holds(behind(X,Y), T).
 holds(left_of(B,A), T) :- holds(above(B,X), T), holds(above(A,Y), T), table(X), table(Y), holds(left_of(X,Y), T).
 holds(right_of(A,B), T) :- holds(left_of(B,A), T).
-#program step(t).
-holds(num_on(N,X), now+t) :- location(X), #count { Y : object(Y), holds(on(Y,X), now+t) } = N.
-holds(many_on(X), now+t) :- holds(num_on(N,X), now+t), N > 1.
-holds(stack(A,B; B,A), now+t) :- holds(on(A,B), now+t), not table(B), B != box.
-holds(stack(A,B,C; A,C,B; B,A,C; B,C,A; C,A,B; C,B,A), now+t) :- holds(on(A,B), now+t), holds(on(B,C), now+t), not table(C), C != box.
-holds(above(A,B), now+t) :- holds(on(A,B), now+t).
-holds(above(A,C), now+t) :- holds(above(A,B), now+t), holds(above(B,C), now+t).
-holds(in(A,B), now+t) :- holds(above(A,B), now+t).
-holds(contains(A,B), now+t) :- holds(in(B,A), now+t).
-holds(supports(A,B), now+t) :- holds(on(B,A), now+t).
-holds(supporter(X), now+t) :- holds(supports(X,Y), now+t).
-holds(behind(B,A), now+t) :- holds(above(B,X), now+t), holds(above(A,Y), now+t), table(X), table(Y), holds(behind(X,Y), now+t).
-holds(left_of(B,A), now+t) :- holds(above(B,X), now+t), holds(above(A,Y), now+t), table(X), table(Y), holds(left_of(X,Y), now+t).
-holds(right_of(A,B), now+t) :- holds(left_of(B,A), now+t).
-#program base.
 
 holding(X) :- holds(holding(X)).
 on(A,B) :- holds(on(A,B)).
