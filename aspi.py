@@ -36,7 +36,7 @@ class ClingoExitCode(enum.IntFlag):
 
 def clingo(lp: str) -> List[str]:
     result = json.loads(sh.clingo(
-        outf=2, time_limit=3, _in=lp,
+        outf=2, time_limit=4, _in=lp,
         _ok_code=[
             ClingoExitCode.SAT,
             ClingoExitCode.SAT | ClingoExitCode.EXHAUST
@@ -45,7 +45,7 @@ def clingo(lp: str) -> List[str]:
     if result['Result'] == 'OPTIMUM FOUND':
         costs = result['Models']['Costs']
         assert costs == witness['Costs']
-        print(f"costs: {costs[0]}.")
+        print(f"cost: {costs[0]}.")
     return cast(List[str], witness['Value'])
 
 
@@ -224,4 +224,7 @@ if __name__ == '__main__':
             print('^C')
             continue
         print(cmd)
-        aspi.repl(cmd)
+        if cmd == '#reset.':
+            aspi = ASPI(sys.argv[1:])
+        else:
+            aspi.repl(cmd)

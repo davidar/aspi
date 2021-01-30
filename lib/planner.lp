@@ -21,7 +21,6 @@ success(A,T) :- apply(A,T).
 already(F) :- goal(F), holds(F,now).
 
 % Display
-%ok :- finished(M), goal(G), success(G,M).
 retract(moves(now)).
 assert(moves(M)) :- finished(M).
 assert(apply(A,T)) :- apply(A,T), T = now+1..M, finished(M).

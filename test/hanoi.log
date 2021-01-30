@@ -69,7 +69,7 @@ understood.
 >>> 
 >>> on(disk, right peg)!
 --> goal(C) :- disk(A), right(B), peg(B), C = on(A,B).
-costs: 15.
+cost: 15.
 move(tiny disk, middle peg)!
 move(small disk, right peg)!
 move(tiny disk, right peg)!

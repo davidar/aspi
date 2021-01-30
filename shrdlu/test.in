@@ -105,6 +105,7 @@ supports'[red cube, just_before.cleanoff[red cube]]?
 block left_of[box; just_before.cleanoff[red cube]]?
 #count(that)?
 
+#reset.
 on(blue block, box)!
 
 % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.

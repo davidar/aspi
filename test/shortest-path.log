@@ -95,7 +95,7 @@ understood.
 
 >>> at("ORD")!
 --> goal(at("ORD")).
-costs: 2380.
+cost: 2380.
 go("BOS", "JFK")!
 go("JFK", "DFW")!
 go("DFW", "ORD")!
