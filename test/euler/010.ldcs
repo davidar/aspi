@@ -1,0 +1,4 @@
+% 10. Calculate the sum of all the primes below one hundred.
+composite: N multiple[2..(N-1)] n3.
+prime: (>).1 ~composite n3.
+#sum(prime (<).100)?

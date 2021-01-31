@@ -1,0 +1,37 @@
+>>> % 21. Evaluate the sum of all amicable numbers under 1000.
+>>> proper_divisor[N n3]: 1..(N-1) multiple'.N.
+--> proper_divisor(B,A) :- A = MuN, n3(A), B = 1 .. (MuN-1), MuN \ B = 0.
+understood.
+
+>>> aliquot[N n3]: sum.#set(proper_divisor.N).
+--> aliquot(D,A) :- A = MuN, n3(A), D = @sumof(C), setof((1,MuN),C).
+    gather((1,MuN),B) :- proper_divisor(B,MuN), A = MuN, n3(A).
+understood.
+
+>>> perfect(A): aliquot(A,A).
+--> perfect(MuA) :- aliquot(MuA,MuA).
+understood.
+
+>>> perfect?
+--> what(A) :- perfect(A).
+that: 6 | 28 | 496.
+
+>>> amicable(A,B): aliquot(A,B), aliquot(B,A), A != B.
+--> amicable(MuA,MuB) :- aliquot(MuA,MuB), aliquot(MuB,MuA), MuA != MuB.
+understood.
+
+>>> amicable: amicable.n3.
+--> amicable(B) :- amicable(B,A), n3(A).
+understood.
+
+>>> amicable?
+--> what(A) :- amicable(A).
+that: 220 | 284.
+
+>>> #sum(amicable (<).1000)?
+--> what(C) :- C = #sum { B : aggregation((1),B) }.
+    aggregation((1),A) :- amicable(A), A < 1000.
+that: 504.
+
+>>> thanks.
+YOU'RE WELCOME!

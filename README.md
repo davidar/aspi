@@ -49,7 +49,7 @@ This project started as an interactive shell for [clingo](https://github.com/pot
   - [Tower of Hanoi solver](test/hanoi.log)
   - [SHRDLU-inspired dialogue](shrdlu/test.out)
 
-The language is still unstable and lacking much documentation yet, but there are several example programs in this repo, e.g. [solutions to Project Euler-like problems](test/euler.log).
+The language is still unstable and lacking much documentation yet, but there are several example programs in this repo, e.g. [solutions to Project Euler-like problems](test/euler/).
 
 ## Syntax
 

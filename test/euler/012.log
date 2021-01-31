@@ -1,0 +1,34 @@
+>>> % 12. What is the first triangle number to have over twenty divisors?
+>>> triangle: sum.#set(1..N): N = 1..99.
+--> triangle(E) :- E = @sumof(C), setof((1,MuN),C), MuN = D, D = 1 .. 99.
+    gather((1,MuN),B) :- aggregation((1,MuN),B), MuN = D, D = 1 .. 99.
+    aggregation((1,MuN),A) :- A = 1 .. MuN, MuN = D, D = 1 .. 99.
+understood.
+
+>>> triangle (<).100?
+--> what(A) :- triangle(A), A < 100.
+that: 1 | 3 | 6 | 10 | 15 | 21 | 28 | 36 | 45 | 55 | 66 | 78 | 91.
+
+>>> divisor[X n3]: multiple'[X] n3.
+--> divisor(B,A) :- A = MuX, n3(A), MuX \ B = 0, n3(B).
+understood.
+
+>>> divisors[X n3]: count.#set(divisor.X).
+--> divisors(D,A) :- A = MuX, n3(A), D = @countof(C), setof((2,MuX),C).
+    gather((2,MuX),B) :- divisor(B,MuX), A = MuX, n3(A).
+understood.
+
+>>> triangle N: divisors.N > 20?
+--> what(B) :- triangle(B), B = MuN, A > 20, divisors(A,MuN).
+that: 630 | 780 | 990.
+
+>>> #most((<), that)?
+--> what(B) :- B < A : that(A), B != A; that(B).
+that: 630.
+
+>>> divisor.that?
+--> what(B) :- divisor(B,A), that(A).
+that: 1 | 2 | 3 | 5 | 6 | 7 | 9 | 10 | 14 | 15 | 18 | 21 | 30 | 35 | 42 | 45 | 63 | 70 | 90 | 105 | 126 | 210 | 315 | 630.
+
+>>> thanks.
+YOU'RE WELCOME!

@@ -1,0 +1,9 @@
+>>> % 5. What is the smallest number divisible by each of the numbers 1 to 10?
+>>> #most((<), #each(multiple, 1..10) n4)?
+--> what(E) :- E < C : superlative((2),C), E != C; superlative((2),E).
+    superlative((1),B) :- B = 1 .. 10.
+    superlative((2),D) :- D \ A = 0 : superlative((1),A); n4(D).
+that: 2520.
+
+>>> thanks.
+YOU'RE WELCOME!

@@ -1,0 +1,34 @@
+>>> % 14. Find the longest Collatz sequence using a starting number under ten.
+>>> collatz[N even n3]: N / 2.
+--> collatz(MuN/2,A) :- A = MuN, A \ 2 = 0, n3(A).
+understood.
+
+>>> collatz[N odd n3]: (3*N) + 1.
+--> collatz((3*MuN)+1,A) :- A = MuN, A \ 2 = 1, n3(A).
+understood.
+
+>>> collatz_steps.1: 0.
+--> collatz_steps(0,1).
+understood.
+
+>>> collatz_steps[N (>).1 n3]: 1 + collatz_steps[collatz.N].
+--> collatz_steps(D,A) :- A = MuN, A > 1, n3(A), collatz_steps(C,B), collatz(B,MuN), D = 1 + C.
+understood.
+
+>>> collatz_steps[1..10]?
+--> what(B) :- collatz_steps(B,A), A = 1 .. 10.
+that: 0 | 1 | 2 | 3 | 5 | 6 | 7 | 8 | 16 | 19.
+
+>>> #max(collatz_steps[1..10])?
+--> what(D) :- D = #max { C : aggregation((1),C) }.
+    aggregation((1),B) :- collatz_steps(B,A), A = 1 .. 10.
+that: 19.
+
+>>> #argmax(collatz_steps, 1..10)?
+--> what(F) :- A = #max { E : aggregation((2),E) }, collatz_steps(A,F), superlative((1),F).
+    superlative((1),B) :- B = 1 .. 10.
+    aggregation((2),D) :- collatz_steps(D,C), superlative((1),C).
+that: 9.
+
+>>> thanks.
+YOU'RE WELCOME!

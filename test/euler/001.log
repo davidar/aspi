@@ -1,0 +1,10 @@
+>>> % 1. Add all the natural numbers below 1000 that are multiples of 3 or 5.
+>>> #sum(0..999 multiple[3|5])?
+--> what(E) :- E = #sum { D : aggregation((1),D) }.
+    disjunction1(A) :- A = 3.
+    disjunction1(A) :- A = 5.
+    aggregation((1),C) :- C = 0 .. 999, C \ B = 0, disjunction1(B).
+that: 233168.
+
+>>> thanks.
+YOU'RE WELCOME!

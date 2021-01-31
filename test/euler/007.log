@@ -1,0 +1,17 @@
+>>> % 7. Find the 101st prime.
+>>> composite: N multiple[2..(N-1)] n3.
+--> composite(B) :- B = MuN, B \ A = 0, A = 2 .. (MuN-1), n3(B).
+understood.
+
+>>> prime: (>).1 ~composite n3.
+--> prime(B) :- B > 1, not negation((1),B), n3(B).
+    negation((1),A) :- composite(A).
+understood.
+
+>>> #enumerate(101, prime)?
+--> what(B) :- enumerate(1,A,B), A = 101.
+    gather(1,A) :- prime(A).
+that: 547.
+
+>>> thanks.
+YOU'RE WELCOME!

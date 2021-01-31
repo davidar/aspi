@@ -1,0 +1,8 @@
+% 12. What is the first triangle number to have over twenty divisors?
+triangle: sum.#set(1..N): N = 1..99.
+triangle (<).100?
+divisor[X n3]: multiple'[X] n3.
+divisors[X n3]: count.#set(divisor.X).
+triangle N: divisors.N > 20?
+#most((<), that)?
+divisor.that?

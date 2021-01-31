@@ -1,0 +1,8 @@
+% 25. What is the first term in the Fibonacci sequence to contain 10 digits?
+fib[0]: 0.
+fib[1]: 1.
+fib[N 2..45]: fib[N-1] + fib[N-2].
+fib: fib[0..45].
+#macro char.S: substring.S length'.1.
+#macro digit.N: decimal.char.show.N.
+fib N: count.#bag(digit.N) = 10?
