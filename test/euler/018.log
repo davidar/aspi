@@ -1,0 +1,82 @@
+>>> % 18. Find the maximum sum travelling from the top of the triangle to the base.
+>>> 
+>>> node[1,1]: 75.
+--> node(75,1,1).
+understood.
+
+>>> 
+>>> node[2,1]: 95.
+--> node(95,2,1).
+understood.
+
+>>> node[2,2]: 64.
+--> node(64,2,2).
+understood.
+
+>>> 
+>>> node[3,1]: 17.
+--> node(17,3,1).
+understood.
+
+>>> node[3,2]: 47.
+--> node(47,3,2).
+understood.
+
+>>> node[3,3]: 82.
+--> node(82,3,3).
+understood.
+
+>>> 
+>>> node[4,1]: 18.
+--> node(18,4,1).
+understood.
+
+>>> node[4,2]: 35.
+--> node(35,4,2).
+understood.
+
+>>> node[4,3]: 87.
+--> node(87,4,3).
+understood.
+
+>>> node[4,4]: 10.
+--> node(10,4,4).
+understood.
+
+>>> 
+>>> end: 4.
+--> end(4).
+understood.
+
+>>> 
+>>> left (node[R+1, C])   :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C)   costs.negate.node[R+1, C].
+--> action(B) :- node(A,MuR+1,MuC), B = left(A).
+    demands(B,at(MuR,MuC)) :- node(A,MuR+1,MuC), B = left(A).
+    deletes(B,at(MuR,MuC)) :- node(A,MuR+1,MuC), B = left(A).
+    adds(B,at(MuR+1,MuC)) :- node(A,MuR+1,MuC), B = left(A).
+    costs(B,D) :- D = - C, node(C,MuR+1,MuC), node(A,MuR+1,MuC), B = left(A).
+understood.
+
+>>> right(node[R+1, C+1]) :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C+1) costs.negate.node[R+1, C+1].
+--> action(B) :- node(A,MuR+1,MuC+1), B = right(A).
+    demands(B,at(MuR,MuC)) :- node(A,MuR+1,MuC+1), B = right(A).
+    deletes(B,at(MuR,MuC)) :- node(A,MuR+1,MuC+1), B = right(A).
+    adds(B,at(MuR+1,MuC+1)) :- node(A,MuR+1,MuC+1), B = right(A).
+    costs(B,D) :- D = - C, node(C,MuR+1,MuC+1), node(A,MuR+1,MuC+1), B = right(A).
+understood.
+
+>>> 
+>>> init: at(0,1).
+--> init(at(0,1)).
+understood.
+
+>>> #any at(end, 1..end)!
+--> { goal(D) : end(A), end(B), C = 1 .. B, D = at(A,C) } = 1.
+cost: -308.
+left(75)!
+right(64)!
+right(82)!
+left(87)!
+
+>>> thanks.
+YOU'RE WELCOME!

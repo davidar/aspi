@@ -302,7 +302,8 @@ class LDCS(lark.Transformer[str]):
 
     def goal_any(self, var_body: CSym) -> str:
         var, body = var_body
-        assert body is not None
+        if body is None:
+            return f'{{ goal({var}) }} = 1'
         if ';' in body:
             i = self.counter('goal')
             self.rules.append(f'goal{i}({var}) :- {body}.')
@@ -510,7 +511,7 @@ OPERATOR: "=" | "!=" | "<=" | ">=" | "<" | ">"
 ?start: rule
 rule: head ":-" pred ("," pred)* "."
 pred: ATOM [ "(" value ("," value)* ")" ]
-    | value OPERATOR value -> predop
+    | [value] OPERATOR value -> predop
 ?value: pred
       | var
       | INT

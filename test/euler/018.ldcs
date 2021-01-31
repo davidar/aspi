@@ -1,0 +1,23 @@
+% 18. Find the maximum sum travelling from the top of the triangle to the base.
+
+node[1,1]: 75.
+
+node[2,1]: 95.
+node[2,2]: 64.
+
+node[3,1]: 17.
+node[3,2]: 47.
+node[3,3]: 82.
+
+node[4,1]: 18.
+node[4,2]: 35.
+node[4,3]: 87.
+node[4,4]: 10.
+
+end: 4.
+
+left (node[R+1, C])   :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C)   costs.negate.node[R+1, C].
+right(node[R+1, C+1]) :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C+1) costs.negate.node[R+1, C+1].
+
+init: at(0,1).
+#any at(end, 1..end)!
