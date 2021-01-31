@@ -14,10 +14,16 @@ node[4,2]: 35.
 node[4,3]: 87.
 node[4,4]: 10.
 
-end: 4.
+node[5,1]: 20.
+node[5,2]:  4.
+node[5,3]: 82.
+node[5,4]: 47.
+node[5,5]: 65.
 
-left (node[R+1, C])   :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C)   costs.negate.node[R+1, C].
-right(node[R+1, C+1]) :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C+1) costs.negate.node[R+1, C+1].
+end: 5.
+
+left (R+1, C,   node[R+1, C])   :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C)   costs.negate.node[R+1, C].
+right(R+1, C+1, node[R+1, C+1]) :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C+1) costs.negate.node[R+1, C+1].
 
 init: at(0,1).
 #any at(end, 1..end)!

@@ -44,25 +44,46 @@ understood.
 understood.
 
 >>> 
->>> end: 4.
---> end(4).
+>>> node[5,1]: 20.
+--> node(20,5,1).
+understood.
+
+>>> node[5,2]:  4.
+--> node(4,5,2).
+understood.
+
+>>> node[5,3]: 82.
+--> node(82,5,3).
+understood.
+
+>>> node[5,4]: 47.
+--> node(47,5,4).
+understood.
+
+>>> node[5,5]: 65.
+--> node(65,5,5).
 understood.
 
 >>> 
->>> left (node[R+1, C])   :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C)   costs.negate.node[R+1, C].
---> action(B) :- node(A,MuR+1,MuC), B = left(A).
-    demands(B,at(MuR,MuC)) :- node(A,MuR+1,MuC), B = left(A).
-    deletes(B,at(MuR,MuC)) :- node(A,MuR+1,MuC), B = left(A).
-    adds(B,at(MuR+1,MuC)) :- node(A,MuR+1,MuC), B = left(A).
-    costs(B,D) :- D = - C, node(C,MuR+1,MuC), node(A,MuR+1,MuC), B = left(A).
+>>> end: 5.
+--> end(5).
 understood.
 
->>> right(node[R+1, C+1]) :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C+1) costs.negate.node[R+1, C+1].
---> action(B) :- node(A,MuR+1,MuC+1), B = right(A).
-    demands(B,at(MuR,MuC)) :- node(A,MuR+1,MuC+1), B = right(A).
-    deletes(B,at(MuR,MuC)) :- node(A,MuR+1,MuC+1), B = right(A).
-    adds(B,at(MuR+1,MuC+1)) :- node(A,MuR+1,MuC+1), B = right(A).
-    costs(B,D) :- D = - C, node(C,MuR+1,MuC+1), node(A,MuR+1,MuC+1), B = right(A).
+>>> 
+>>> left (R+1, C,   node[R+1, C])   :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C)   costs.negate.node[R+1, C].
+--> action(B) :- node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
+    demands(B,at(MuR,MuC)) :- node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
+    deletes(B,at(MuR,MuC)) :- node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
+    adds(B,at(MuR+1,MuC)) :- node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
+    costs(B,D) :- D = - C, node(C,MuR+1,MuC), node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
+understood.
+
+>>> right(R+1, C+1, node[R+1, C+1]) :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C+1) costs.negate.node[R+1, C+1].
+--> action(B) :- node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
+    demands(B,at(MuR,MuC)) :- node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
+    deletes(B,at(MuR,MuC)) :- node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
+    adds(B,at(MuR+1,MuC+1)) :- node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
+    costs(B,D) :- D = - C, node(C,MuR+1,MuC+1), node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
 understood.
 
 >>> 
@@ -72,11 +93,12 @@ understood.
 
 >>> #any at(end, 1..end)!
 --> { goal(D) : end(A), end(B), C = 1 .. B, D = at(A,C) } = 1.
-cost: -308.
-left(75)!
-right(64)!
-right(82)!
-left(87)!
+cost: -390.
+left(1, 1, 75)!
+right(2, 2, 64)!
+right(3, 3, 82)!
+left(4, 3, 87)!
+left(5, 3, 82)!
 
 >>> thanks.
 YOU'RE WELCOME!
