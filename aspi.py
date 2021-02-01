@@ -134,7 +134,7 @@ class ASPI:
                 print(e.stderr.decode('utf-8'), file=sys.stderr)
                 print(ClingoExitCode(e.exit_code), file=sys.stderr)
                 for i, line in enumerate(lp.split('\n')):
-                    print(i, line, file=sys.stderr)
+                    print(f'{i+1:3}|', line, file=sys.stderr)
                 sys.exit(1)
 
     def print(self, res: 'Results') -> None:

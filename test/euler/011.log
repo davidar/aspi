@@ -1,0 +1,26 @@
+>>> % 11. What is the greatest product of four numbers on the same straight line?
+>>> 
+>>> grid[R,C]: csv[R,C].
+--> grid(A,MuR,MuC) :- csv(A,MuR,MuC).
+understood.
+
+>>> line[R 1..10, C 1..10, I (-1)..1, J (-1)..1]: grid[R + (I*N), C + (J*N)]: N = 0..3.
+--> line(F,A,B,C,D) :- A = MuR, A = 1 .. 10, B = MuC, B = 1 .. 10, C = MuI, C = (-1) .. 1, D = MuJ, D = (-1) .. 1, grid(F,MuR+(MuI*MuN),MuC+(MuJ*MuN)), MuN = E, E = 0 .. 3.
+understood.
+
+>>> lines: #bag(line[R,C,I,J]).
+--> lines(B) :- bagof((1,MuC,MuI,MuJ,MuR),B).
+    gather((1,MuC,MuI,MuJ,MuR),(A,P0)) :- proof(P0,line(A,MuR,MuC,MuI,MuJ)).
+understood.
+
+>>> #argmax(product, lines)?
+--> what(E) :- A = #max { D : aggregation((1),D) }, A = @productof(E), lines(E).
+    aggregation((1),C) :- C = @productof(B), lines(B).
+that: bag(49,71,95,99).
+
+>>> product.that?
+--> what(B) :- B = @productof(A), that(A).
+that: 32719995.
+
+>>> thanks.
+YOU'RE WELCOME!

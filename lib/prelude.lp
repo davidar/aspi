@@ -18,6 +18,8 @@ now(now).
 that(X,N) :- history(counter-N, what(X)).
 that(X) :- that(X,1).
 
+proof(@proof(csv(V,R,C)),csv(V,R,C)) :- csv(V,R,C).
+
 n1(X) :- X = 1..9.
 n2(X) :- X = 1..99.
 n3(X) :- X = 1..999.
