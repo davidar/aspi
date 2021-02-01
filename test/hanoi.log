@@ -46,9 +46,6 @@ understood.
 >>> #fluent on_same(D,E): on(D,P), on(E,P).
 --> on_same(MuD,MuE) :- holds(on_same(MuD,MuE)).
     holds(on_same(MuD,MuE), Time) :- holds(on(MuD,MuP), Time), holds(on(MuE,MuP), Time).
-    #program step(t).
-    holds(on_same(MuD,MuE), now+t) :- holds(on(MuD,MuP), now+t), holds(on(MuE,MuP), now+t).
-    #program base.
 understood.
 
 >>> 

@@ -219,13 +219,7 @@ class LDCS(lark.Transformer[str]):
                     terms.append(term)
                 else:
                     terms.append(f'holds({term}, Time)')
-            rule = f'holds({head}, Time) :- {commas(*terms)}.'
-            self.rules += [
-                rule,
-                '#program step(t).',
-                rule.replace('Time', 'now+t'),
-                '#program base.',
-                ]
+            self.rules.append(f'holds({head}, Time) :- {commas(*terms)}.')
         return f'{head} :- holds({head})'
 
     def proof(self, rule: str) -> str:
