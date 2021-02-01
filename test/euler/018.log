@@ -1,70 +1,9 @@
 >>> % 18. Find the maximum sum travelling from the top of the triangle to the base.
 >>> 
->>> node[1,1]: 75.
---> node(75,1,1).
+>>> node[R,C]: csv[R,C].
+--> node(A,MuR,MuC) :- csv(A,MuR,MuC).
 understood.
 
->>> 
->>> node[2,1]: 95.
---> node(95,2,1).
-understood.
-
->>> node[2,2]: 64.
---> node(64,2,2).
-understood.
-
->>> 
->>> node[3,1]: 17.
---> node(17,3,1).
-understood.
-
->>> node[3,2]: 47.
---> node(47,3,2).
-understood.
-
->>> node[3,3]: 82.
---> node(82,3,3).
-understood.
-
->>> 
->>> node[4,1]: 18.
---> node(18,4,1).
-understood.
-
->>> node[4,2]: 35.
---> node(35,4,2).
-understood.
-
->>> node[4,3]: 87.
---> node(87,4,3).
-understood.
-
->>> node[4,4]: 10.
---> node(10,4,4).
-understood.
-
->>> 
->>> node[5,1]: 20.
---> node(20,5,1).
-understood.
-
->>> node[5,2]:  4.
---> node(4,5,2).
-understood.
-
->>> node[5,3]: 82.
---> node(82,5,3).
-understood.
-
->>> node[5,4]: 47.
---> node(47,5,4).
-understood.
-
->>> node[5,5]: 65.
---> node(65,5,5).
-understood.
-
->>> 
 >>> end: 5.
 --> end(5).
 understood.

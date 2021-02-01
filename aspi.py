@@ -3,6 +3,7 @@ import atexit
 import collections
 import enum
 import json
+import os
 import re
 import readline
 import sh  # type: ignore
@@ -41,6 +42,8 @@ def clingo(lp: str) -> List[str]:
             ClingoExitCode.SAT,
             ClingoExitCode.SAT | ClingoExitCode.EXHAUST
         ]).stdout)
+    if 'DEBUG' in os.environ:
+        print(json.dumps(result, indent=2), file=sys.stderr)
     witness = result['Call'][-1]['Witnesses'][-1]
     if result['Result'] == 'OPTIMUM FOUND':
         costs = result['Models']['Costs']
@@ -50,14 +53,22 @@ def clingo(lp: str) -> List[str]:
 
 
 class ASPI:
-    def __init__(self, libs: List[str] = []):
+    def __init__(self, args: List[str] = []):
         self.counter = 1
         self.facts = set(['moves(0)'])
         self.ldcs = ldcs.LDCS()
         self.now = 0
         self.program = ''
-        for lib in ['lib/prelude.lp', 'lib/plans.lp'] + libs:
-            self.program += f'#include "{lib}".\n'
+
+        for arg in ['lib/prelude.lp', 'lib/plans.lp'] + args:
+            if arg.endswith('.lp'):
+                self.program += f'#include "{arg}".\n'
+            elif arg.endswith('.csv'):
+                with open(arg, 'r') as f:
+                    for r, line in enumerate(f):
+                        for c, v in enumerate(line.split(',')):
+                            v = v.strip()
+                            self.program += f'csv({v},{r+1},{c+1}).\n'
 
         with open('lib/macros.lp', 'r') as f:
             for line in f:
