@@ -1,0 +1,2 @@
+% 13. Find the first three digits of the sum of ten numbers.
+substring[show.#sum(csv[I,1]),0,3]?

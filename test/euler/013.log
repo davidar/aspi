@@ -1,0 +1,7 @@
+>>> % 13. Find the first three digits of the sum of ten numbers.
+>>> substring[show.#sum(csv[I,1]),0,3]?
+--> what(D) :- D = @substring(C,0,3), C = @show(B), B = #sum { A : csv(A,MuI,1) }.
+that: "552".
+
+>>> thanks.
+YOU'RE WELCOME!
