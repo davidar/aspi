@@ -1,0 +1,188 @@
+>>> % 19. How many Sundays fell on the first of the month during the twentieth century (1 Jan 1901 to 31 Dec 2000)?
+>>> 
+>>> year: 1900..2000.
+--> year(A) :- A = 1900 .. 2000.
+understood.
+
+>>> 
+>>> #enum month: january | february | march | april | may | june | july | august | september | october | november | december.
+--> describe(month(1), january).
+    month(month(1)).
+    month(month(1),1).
+    january(month(1)).
+    describe(month(2), february).
+    month(month(2)).
+    month(month(2),2).
+    february(month(2)).
+    describe(month(3), march).
+    month(month(3)).
+    month(month(3),3).
+    march(month(3)).
+    describe(month(4), april).
+    month(month(4)).
+    month(month(4),4).
+    april(month(4)).
+    describe(month(5), may).
+    month(month(5)).
+    month(month(5),5).
+    may(month(5)).
+    describe(month(6), june).
+    month(month(6)).
+    month(month(6),6).
+    june(month(6)).
+    describe(month(7), july).
+    month(month(7)).
+    month(month(7),7).
+    july(month(7)).
+    describe(month(8), august).
+    month(month(8)).
+    month(month(8),8).
+    august(month(8)).
+    describe(month(9), september).
+    month(month(9)).
+    month(month(9),9).
+    september(month(9)).
+    describe(month(10), october).
+    month(month(10)).
+    month(month(10),10).
+    october(month(10)).
+    describe(month(11), november).
+    month(month(11)).
+    month(month(11),11).
+    november(month(11)).
+    describe(month(12), december).
+    month(month(12)).
+    month(month(12),12).
+    december(month(12)).
+understood.
+
+>>> next.month.M: month[(M\12) + 1].
+--> next(B,A) :- month(A,MuM), month(B,(MuM\12)+1).
+understood.
+
+>>> 
+>>> #enum dayofweek: monday | tuesday | wednesday | thursday | friday | saturday | sunday.
+--> describe(dayofweek(1), monday).
+    dayofweek(dayofweek(1)).
+    dayofweek(dayofweek(1),1).
+    monday(dayofweek(1)).
+    describe(dayofweek(2), tuesday).
+    dayofweek(dayofweek(2)).
+    dayofweek(dayofweek(2),2).
+    tuesday(dayofweek(2)).
+    describe(dayofweek(3), wednesday).
+    dayofweek(dayofweek(3)).
+    dayofweek(dayofweek(3),3).
+    wednesday(dayofweek(3)).
+    describe(dayofweek(4), thursday).
+    dayofweek(dayofweek(4)).
+    dayofweek(dayofweek(4),4).
+    thursday(dayofweek(4)).
+    describe(dayofweek(5), friday).
+    dayofweek(dayofweek(5)).
+    dayofweek(dayofweek(5),5).
+    friday(dayofweek(5)).
+    describe(dayofweek(6), saturday).
+    dayofweek(dayofweek(6)).
+    dayofweek(dayofweek(6),6).
+    saturday(dayofweek(6)).
+    describe(dayofweek(7), sunday).
+    dayofweek(dayofweek(7)).
+    dayofweek(dayofweek(7),7).
+    sunday(dayofweek(7)).
+understood.
+
+>>> next.dayofweek.D: dayofweek[(D\7) + 1].
+--> next(B,A) :- dayofweek(A,MuD), dayofweek(B,(MuD\7)+1).
+understood.
+
+>>> 
+>>> date: date(year Y, month M, D 1..days[Y,M]).
+--> date(E) :- year(A), A = MuY, month(B), B = MuM, D = MuD, days(C,MuY,MuM), D = 1 .. C, E = date(A,B,D).
+understood.
+
+>>> next.date(year Y, month M, D 1..(days[Y,M]-1)): date(Y, M, D+1).
+--> next(date(MuY,MuM,MuD+1),F) :- year(A), A = MuY, month(B), B = MuM, E = MuD, days(C,MuY,MuM), D = C - 1, E = 1 .. D, F = date(A,B,E).
+understood.
+
+>>> next.date(year Y, month M ~december, days[Y,M]): date(Y, next.M, 1).
+--> next(G,E) :- year(A), A = MuY, month(C), C = MuM, not negation((1),C), days(D,MuY,MuM), E = date(A,C,D), next(F,MuM), G = date(MuY,F,1).
+    negation((1),B) :- december(B), month(B).
+understood.
+
+>>> next.date(year Y, december, days[Y,december]): date(Y+1, january, 1).
+--> next(G,E) :- year(A), A = MuY, december(B), days(D,MuY,C), december(C), E = date(A,B,D), january(F), G = date(MuY+1,F,1).
+understood.
+
+>>> 
+>>> % 1 Jan 1900 was a Monday.
+>>> dayof.date(1900,january,1): monday.
+--> dayof(C,B) :- january(A), B = date(1900,A,1), monday(C).
+understood.
+
+>>> dayof[date D]: next.dayof.previous.D.
+--> dayof(D,A) :- date(A), A = MuD, next(D,C), dayof(C,B), previous(B,MuD).
+understood.
+
+>>> previous.X: next'.X.
+--> previous(A,MuX) :- next(MuX,A).
+understood.
+
+>>> 
+>>> % Thirty days has September, April, June and November.
+>>> days[year, september | april | june | november]: 30.
+--> days(30,B,C) :- year(B), disjunction1(C).
+    disjunction1(A) :- september(A).
+    disjunction1(A) :- april(A).
+    disjunction1(A) :- june(A).
+    disjunction1(A) :- november(A).
+understood.
+
+>>> 
+>>> % All the rest have thirty-one.
+>>> days[year, month ~(september | april | june | november | february)]: 31.
+--> days(31,C,D) :- year(C), month(D), not negation((2),D).
+    disjunction2(A) :- september(A).
+    disjunction2(A) :- april(A).
+    disjunction2(A) :- june(A).
+    disjunction2(A) :- november(A).
+    disjunction2(A) :- february(A).
+    negation((2),B) :- disjunction2(B), month(B).
+understood.
+
+>>> 
+>>> % Saving February alone, which has twenty-eight, rain or shine.
+>>> days[~leap year, february]: 28.
+--> days(28,B,C) :- not negation((3),B), year(B), february(C).
+    negation((3),A) :- leap(A), year(A).
+understood.
+
+>>> 
+>>> % And on leap years, twenty-nine.
+>>> days[leap year, february]: 29.
+--> days(29,A,B) :- leap(A), year(A), february(B).
+understood.
+
+>>> 
+>>> % A leap year occurs on any year evenly divisible by 4, but not on a century unless it is divisible by 400.
+>>> leap: year multiple.4 ~(century ~multiple.400).
+--> leap(C) :- year(C), C \ 4 = 0, not negation((5),C).
+    negation((4),A) :- A \ 400 = 0, century(A).
+    negation((5),B) :- century(B), not negation((4),B), year(B).
+understood.
+
+>>> century: year multiple.100.
+--> century(A) :- year(A), A \ 100 = 0.
+understood.
+
+>>> 
+>>> date(Y 1901..2000, month, 1) D: sunday = dayof.D?
+--> what(E) :- A = MuY, A = 1901 .. 2000, month(B), E = date(A,B,1), E = MuD, C = D, sunday(C), dayof(D,MuD).
+that: date(1901,september,1) | date(1901,december,1) | date(1902,june,1) | date(1903,february,1) | date(1903,march,1) | date(1903,november,1) | date(1904,may,1) | date(1905,january,1) | date(1905,october,1) | date(1906,april,1) | date(1906,july,1) | date(1907,september,1) | date(1907,december,1) | date(1908,march,1) | date(1908,november,1) | date(1909,august,1) | date(1910,may,1) | date(1911,january,1) | date(1911,october,1) | date(1912,september,1) | date(1912,december,1) | date(1913,june,1) | date(1914,february,1) | date(1914,march,1) | date(1914,november,1) | date(1915,august,1) | date(1916,october,1) | date(1917,april,1) | date(1917,july,1) | date(1918,september,1) | date(1918,december,1) | date(1919,june,1) | date(1920,february,1) | date(1920,august,1) | date(1921,may,1) | date(1922,january,1) | date(1922,october,1) | date(1923,april,1) | date(1923,july,1) | date(1924,june,1) | date(1925,february,1) | date(1925,march,1) | date(1925,november,1) | date(1926,august,1) | date(1927,may,1) | date(1928,january,1) | date(1928,april,1) | date(1928,july,1) | date(1929,september,1) | date(1929,december,1) | date(1930,june,1) | date(1931,february,1) | date(1931,march,1) | date(1931,november,1) | date(1932,may,1) | date(1933,january,1) | date(1933,october,1) | date(1934,april,1) | date(1934,july,1) | date(1935,september,1) | date(1935,december,1) | date(1936,march,1) | date(1936,november,1) | date(1937,august,1) | date(1938,may,1) | date(1939,january,1) | date(1939,october,1) | date(1940,september,1) | date(1940,december,1) | date(1941,june,1) | date(1942,february,1) | date(1942,march,1) | date(1942,november,1) | date(1943,august,1) | date(1944,october,1) | date(1945,april,1) | date(1945,july,1) | date(1946,september,1) | date(1946,december,1) | date(1947,june,1) | date(1948,february,1) | date(1948,august,1) | date(1949,may,1) | date(1950,january,1) | date(1950,october,1) | date(1951,april,1) | date(1951,july,1) | date(1952,june,1) | date(1953,february,1) | date(1953,march,1) | date(1953,november,1) | date(1954,august,1) | date(1955,may,1) | date(1956,january,1) | date(1956,april,1) | date(1956,july,1) | date(1957,september,1) | date(1957,december,1) | date(1958,june,1) | date(1959,february,1) | date(1959,march,1) | date(1959,november,1) | date(1960,may,1) | date(1961,january,1) | date(1961,october,1) | date(1962,april,1) | date(1962,july,1) | date(1963,september,1) | date(1963,december,1) | date(1964,march,1) | date(1964,november,1) | date(1965,august,1) | date(1966,may,1) | date(1967,january,1) | date(1967,october,1) | date(1968,september,1) | date(1968,december,1) | date(1969,june,1) | date(1970,february,1) | date(1970,march,1) | date(1970,november,1) | date(1971,august,1) | date(1972,october,1) | date(1973,april,1) | date(1973,july,1) | date(1974,september,1) | date(1974,december,1) | date(1975,june,1) | date(1976,february,1) | date(1976,august,1) | date(1977,may,1) | date(1978,january,1) | date(1978,october,1) | date(1979,april,1) | date(1979,july,1) | date(1980,june,1) | date(1981,february,1) | date(1981,march,1) | date(1981,november,1) | date(1982,august,1) | date(1983,may,1) | date(1984,january,1) | date(1984,april,1) | date(1984,july,1) | date(1985,september,1) | date(1985,december,1) | date(1986,june,1) | date(1987,february,1) | date(1987,march,1) | date(1987,november,1) | date(1988,may,1) | date(1989,january,1) | date(1989,october,1) | date(1990,april,1) | date(1990,july,1) | date(1991,september,1) | date(1991,december,1) | date(1992,march,1) | date(1992,november,1) | date(1993,august,1) | date(1994,may,1) | date(1995,january,1) | date(1995,october,1) | date(1996,september,1) | date(1996,december,1) | date(1997,june,1) | date(1998,february,1) | date(1998,march,1) | date(1998,november,1) | date(1999,august,1) | date(2000,october,1).
+
+>>> #count(that)?
+--> what(B) :- B = #count { A : that(A) }.
+that: 171.
+
+>>> thanks.
+YOU'RE WELCOME!

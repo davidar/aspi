@@ -1,0 +1,38 @@
+% 19. How many Sundays fell on the first of the month during the twentieth century (1 Jan 1901 to 31 Dec 2000)?
+
+year: 1900..2000.
+
+#enum month: january | february | march | april | may | june | july | august | september | october | november | december.
+next.month.M: month[(M\12) + 1].
+
+#enum dayofweek: monday | tuesday | wednesday | thursday | friday | saturday | sunday.
+next.dayofweek.D: dayofweek[(D\7) + 1].
+
+date: date(year Y, month M, D 1..days[Y,M]).
+next.date(year Y, month M, D 1..(days[Y,M]-1)): date(Y, M, D+1).
+next.date(year Y, month M ~december, days[Y,M]): date(Y, next.M, 1).
+next.date(year Y, december, days[Y,december]): date(Y+1, january, 1).
+
+% 1 Jan 1900 was a Monday.
+dayof.date(1900,january,1): monday.
+dayof[date D]: next.dayof.previous.D.
+previous.X: next'.X.
+
+% Thirty days has September, April, June and November.
+days[year, september | april | june | november]: 30.
+
+% All the rest have thirty-one.
+days[year, month ~(september | april | june | november | february)]: 31.
+
+% Saving February alone, which has twenty-eight, rain or shine.
+days[~leap year, february]: 28.
+
+% And on leap years, twenty-nine.
+days[leap year, february]: 29.
+
+% A leap year occurs on any year evenly divisible by 4, but not on a century unless it is divisible by 400.
+leap: year multiple.4 ~(century ~multiple.400).
+century: year multiple.100.
+
+date(Y 1901..2000, month, 1) D: sunday = dayof.D?
+#count(that)?
