@@ -68,7 +68,7 @@ understood.
 
 >>> path[node B ~start]: #min(paths.B).
 --> path(D,B) :- node(B), B = MuB, not negation((1),B), D = #min { C : paths(C,MuB) }.
-    negation((1),A) :- start(A).
+    negation((1),A) :- start(A), node(A).
 understood.
 
 >>> path.start: 0.

@@ -5,7 +5,7 @@ understood.
 
 >>> prime: >1 ~composite n3.
 --> prime(B) :- B > 1, not negation((1),B), n3(B).
-    negation((1),A) :- composite(A).
+    negation((1),A) :- composite(A), n3(A).
 understood.
 
 >>> prime?

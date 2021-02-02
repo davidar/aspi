@@ -184,6 +184,10 @@ class LDCS(lark.Transformer[str]):
                                     elif groundvar and '..' in t and \
                                             t.startswith(f'{headvar} = '):
                                         context.append(groundvar + t[1:])
+                                    elif groundvar and \
+                                            t.endswith(f'({headvar})'):
+                                        context.append(
+                                            t.replace(headvar, groundvar))
                                 rule = rule.replace(
                                     match.group(0), commas(*context))
                                 rule = rule.replace(', .', '.')
