@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import atexit
+import clingo
 import collections
 import enum
 import json
@@ -8,7 +9,7 @@ import re
 import readline
 import sh  # type: ignore
 import sys
-from typing import cast, Dict, List, Optional, Union
+from typing import cast, Dict, List, Optional
 
 import ldcs
 
@@ -35,7 +36,7 @@ class ClingoExitCode(enum.IntFlag):
     NO_RUN = 128  # Search not started because of syntax or command line error.
 
 
-def clingo(lp: str) -> List[str]:
+def run_clingo(lp: str) -> List[str]:
     result = json.loads(sh.clingo(
         outf=2, time_limit=4, _in=lp,
         _ok_code=[
@@ -122,7 +123,7 @@ class ASPI:
         if cmd.endswith('!'):
             lp += '#include "lib/planner.lp".\n'
         try:
-            return Results(self, clingo(lp))
+            return Results(self, run_clingo(lp))
         except sh.ErrorReturnCode as e:
             if e.exit_code == ClingoExitCode.INTERRUPT:
                 print('timeout.\n')
@@ -145,14 +146,9 @@ class ASPI:
         if res.status:
             print(res.status + '.')
         if res.shows:
-            terms: List[Union[str, int]] = []
-            for r in res.shows:
-                if r.isnumeric():
-                    terms.append(int(r))
-                else:
-                    terms.append(r)
+            terms = [clingo.parse_term(r) for r in res.shows]
             terms.sort()
-            that = ' | '.join(str(t) for t in terms)
+            that = ' | '.join(res.replace_names(str(t)) for t in terms)
             print(f'that: {that}.')
         print()
 
@@ -171,7 +167,6 @@ class Results:
         self.acts = [self.replace_names(act, t)
                      for t, act in enumerate(self.acts)]
         self.already = [self.replace_names(fact) for fact in self.already]
-        self.shows = [self.replace_names(show) for show in self.shows]
 
     def replace_names(self, s: str, offset: int = 0) -> str:
         d = self.names_t[self.parent.now + offset]
