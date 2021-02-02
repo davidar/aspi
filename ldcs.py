@@ -244,11 +244,13 @@ class LDCS(lark.Transformer[str]):
 
     def enum(self, head: str, *args: List[Unary]) -> None:
         for lams in args:
-            name = f'{head}({self.counter(head)})'
+            i = self.counter(head)
+            name = f'{head}({i})'
             describe = ', '.join(lam('').replace('()', '')
                                  for lam in lams if ', ' not in lam(''))
             self.rules.append(f'describe({name}, {describe}).')
             self.rules.append(f'{head}({name}).')
+            self.rules.append(f'{head}({name},{i}).')
             for lam in lams:
                 self.rules.append(lam(name).replace(', ', ' :- ', 1) + '.')
 

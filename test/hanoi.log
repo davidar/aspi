@@ -1,27 +1,34 @@
 >>> #enum disk: tiny | small | big | huge.
 --> describe(disk(1), tiny).
     disk(disk(1)).
+    disk(disk(1),1).
     tiny(disk(1)).
     describe(disk(2), small).
     disk(disk(2)).
+    disk(disk(2),2).
     small(disk(2)).
     describe(disk(3), big).
     disk(disk(3)).
+    disk(disk(3),3).
     big(disk(3)).
     describe(disk(4), huge).
     disk(disk(4)).
+    disk(disk(4),4).
     huge(disk(4)).
 understood.
 
 >>> #enum peg: left | middle | right.
 --> describe(peg(1), left).
     peg(peg(1)).
+    peg(peg(1),1).
     left(peg(1)).
     describe(peg(2), middle).
     peg(peg(2)).
+    peg(peg(2),2).
     middle(peg(2)).
     describe(peg(3), right).
     peg(peg(3)).
+    peg(peg(3),3).
     right(peg(3)).
 understood.
 
@@ -35,8 +42,8 @@ understood.
 understood.
 
 >>> 
->>> small(disk disk(I), disk disk(>I)).
---> small(A,C) :- disk(A), A = disk(MuI), disk(C), B > MuI, C = disk(B).
+>>> small(disk.I, disk.>I).
+--> small(A,C) :- disk(A,MuI), disk(C,B), B > MuI.
 understood.
 
 >>> 

@@ -25,18 +25,23 @@ understood.
 >>> #enum colour: red | green | ivory | yellow | blue.
 --> describe(colour(1), red).
     colour(colour(1)).
+    colour(colour(1),1).
     red(colour(1)).
     describe(colour(2), green).
     colour(colour(2)).
+    colour(colour(2),2).
     green(colour(2)).
     describe(colour(3), ivory).
     colour(colour(3)).
+    colour(colour(3),3).
     ivory(colour(3)).
     describe(colour(4), yellow).
     colour(colour(4)).
+    colour(colour(4),4).
     yellow(colour(4)).
     describe(colour(5), blue).
     colour(colour(5)).
+    colour(colour(5),5).
     blue(colour(5)).
 understood.
 
@@ -50,18 +55,23 @@ understood.
 >>> #enum person: english | spaniard | ukrainian | norwegian | japanese.
 --> describe(person(1), english).
     person(person(1)).
+    person(person(1),1).
     english(person(1)).
     describe(person(2), spaniard).
     person(person(2)).
+    person(person(2),2).
     spaniard(person(2)).
     describe(person(3), ukrainian).
     person(person(3)).
+    person(person(3),3).
     ukrainian(person(3)).
     describe(person(4), norwegian).
     person(person(4)).
+    person(person(4),4).
     norwegian(person(4)).
     describe(person(5), japanese).
     person(person(5)).
+    person(person(5),5).
     japanese(person(5)).
 understood.
 
@@ -75,18 +85,23 @@ understood.
 >>> #enum pet: dog | fox | horse | zebra | snail.
 --> describe(pet(1), dog).
     pet(pet(1)).
+    pet(pet(1),1).
     dog(pet(1)).
     describe(pet(2), fox).
     pet(pet(2)).
+    pet(pet(2),2).
     fox(pet(2)).
     describe(pet(3), horse).
     pet(pet(3)).
+    pet(pet(3),3).
     horse(pet(3)).
     describe(pet(4), zebra).
     pet(pet(4)).
+    pet(pet(4),4).
     zebra(pet(4)).
     describe(pet(5), snail).
     pet(pet(5)).
+    pet(pet(5),5).
     snail(pet(5)).
 understood.
 
@@ -100,18 +115,23 @@ understood.
 >>> #enum beverage: coffee | tea | milk | juice | water.
 --> describe(beverage(1), coffee).
     beverage(beverage(1)).
+    beverage(beverage(1),1).
     coffee(beverage(1)).
     describe(beverage(2), tea).
     beverage(beverage(2)).
+    beverage(beverage(2),2).
     tea(beverage(2)).
     describe(beverage(3), milk).
     beverage(beverage(3)).
+    beverage(beverage(3),3).
     milk(beverage(3)).
     describe(beverage(4), juice).
     beverage(beverage(4)).
+    beverage(beverage(4),4).
     juice(beverage(4)).
     describe(beverage(5), water).
     beverage(beverage(5)).
+    beverage(beverage(5),5).
     water(beverage(5)).
 understood.
 
@@ -125,18 +145,23 @@ understood.
 >>> #enum cig: gold | kool | chesterfield | lucky | parliament.
 --> describe(cig(1), gold).
     cig(cig(1)).
+    cig(cig(1),1).
     gold(cig(1)).
     describe(cig(2), kool).
     cig(cig(2)).
+    cig(cig(2),2).
     kool(cig(2)).
     describe(cig(3), chesterfield).
     cig(cig(3)).
+    cig(cig(3),3).
     chesterfield(cig(3)).
     describe(cig(4), lucky).
     cig(cig(4)).
+    cig(cig(4),4).
     lucky(cig(4)).
     describe(cig(5), parliament).
     cig(cig(5)).
+    cig(cig(5),5).
     parliament(cig(5)).
 understood.
 
