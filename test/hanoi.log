@@ -1,44 +1,30 @@
->>> #some tiny disk | small disk big[tiny disk] | big disk big[small disk] | huge disk big[big disk].
---> describe(object1, tiny, disk).
-    tiny(object1).
-    disk(object1).
-    describe(object2, small, disk).
-    small(object2).
-    disk(object2).
-    big(object2,A) :- tiny(A), disk(A).
-    describe(object3, big, disk).
-    big(object3).
-    disk(object3).
-    big(object3,B) :- small(B), disk(B).
-    describe(object4, huge, disk).
-    huge(object4).
-    disk(object4).
-    big(object4,C) :- big(C), disk(C).
+>>> #enum disk: tiny | small | big | huge.
+--> describe(disk(1), tiny).
+    disk(disk(1)).
+    tiny(disk(1)).
+    describe(disk(2), small).
+    disk(disk(2)).
+    small(disk(2)).
+    describe(disk(3), big).
+    disk(disk(3)).
+    big(disk(3)).
+    describe(disk(4), huge).
+    disk(disk(4)).
+    huge(disk(4)).
 understood.
 
->>> 
->>> big(A,C): big(A,B), big(B,C).
---> big(MuA,MuC) :- big(MuA,MuB), big(MuB,MuC).
+>>> #enum peg: left | middle | right.
+--> describe(peg(1), left).
+    peg(peg(1)).
+    left(peg(1)).
+    describe(peg(2), middle).
+    peg(peg(2)).
+    middle(peg(2)).
+    describe(peg(3), right).
+    peg(peg(3)).
+    right(peg(3)).
 understood.
 
->>> small(A,B): big(B,A).
---> small(MuA,MuB) :- big(MuB,MuA).
-understood.
-
->>> 
->>> #some left peg | middle peg | right peg.
---> describe(object5, left, peg).
-    left(object5).
-    peg(object5).
-    describe(object6, middle, peg).
-    middle(object6).
-    peg(object6).
-    describe(object7, right, peg).
-    right(object7).
-    peg(object7).
-understood.
-
->>> 
 >>> #fluent on(A,B).
 --> on(MuA,MuB) :- holds(on(MuA,MuB)).
 understood.
@@ -46,6 +32,11 @@ understood.
 >>> #fluent on_same(D,E): on(D,P), on(E,P).
 --> on_same(MuD,MuE) :- holds(on_same(MuD,MuE)).
     holds(on_same(MuD,MuE), Time) :- holds(on(MuD,MuP), Time), holds(on(MuE,MuP), Time).
+understood.
+
+>>> 
+>>> small(disk disk(I), disk disk(>I)).
+--> small(A,C) :- disk(A), A = disk(MuI), disk(C), B > MuI, C = disk(B).
 understood.
 
 >>> 
@@ -67,21 +58,21 @@ understood.
 >>> on(disk, right peg)!
 --> goal(C) :- disk(A), right(B), peg(B), C = on(A,B).
 cost: 15.
-move(tiny disk, middle peg)!
-move(small disk, right peg)!
-move(tiny disk, right peg)!
-move(big disk, middle peg)!
-move(tiny disk, left peg)!
-move(small disk, middle peg)!
-move(tiny disk, middle peg)!
-move(huge disk, right peg)!
-move(tiny disk, right peg)!
-move(small disk, left peg)!
-move(tiny disk, left peg)!
-move(big disk, right peg)!
-move(tiny disk, middle peg)!
-move(small disk, right peg)!
-move(tiny disk, right peg)!
+move(tiny, middle)!
+move(small, right)!
+move(tiny, right)!
+move(big, middle)!
+move(tiny, left)!
+move(small, middle)!
+move(tiny, middle)!
+move(huge, right)!
+move(tiny, right)!
+move(small, left)!
+move(tiny, left)!
+move(big, right)!
+move(tiny, middle)!
+move(small, right)!
+move(tiny, right)!
 
 >>> thanks.
 YOU'RE WELCOME!

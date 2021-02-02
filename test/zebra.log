@@ -22,22 +22,22 @@ understood.
 >>> 
 >>> % In the interest of clarity, it must be added that
 >>> % each of the five houses is painted a different colour,
->>> colour: #some red | green | ivory | yellow | blue.
---> describe(object1, red).
-    colour(object1).
-    red(object1).
-    describe(object2, green).
-    colour(object2).
-    green(object2).
-    describe(object3, ivory).
-    colour(object3).
-    ivory(object3).
-    describe(object4, yellow).
-    colour(object4).
-    yellow(object4).
-    describe(object5, blue).
-    colour(object5).
-    blue(object5).
+>>> #enum colour: red | green | ivory | yellow | blue.
+--> describe(colour(1), red).
+    colour(colour(1)).
+    red(colour(1)).
+    describe(colour(2), green).
+    colour(colour(2)).
+    green(colour(2)).
+    describe(colour(3), ivory).
+    colour(colour(3)).
+    ivory(colour(3)).
+    describe(colour(4), yellow).
+    colour(colour(4)).
+    yellow(colour(4)).
+    describe(colour(5), blue).
+    colour(colour(5)).
+    blue(colour(5)).
 understood.
 
 >>> #relation paint(1 house, 1 colour).
@@ -47,22 +47,22 @@ understood.
 
 >>> 
 >>> % and their inhabitants are of different national extractions,
->>> person: #some english | spaniard | ukrainian | norwegian | japanese.
---> describe(object6, english).
-    person(object6).
-    english(object6).
-    describe(object7, spaniard).
-    person(object7).
-    spaniard(object7).
-    describe(object8, ukrainian).
-    person(object8).
-    ukrainian(object8).
-    describe(object9, norwegian).
-    person(object9).
-    norwegian(object9).
-    describe(object10, japanese).
-    person(object10).
-    japanese(object10).
+>>> #enum person: english | spaniard | ukrainian | norwegian | japanese.
+--> describe(person(1), english).
+    person(person(1)).
+    english(person(1)).
+    describe(person(2), spaniard).
+    person(person(2)).
+    spaniard(person(2)).
+    describe(person(3), ukrainian).
+    person(person(3)).
+    ukrainian(person(3)).
+    describe(person(4), norwegian).
+    person(person(4)).
+    norwegian(person(4)).
+    describe(person(5), japanese).
+    person(person(5)).
+    japanese(person(5)).
 understood.
 
 >>> #relation in(1 person, 1 house).
@@ -72,22 +72,22 @@ understood.
 
 >>> 
 >>> % own different pets,
->>> pet: #some dog | fox | horse | zebra | snail.
---> describe(object11, dog).
-    pet(object11).
-    dog(object11).
-    describe(object12, fox).
-    pet(object12).
-    fox(object12).
-    describe(object13, horse).
-    pet(object13).
-    horse(object13).
-    describe(object14, zebra).
-    pet(object14).
-    zebra(object14).
-    describe(object15, snail).
-    pet(object15).
-    snail(object15).
+>>> #enum pet: dog | fox | horse | zebra | snail.
+--> describe(pet(1), dog).
+    pet(pet(1)).
+    dog(pet(1)).
+    describe(pet(2), fox).
+    pet(pet(2)).
+    fox(pet(2)).
+    describe(pet(3), horse).
+    pet(pet(3)).
+    horse(pet(3)).
+    describe(pet(4), zebra).
+    pet(pet(4)).
+    zebra(pet(4)).
+    describe(pet(5), snail).
+    pet(pet(5)).
+    snail(pet(5)).
 understood.
 
 >>> #relation own(1 person, 1 pet).
@@ -97,22 +97,22 @@ understood.
 
 >>> 
 >>> % drink different beverages
->>> beverage: #some coffee | tea | milk | juice | water.
---> describe(object16, coffee).
-    beverage(object16).
-    coffee(object16).
-    describe(object17, tea).
-    beverage(object17).
-    tea(object17).
-    describe(object18, milk).
-    beverage(object18).
-    milk(object18).
-    describe(object19, juice).
-    beverage(object19).
-    juice(object19).
-    describe(object20, water).
-    beverage(object20).
-    water(object20).
+>>> #enum beverage: coffee | tea | milk | juice | water.
+--> describe(beverage(1), coffee).
+    beverage(beverage(1)).
+    coffee(beverage(1)).
+    describe(beverage(2), tea).
+    beverage(beverage(2)).
+    tea(beverage(2)).
+    describe(beverage(3), milk).
+    beverage(beverage(3)).
+    milk(beverage(3)).
+    describe(beverage(4), juice).
+    beverage(beverage(4)).
+    juice(beverage(4)).
+    describe(beverage(5), water).
+    beverage(beverage(5)).
+    water(beverage(5)).
 understood.
 
 >>> #relation drink(1 person, 1 beverage).
@@ -122,22 +122,22 @@ understood.
 
 >>> 
 >>> % and smoke different brands of American cigarettes.
->>> cig: #some gold | kool | chesterfield | lucky | parliament.
---> describe(object21, gold).
-    cig(object21).
-    gold(object21).
-    describe(object22, kool).
-    cig(object22).
-    kool(object22).
-    describe(object23, chesterfield).
-    cig(object23).
-    chesterfield(object23).
-    describe(object24, lucky).
-    cig(object24).
-    lucky(object24).
-    describe(object25, parliament).
-    cig(object25).
-    parliament(object25).
+>>> #enum cig: gold | kool | chesterfield | lucky | parliament.
+--> describe(cig(1), gold).
+    cig(cig(1)).
+    gold(cig(1)).
+    describe(cig(2), kool).
+    cig(cig(2)).
+    kool(cig(2)).
+    describe(cig(3), chesterfield).
+    cig(cig(3)).
+    chesterfield(cig(3)).
+    describe(cig(4), lucky).
+    cig(cig(4)).
+    lucky(cig(4)).
+    describe(cig(5), parliament).
+    cig(cig(5)).
+    parliament(cig(5)).
 understood.
 
 >>> #relation smoke(1 person, 1 cig).

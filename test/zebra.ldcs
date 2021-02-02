@@ -7,23 +7,23 @@ adjacent(A,B): right(A,B).
 
 % In the interest of clarity, it must be added that
 % each of the five houses is painted a different colour,
-colour: #some red | green | ivory | yellow | blue.
+#enum colour: red | green | ivory | yellow | blue.
 #relation paint(1 house, 1 colour).
 
 % and their inhabitants are of different national extractions,
-person: #some english | spaniard | ukrainian | norwegian | japanese.
+#enum person: english | spaniard | ukrainian | norwegian | japanese.
 #relation in(1 person, 1 house).
 
 % own different pets,
-pet: #some dog | fox | horse | zebra | snail.
+#enum pet: dog | fox | horse | zebra | snail.
 #relation own(1 person, 1 pet).
 
 % drink different beverages
-beverage: #some coffee | tea | milk | juice | water.
+#enum beverage: coffee | tea | milk | juice | water.
 #relation drink(1 person, 1 beverage).
 
 % and smoke different brands of American cigarettes.
-cig: #some gold | kool | chesterfield | lucky | parliament.
+#enum cig: gold | kool | chesterfield | lucky | parliament.
 #relation smoke(1 person, 1 cig).
 
 % 2. The Englishman lives in the red house.

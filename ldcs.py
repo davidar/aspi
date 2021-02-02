@@ -27,8 +27,7 @@ NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
 
 start: cmd
 ?cmd: "#" "fluent" pred [":" clause] "." -> fluent
-    | lams ":" "#" "some" lams ("|" lams)* "." -> enum
-    | "#" "some" lams ("|" lams)* "." -> exist
+    | "#" "enum" atom ":" lams ("|" lams)* "." -> enum
     | "#" "relation" atom "(" rparam ("," rparam)* ")" "." -> relation
     | "#" "any" (ldcs | cmpop) "." -> constraint_any
     | "#" "any" ldcs "?" -> query_any
@@ -243,17 +242,15 @@ class LDCS(lark.Transformer[str]):
         prf = ','.join([head] + pvars)
         return f'proof(@proof({prf}),{head}) :- {commas(*terms)}.'
 
-    def enum(self, heads: List[Unary], *args: List[Unary]) -> None:
+    def enum(self, head: str, *args: List[Unary]) -> None:
         for lams in args:
-            name = 'object' + str(self.counter('object'))
+            name = f'{head}({self.counter(head)})'
             describe = ', '.join(lam('').replace('()', '')
                                  for lam in lams if ', ' not in lam(''))
             self.rules.append(f'describe({name}, {describe}).')
-            for lam in heads + lams:
+            self.rules.append(f'{head}({name}).')
+            for lam in lams:
                 self.rules.append(lam(name).replace(', ', ' :- ', 1) + '.')
-
-    def exist(self, *args: List[Unary]) -> None:
-        self.enum([], *args)
 
     def relation(self, name: str, *params: Tuple[str, CSym]) -> None:
         bounds = [x for x, _ in params]

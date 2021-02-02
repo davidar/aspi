@@ -180,7 +180,10 @@ class Results:
             for k, v in self.names.items():
                 if k in d:
                     v += ' ' + d[k]
-                r = re.sub('\\b' + k + '\\b', v, r)
+                if k[-1] == ')':
+                    r = r.replace(k, v)
+                else:
+                    r = re.sub('\\b' + k + '\\b', v, r)
             if s == r:
                 return s
             d = {}
