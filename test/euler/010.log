@@ -3,12 +3,12 @@
 --> composite(B) :- B = MuN, B \ A = 0, A = 2 .. (MuN-1), n3(B).
 understood.
 
->>> prime: (>).1 ~composite n3.
+>>> prime: >1 ~composite n3.
 --> prime(B) :- B > 1, not negation((1),B), n3(B).
     negation((1),A) :- composite(A).
 understood.
 
->>> #sum(prime (<).100)?
+>>> #sum(prime <100)?
 --> what(C) :- C = #sum { B : aggregation((1),B) }.
     aggregation((1),A) :- prime(A), A < 100.
 that: 1060.

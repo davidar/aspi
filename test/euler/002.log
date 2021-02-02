@@ -29,7 +29,7 @@ that: bag(0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,1
 --> what(A) :- proof(A,fib(13)).
 that: proof((fib(1,2),fib(0,0),fib(1,1)),(fib(2,3),fib(1,1),fib(1,2)),(fib(3,4),fib(1,2),fib(2,3)),(fib(5,5),fib(1,2),fib(2,3),fib(3,4)),(fib(8,6),fib(1,2),fib(2,3),fib(3,4),fib(5,5)),(fib(13,7),fib(1,2),fib(2,3),fib(3,4),fib(5,5),fib(8,6)),(fib(13),fib(1,2),fib(2,3),fib(3,4),fib(5,5),fib(8,6),fib(13,7))).
 
->>> #sum(even fib (<).1000000)?
+>>> #sum(even fib <1000000)?
 --> what(C) :- C = #sum { B : aggregation((1),B) }.
     aggregation((1),A) :- A \ 2 = 0, fib(A), A < 1000000.
 that: 1089154.

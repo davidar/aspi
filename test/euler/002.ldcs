@@ -6,4 +6,4 @@ fib: fib[0..45].
 #set(fib)?
 #bag(fib)?
 proof.fib(13)?
-#sum(even fib (<).1000000)?
+#sum(even fib <1000000)?

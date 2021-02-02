@@ -3,7 +3,7 @@
 --> composite(B) :- B = MuN, B \ A = 0, A = 2 .. (MuN-1), n3(B).
 understood.
 
->>> prime: (>).1 ~composite n3.
+>>> prime: >1 ~composite n3.
 --> prime(B) :- B > 1, not negation((1),B), n3(B).
     negation((1),A) :- composite(A).
 understood.
@@ -20,8 +20,8 @@ understood.
 --> what(A) :- factor(A,42).
 that: 2 | 3 | 7.
 
->>> #most((>), factor.42)?
---> what(B) :- B > A : factor(A,42), B != A; factor(B,42).
+>>> #max(factor.42)?
+--> what(B) :- B = #max { A : factor(A,42) }.
 that: 7.
 
 >>> thanks.

@@ -55,7 +55,7 @@ atom: NAME
 ldcs: disj [":" clause]
 disjs: disj ("," disj)*
 disj: conj ("|" conj)*
-lams: lam lam*
+lams: lam+
 conj: lams
 constant: INT
         | VARIABLE
@@ -64,16 +64,17 @@ constant: INT
     | constant
     | join
     | neg
+    | ineq
     | hof
     | unify
 func: atom
-    | "(" CMP_OP ")" -> func_binop
     | atom "$" func -> compose
     | func "'" -> flip
 join: func "." lam
     | func "[" disj "]"
     | func "[" disjs [";" disjs] "]" -> multijoin
 neg: "~" bracketed
+ineq: CMP_OP bracketed
 hof: "#" AGG_OP "(" ldcs ")" -> aggregation
    | "#" SUP_OP "(" func "," disj ")" -> superlative
    | "#" "enumerate" "(" disj "," disj ")" -> enumerate
@@ -387,9 +388,6 @@ class LDCS(lark.Transformer[str]):
                 return f"{name}({','.join(args)})"
         return f
 
-    def func_binop(self, op: str) -> Binary:
-        return lambda x, y: f'{x} {op} {y}'
-
     def compose(self, name: str, lam: Variadic) -> Variadic:
         return lambda *args: f'{name}({lam(*args)})'
 
@@ -403,6 +401,10 @@ class LDCS(lark.Transformer[str]):
     def neg(self, var_body: CSym) -> Unary:
         lam = self.lift(var_body, 'negation', True, True)
         return lambda x: 'not ' + lam(x)
+
+    def ineq(self, op: str, var_body: CSym) -> Unary:
+        var, body = var_body
+        return lambda x: commas(f'{x} {op} {var}', body)
 
     def aggregation(self, op: str, var_body: CSym,
                     cond: Optional[str] = None) -> Unary:

@@ -1,7 +1,7 @@
 % 3. Find the largest prime factor of 42.
 composite: N multiple[2..(N-1)] n3.
-prime: (>).1 ~composite n3.
+prime: >1 ~composite n3.
 prime?
 factor[X n3]: prime multiple'[X].
 factor.42?
-#most((>), factor.42)?
+#max(factor.42)?

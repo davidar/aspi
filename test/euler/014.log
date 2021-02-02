@@ -11,7 +11,7 @@ understood.
 --> collatz_steps(0,1).
 understood.
 
->>> collatz_steps[N (>).1 n3]: 1 + collatz_steps[collatz.N].
+>>> collatz_steps[N >1 n3]: 1 + collatz_steps[collatz.N].
 --> collatz_steps(D,A) :- A = MuN, A > 1, n3(A), collatz_steps(C,B), collatz(B,MuN), D = 1 + C.
 understood.
 
