@@ -12,7 +12,7 @@ concatenate(X,A,B) :- X = @concatenate(A,B).
 concatenate(X,A,B,C) :- X = @concatenate(A,Y), Y = @concatenate(B,C).
 reverse(X,A) :- X = @reverse(A).
 substring(X,A,S,L) :- X = @substring(A,S,L).
-substring(X,A) :- X = @substring(A,S,L), N = @length(A), S = 0..N, M = N-S, L = 0..M.
+substring(X,A) :- X = @substring(A,S,L), N = @length(A), S = 1..N, M = N-S+1, L = 0..M.
 length(X,A) :- X = @length(A).
 decimal(X,A) :- X = @decimal(A).
 

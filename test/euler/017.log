@@ -138,14 +138,14 @@ that: "one hundred and twenty three".
 that: 742.
 
 >>> #macro char.S: substring.S length'.1.
---> char(E,MuS) :- E = @substring(MuS,F,G), H = @length(MuS), F = 0 .. H, I = H - F, G = 0 .. I, 1 = @length(E).
+--> char(E,MuS) :- E = @substring(MuS,F,G), H = @length(MuS), F = 1 .. H, I = H - F + 1, G = 0 .. I, 1 = @length(E).
 understood.
 
 >>> count.#bag(char.say[1..100] ~" ")?
 --> what(N) :- N = @countof(M), bagof((1),M).
     gather((1),(L,P0)) :- proof(P0,aggregation((1),L)).
     negation((3)," ").
-    aggregation((1),G) :- G = @substring(B,H,I), J = @length(B), H = 0 .. J, K = J - H, I = 0 .. K, 1 = @length(G), say(B,A), A = 1 .. 100, not negation((3),G).
+    aggregation((1),G) :- G = @substring(B,H,I), J = @length(B), H = 1 .. J, K = J - H + 1, I = 0 .. K, 1 = @length(G), say(B,A), A = 1 .. 100, not negation((3),G).
 that: 864.
 
 >>> thanks.

@@ -54,7 +54,7 @@ def concatenate(a, b):
 def reverse(a):
     return clingo.String(a.string[::-1])
 def substring(a, start, length):
-    return a.string[start.number:start.number+length.number]
+    return a.string[start.number-1:start.number-1+length.number]
 def length(a):
     return clingo.Number(len(a.string))
 def decimal(a):
