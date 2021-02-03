@@ -191,7 +191,8 @@ class Results:
             result = result[len('retract('):-1]
             self.parent.facts.remove(result)
         elif result.startswith('what('):
-            self.parse_what(result)
+            result = result[len('what('):-1]
+            self.shows.append(result)
         elif result.startswith('history('):
             self.parent.facts.add(result)
         elif result.startswith('already('):
@@ -211,17 +212,6 @@ class Results:
         m = re.fullmatch(r'apply\((.*),\d+\)', result)
         if m:
             self.acts.append(m.group(1).replace(',', ', '))
-
-    def parse_what(self, result: str) -> None:
-        result = result[len('what('):-1]
-        m = re.fullmatch(r'apply\((.*),\d+\)', result)
-        if m:
-            result = m.group(1).replace(
-                '(', '[').replace(')', ']').replace(',', ', ')
-        m = re.fullmatch(r'history\(\d+,goal\((.*)\)\)', result)
-        if m:
-            result = 'goal.' + m.group(1).replace(',', ', ')
-        self.shows.append(result)
 
     def parse_describe_extra(self, result: str) -> None:
         r = result[len('describe_extra('):-1].split(',')
