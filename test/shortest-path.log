@@ -62,7 +62,7 @@ understood.
 
 >>> 
 >>> % via recurrence equation
->>> paths.B: path[A] + edge[A,B].
+>>> paths.B: path.A + edge[A,B].
 --> paths(C,MuB) :- path(A,MuA), edge(B,MuA,MuB), C = A + B.
 understood.
 

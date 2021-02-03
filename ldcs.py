@@ -44,32 +44,34 @@ clause: term ("," term)*
      | "#" "each" "(" term "," term ")" -> foreach
 pred: atom "(" ldcs ("," ldcs)* ")"
     | atom "$" pred
-cmpop: bracketed CMP_OP bracketed -> binop
+cmpop: ldcs CMP_OP ldcs -> binop
 binop: bracketed BIN_OP bracketed
-     | "(" "-" bracketed ")" -> negative
 ?bracketed: "(" ldcs ")"
-          | lam -> ldcs
+          | arg -> ldcs
 rparam: INT ldcs
 atom: NAME
 ldcs: disj [":" clause]
 disjs: disj ("," disj)*
 disj: conj ("|" conj)*
-lams: lam+
 conj: lams
+lams: lam+
+?lam: arg
+    | binop -> unify
 constant: INT
         | VARIABLE
         | ESCAPED_STRING
-?lam: func
+?arg: func
     | constant
     | join
     | neg
     | ineq
     | hof
-    | unify
+    | pred -> unify
+    | "(" "-" bracketed ")" -> negative
 func: atom
     | atom "$" func -> compose
     | func "'" -> flip
-join: func "." lam
+join: func "." arg
     | func "[" disj "]"
     | func "[" disjs [";" disjs] "]" -> multijoin
 neg: "~" bracketed
@@ -77,8 +79,6 @@ ineq: CMP_OP bracketed
 hof: "#" AGG_OP "(" ldcs ")" -> aggregation
    | "#" SUP_OP "(" func "," disj ")" -> superlative
    | "#" "enumerate" "(" disj "," disj ")" -> enumerate
-unify: pred
-     | binop
 '''
 
 Sym = str
@@ -340,9 +340,9 @@ class LDCS(lark.Transformer[str]):
     def foreach(self, lit: CSym, cond: CSym) -> CSym:
         return f'{commas(*lit)} : {commas(*cond)};', None
 
-    def negative(self, a: CSym) -> CSym:
-        arg, body = a
-        return '-' + arg, body
+    def negative(self, var_body: CSym) -> Unary:
+        var, body = var_body
+        return lambda x: commas(body, f'{x} = -{var}')
 
     def atom(self, name: str) -> str:
         return name
