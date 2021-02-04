@@ -1,0 +1,8 @@
+>>> % 24. What is the hundredth lexicographic permutation of the digits 1, 2, 3, 4, and 5?
+>>> #enumerate(100, permutation."12345")?
+--> what(B) :- enumerate(1,A,B), A = 100.
+    gather(1,A) :- A = @permutation("12345").
+that: "51342".
+
+>>> thanks.
+YOU'RE WELCOME!

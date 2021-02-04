@@ -1,0 +1,18 @@
+>>> % 15. Starting in the top left corner in a 4 by 4 grid, how many routes are there to the bottom right corner?
+>>> 
+>>> % TODO:
+>>> % #macro head.A: substring[A,1,1].
+>>> % #macro tail.A: substring[A,2,length.A-1].
+>>> % permutation."": "".
+>>> % permutation.A: insert[head.A, permutation.tail.A, 1..length.A].
+>>> 
+>>> permutation."DDDDRRRR"?
+--> what(A) :- A = @permutation("DDDDRRRR").
+that: "DDDDRRRR" | "DDDRDRRR" | "DDDRRDRR" | "DDDRRRDR" | "DDDRRRRD" | "DDRDDRRR" | "DDRDRDRR" | "DDRDRRDR" | "DDRDRRRD" | "DDRRDDRR" | "DDRRDRDR" | "DDRRDRRD" | "DDRRRDDR" | "DDRRRDRD" | "DDRRRRDD" | "DRDDDRRR" | "DRDDRDRR" | "DRDDRRDR" | "DRDDRRRD" | "DRDRDDRR" | "DRDRDRDR" | "DRDRDRRD" | "DRDRRDDR" | "DRDRRDRD" | "DRDRRRDD" | "DRRDDDRR" | "DRRDDRDR" | "DRRDDRRD" | "DRRDRDDR" | "DRRDRDRD" | "DRRDRRDD" | "DRRRDDDR" | "DRRRDDRD" | "DRRRDRDD" | "DRRRRDDD" | "RDDDDRRR" | "RDDDRDRR" | "RDDDRRDR" | "RDDDRRRD" | "RDDRDDRR" | "RDDRDRDR" | "RDDRDRRD" | "RDDRRDDR" | "RDDRRDRD" | "RDDRRRDD" | "RDRDDDRR" | "RDRDDRDR" | "RDRDDRRD" | "RDRDRDDR" | "RDRDRDRD" | "RDRDRRDD" | "RDRRDDDR" | "RDRRDDRD" | "RDRRDRDD" | "RDRRRDDD" | "RRDDDDRR" | "RRDDDRDR" | "RRDDDRRD" | "RRDDRDDR" | "RRDDRDRD" | "RRDDRRDD" | "RRDRDDDR" | "RRDRDDRD" | "RRDRDRDD" | "RRDRRDDD" | "RRRDDDDR" | "RRRDDDRD" | "RRRDDRDD" | "RRRDRDDD" | "RRRRDDDD".
+
+>>> #count(that)?
+--> what(B) :- B = #count { A : that(A) }.
+that: 70.
+
+>>> thanks.
+YOU'RE WELCOME!

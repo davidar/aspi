@@ -1,0 +1,2 @@
+% 24. What is the hundredth lexicographic permutation of the digits 1, 2, 3, 4, and 5?
+#enumerate(100, permutation."12345")?

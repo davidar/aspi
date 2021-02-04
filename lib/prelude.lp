@@ -44,6 +44,7 @@ proof(@proof(bagof(I,X)),bagof(I,X)) :- bagof(I,X).
 
 #script (python)
 import clingo
+import itertools
 import math
 import sys
 
@@ -62,6 +63,8 @@ def decimal(a):
         return clingo.Number(int(a.string))
     except:
         return clingo.Function('error')
+def permutation(a):
+    return [clingo.String(''.join(t)) for t in itertools.permutations(a.string)]
 
 gathered = {}
 def gather(i, a):

@@ -1,0 +1,10 @@
+% 15. Starting in the top left corner in a 4 by 4 grid, how many routes are there to the bottom right corner?
+
+% TODO:
+% #macro head.A: substring[A,1,1].
+% #macro tail.A: substring[A,2,length.A-1].
+% permutation."": "".
+% permutation.A: insert[head.A, permutation.tail.A, 1..length.A].
+
+permutation."DDDDRRRR"?
+#count(that)?
