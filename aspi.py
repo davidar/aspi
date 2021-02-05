@@ -66,10 +66,16 @@ class ASPI:
                 self.program += f'#include "{arg}".\n'
             elif arg.endswith('.csv'):
                 with open(arg, 'r') as f:
+                    rows = 0
                     for r, line in enumerate(f):
+                        rows += 1
+                        cols = 0
                         for c, v in enumerate(line.split(',')):
+                            cols += 1
                             v = v.strip()
                             self.program += f'csv({v},{r+1},{c+1}).\n'
+                        self.program += f'csv_cols({cols},{r+1}).\n'
+                    self.program += f'csv_rows({rows}).\n'
 
         with open('lib/macros.lp', 'r') as f:
             for line in f:

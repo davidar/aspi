@@ -19,6 +19,8 @@ that(X,N) :- history(counter-N, what(X)).
 that(X) :- that(X,1).
 
 proof(@proof(csv(V,R,C)),csv(V,R,C)) :- csv(V,R,C).
+proof(@proof(csv_cols(C,R)),csv_cols(C,R)) :- csv_cols(C,R).
+proof(@proof(csv_rows(R)),csv_rows(R)) :- csv_rows(R).
 
 n1(X) :- X = 1..9.
 n2(X) :- X = 1..99.
@@ -37,6 +39,7 @@ i4(X) :- X = -9999..9999.
 
 gather(@gather(I,X)) :- gather(I,X).
 enumerate(I,J,X) :- gather(I), (J-1,X) = @sort(I).
+proof(@proof(enumerate(I,J,X)),enumerate(I,J,X)) :- enumerate(I,J,X).
 setof(I,X) :- gather(I), X = @setof(I).
 proof(@proof(setof(I,X)),setof(I,X)) :- setof(I,X).
 bagof(I,X) :- gather(I), X = @bagof(I).
@@ -65,6 +68,11 @@ def decimal(a):
         return clingo.Function('error')
 def permutation(a):
     return [clingo.String(''.join(t)) for t in itertools.permutations(a.string)]
+def codepoint(a):
+    try:
+        return clingo.Number(ord(a.string))
+    except TypeError:
+        return clingo.Number(-1)
 
 gathered = {}
 def gather(i, a):

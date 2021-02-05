@@ -1,0 +1,38 @@
+>>> % 22. What is the total of all the name scores in the file of first names? 
+>>> 
+>>> #macro char.S: substring.S length'.1.
+--> char(E,MuS) :- E = @substring(MuS,F,G), H = @length(MuS), F = 1 .. H, I = H - F + 1, G = 0 .. I, 1 = @length(E).
+understood.
+
+>>> #macro letter.C: (codepoint.C - codepoint."A") + 1.
+--> letter(D,MuC) :- A = @codepoint(MuC), B = @codepoint("A"), C = A - B, D = C + 1.
+understood.
+
+>>> 
+>>> name: csv[1, 1..1000].
+--> name(B) :- csv(B,1,A), A = 1 .. 1000.
+understood.
+
+>>> position[name S]: N: S = #enumerate(N, name).
+--> position(MuN,A) :- name(A), A = MuS, MuS = C, enumerate(1,B,C), B = MuN.
+    gather(1,B) :- name(B).
+understood.
+
+>>> value[name S]: sum.#bag(letter.char.S).
+--> value(T,A) :- name(A), A = MuS, T = @sumof(S), bagof((2,MuS),S).
+    gather((2,MuS),(R,P0)) :- proof(P0,aggregation((1,MuS),R)), name(A), A = MuS.
+    aggregation((1,MuS),N) :- O = @codepoint(F), P = @codepoint("A"), Q = O - P, N = Q + 1, F = @substring(MuS,G,H), I = @length(MuS), G = 1 .. I, J = I - G + 1, H = 0 .. J, 1 = @length(F), name(A), A = MuS.
+understood.
+
+>>> score[name S]: position.S * value.S.
+--> score(D,A) :- name(A), A = MuS, position(B,MuS), value(C,MuS), D = B * C.
+understood.
+
+>>> sum.#bag(score.name)?
+--> what(E) :- E = @sumof(D), bagof((3),D).
+    gather((3),(C,P0)) :- proof(P0,aggregation((2),C)).
+    aggregation((2),B) :- score(B,A), name(A).
+that: 31683477.
+
+>>> thanks.
+YOU'RE WELCOME!

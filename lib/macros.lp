@@ -16,6 +16,7 @@ substring(X,A) :- X = @substring(A,S,L), N = @length(A), S = 1..N, M = N-S+1, L 
 length(X,A) :- X = @length(A).
 decimal(X,A) :- X = @decimal(A).
 permutation(X,A) :- X = @permutation(A).
+codepoint(X,A) :- X = @codepoint(A).
 
 count(X,L) :- X = @countof(L).
 sum(X,L) :- X = @sumof(L).
