@@ -1,0 +1,41 @@
+>>> % 27. Find a quadratic formula that produces the maximum number of primes for consecutive values of n.
+>>> 
+>>> composite: N multiple[2..(N-1)] n4.
+--> composite(B) :- B = MuN, B \ A = 0, A = 2 .. (MuN-1), n4(B).
+understood.
+
+>>> prime: >1 ~composite n4.
+--> prime(B) :- B > 1, not negation((1),B), n4(B).
+    negation((1),A) :- composite(A), n4(A).
+understood.
+
+>>> 
+>>> prime_generator(0, p(i2 A, prime i2 B)).
+--> prime_generator(0,C) :- i2(A), A = MuA, prime(B), i2(B), B = MuB, C = p(A,B).
+understood.
+
+>>> prime_generator(N-1, p(A,B)), prime(((N + A) * N) + B) :: prime_generator(N, p(A,B)).
+--> prime_generator(MuN,p(MuA,MuB)) :- prime_generator(MuN-1,p(MuA,MuB)), prime(((MuN+MuA)*MuN)+MuB).
+understood.
+
+>>> prime_generator_max.p(A,B): #max(prime_generator.p(A,B)): prime_generator(0, p(A,B)).
+--> prime_generator_max(B,p(MuA,MuB)) :- B = #max { A : prime_generator(A,p(MuA,MuB)) }, prime_generator(0,p(MuA,MuB)).
+understood.
+
+>>> 
+>>> prime_generator_max.p(1,41)?
+--> what(A) :- prime_generator_max(A,p(1,41)).
+that: 39.
+
+>>> #argmax(prime_generator_max, p(i2,i2))?
+--> what(H) :- C = #max { G : aggregation((1),G) }, prime_generator_max(C,H), superlative((1),H).
+    superlative((1),D) :- i2(A), i2(B), D = p(A,B).
+    aggregation((1),F) :- prime_generator_max(F,E), superlative((1),E).
+that: p(-15,97).
+
+>>> prime_generator_max.that?
+--> what(B) :- prime_generator_max(B,A), that(A).
+that: 47.
+
+>>> thanks.
+YOU'RE WELCOME!

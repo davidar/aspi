@@ -35,6 +35,7 @@ start: cmd
     | ["#" "macro"] define_heads ":" ldcs "." -> define
     | ldcs "::" define_heads "." -> reverse_define
     | term [":" clause] "." -> claim
+    | clause "::" term "." -> reverse_claim
     | ldcs "?" -> query
     | ldcs "!" -> goal
 define_heads: (func | join)+
@@ -271,6 +272,10 @@ class LDCS(lark.Transformer[str]):
                 f'{{ {name}({args}) : {cond} }} = {bound} :- {body}.')
 
     def claim(self, head_body: CSym, cond: Optional[str] = None) -> str:
+        head, body = head_body
+        return f'{head} :- {commas(body, cond)}'
+
+    def reverse_claim(self, cond: Optional[str], head_body: CSym) -> str:
         head, body = head_body
         return f'{head} :- {commas(body, cond)}'
 
