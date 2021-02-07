@@ -1,0 +1,10 @@
+>>> % 26. Find the value of d < 1000 for which 1/d contains the longest recurring cycle.
+>>> #include "test/oeis/b051626.txt".
+>>> #argmax(b051626, 1..1000)?
+--> what(F) :- A = #max { E : aggregation((1),E) }, b051626(A,F), superlative((1),F).
+    superlative((1),B) :- B = 1 .. 1000.
+    aggregation((1),D) :- b051626(D,C), superlative((1),C).
+that: 983.
+
+>>> thanks.
+YOU'RE WELCOME!

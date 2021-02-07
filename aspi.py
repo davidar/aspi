@@ -61,7 +61,11 @@ class ASPI:
         self.now = 0
         self.program = ''
 
-        for arg in ['lib/prelude.lp', 'lib/plans.lp'] + args:
+        for arg in ['lib/prelude.lp', 'lib/macros.lp', 'lib/plans.lp'] + args:
+            self.include(arg)
+
+    def include(self, arg: str) -> None:
+        if arg != 'lib/macros.lp':
             if arg.endswith('.lp'):
                 self.program += f'#include "{arg}".\n'
             elif arg.endswith('.csv'):
@@ -76,11 +80,17 @@ class ASPI:
                             self.program += f'csv({v},{r+1},{c+1}).\n'
                         self.program += f'csv_cols({cols},{r+1}).\n'
                     self.program += f'csv_rows({rows}).\n'
-
-        with open('lib/macros.lp', 'r') as f:
-            for line in f:
-                if line.strip():
-                    self.ldcs.add_macro(line)
+            elif arg.endswith('.txt'):
+                name = os.path.basename(arg)[:-4]
+                with open(arg, 'r') as f:
+                    for line in f:
+                        k, v = line.split()
+                        self.program += f'{name}({v},{k}).\n'
+        else:
+            with open(arg, 'r') as f:
+                for line in f:
+                    if line.strip():
+                        self.ldcs.add_macro(line)
 
     def repl(self, cmd: str) -> None:
         if not cmd or cmd.startswith('%'):
@@ -94,6 +104,8 @@ class ASPI:
                     lines.pop(i)
             self.program = '\n'.join(lines)
             return
+        if cmd.startswith('#include "'):
+            return self.include(cmd[len('#include "'):-2])
         if cmd == 'thanks.':
             print("YOU'RE WELCOME!")
             sys.exit(0)

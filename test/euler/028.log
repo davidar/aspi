@@ -1,0 +1,9 @@
+>>> % 28. What is the sum of both diagonals in a 499 by 499 spiral?
+>>> #include "test/oeis/b200975.txt".
+>>> #sum(b200975[1..((2*499)-1)])?
+--> what(D) :- D = #sum { C : aggregation((1),C) }.
+    aggregation((1),B) :- b200975(B,A), A = 1 .. ((2*499)-1).
+that: 82959497.
+
+>>> thanks.
+YOU'RE WELCOME!
