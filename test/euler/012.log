@@ -10,12 +10,12 @@ understood.
 that: 1 | 3 | 6 | 10 | 15 | 21 | 28 | 36 | 45 | 55 | 66 | 78 | 91.
 
 >>> divisor[X n3]: multiple'[X] n3.
---> divisor(B,A) :- A = MuX, n3(A), MuX \ B = 0, n3(B).
+--> divisor(B,A) :- A = MuX, A = 1 .. 999, MuX \ B = 0, B = 1 .. 999.
 understood.
 
 >>> divisors[X n3]: count.#set(divisor.X).
---> divisors(D,A) :- A = MuX, n3(A), D = @countof(C), setof((2,MuX),C).
-    gather((2,MuX),B) :- divisor(B,MuX), A = MuX, n3(A).
+--> divisors(D,A) :- A = MuX, A = 1 .. 999, D = @countof(C), setof((2,MuX),C).
+    gather((2,MuX),B) :- divisor(B,MuX), A = MuX, A = 1 .. 999.
 understood.
 
 >>> triangle N: divisors.N > 20?

@@ -1,6 +1,6 @@
 >>> % 9. There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 96. Find the product abc.
 >>> pythag(A n2, B n2, C n2): A**2 = (B**2) + (C**2).
---> pythag(A,B,C) :- A = MuA, n2(A), B = MuB, n2(B), C = MuC, n2(C), (MuA**2) = ((MuB**2)+(MuC**2)).
+--> pythag(A,B,C) :- A = MuA, A = 1 .. 99, B = MuB, B = 1 .. 99, C = MuC, C = 1 .. 99, (MuA**2) = ((MuB**2)+(MuC**2)).
 understood.
 
 >>> pythag[3,4]?

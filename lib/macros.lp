@@ -1,3 +1,18 @@
+n1(X) :- X = 1..9.
+n2(X) :- X = 1..99.
+n3(X) :- X = 1..999.
+n4(X) :- X = 1..9999.
+
+z1(X) :- X = 0..9.
+z2(X) :- X = 0..99.
+z3(X) :- X = 0..999.
+z4(X) :- X = 0..9999.
+
+i1(X) :- X = -9..9.
+i2(X) :- X = -99..99.
+i3(X) :- X = -999..999.
+i4(X) :- X = -9999..9999.
+
 before(E,F) :- end_time(S,E), S = 0..T-1, start_time(T,F).
 during(E,F) :- start_time(S1,E), end_time(S2,E), start_time(T1,F), end_time(T2,F), S1 = T1..T2, S2 = S1..T2, E != F.
 just_before(E,F) :- end_time(T-1,E), start_time(T,F).

@@ -1,17 +1,17 @@
 >>> % 27. Find a quadratic formula that produces the maximum number of primes for consecutive values of n.
 >>> 
 >>> composite: N multiple[2..(N-1)] n4.
---> composite(B) :- B = MuN, B \ A = 0, A = 2 .. (MuN-1), n4(B).
+--> composite(B) :- B = MuN, B \ A = 0, A = 2 .. (MuN-1), B = 1 .. 9999.
 understood.
 
 >>> prime: >1 ~composite n4.
---> prime(B) :- B > 1, not negation((1),B), n4(B).
-    negation((1),A) :- composite(A), n4(A).
+--> prime(B) :- B > 1, not negation((1),B), B = 1 .. 9999.
+    negation((1),A) :- composite(A), A = 1 .. 9999.
 understood.
 
 >>> 
 >>> prime_generator(0, p(i2 A, prime i2 B)).
---> prime_generator(0,C) :- i2(A), A = MuA, prime(B), i2(B), B = MuB, C = p(A,B).
+--> prime_generator(0,C) :- A = - 99 .. 99, A = MuA, prime(B), B = - 99 .. 99, B = MuB, C = p(A,B).
 understood.
 
 >>> prime_generator(N-1, p(A,B)), prime(((N + A) * N) + B) :: prime_generator(N, p(A,B)).
@@ -29,7 +29,7 @@ that: 39.
 
 >>> #argmax(prime_generator_max, p(i2,i2))?
 --> what(H) :- C = #max { G : aggregation((1),G) }, prime_generator_max(C,H), superlative((1),H).
-    superlative((1),D) :- i2(A), i2(B), D = p(A,B).
+    superlative((1),D) :- A = - 99 .. 99, B = - 99 .. 99, D = p(A,B).
     aggregation((1),F) :- prime_generator_max(F,E), superlative((1),E).
 that: p(-15,97).
 

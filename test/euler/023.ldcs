@@ -3,5 +3,6 @@ proper_divisor[N n3]: 1..(N-1) multiple'.N.
 aliquot[N n3]: sum.#set(proper_divisor.N).
 abundant(N n3): N < aliquot.N.
 abundant?
-~(abundant + abundant) n3?
+abundant + abundant?
+n3 ~that?
 #max(that even)?
