@@ -1,0 +1,6 @@
+% 30. Find all the numbers that can be written as the sum of fourth powers of their digits.
+
+#macro char.S: substring[S, 1..length.S, 1].
+#macro digit.N: decimal.char.show.N.
+
+N sum.#bag((digit.N)**4) n4?

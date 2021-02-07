@@ -26,16 +26,28 @@ n1(X) :- X = 1..9.
 n2(X) :- X = 1..99.
 n3(X) :- X = 1..999.
 n4(X) :- X = 1..9999.
+proof(@proof(n1(X)),n1(X)) :- n1(X).
+proof(@proof(n2(X)),n2(X)) :- n2(X).
+proof(@proof(n3(X)),n3(X)) :- n3(X).
+proof(@proof(n4(X)),n4(X)) :- n4(X).
 
 z1(X) :- X = 0..9.
 z2(X) :- X = 0..99.
 z3(X) :- X = 0..999.
 z4(X) :- X = 0..9999.
+proof(@proof(z1(X)),z1(X)) :- z1(X).
+proof(@proof(z2(X)),z2(X)) :- z2(X).
+proof(@proof(z3(X)),z3(X)) :- z3(X).
+proof(@proof(z4(X)),z4(X)) :- z4(X).
 
 i1(X) :- X = -9..9.
 i2(X) :- X = -99..99.
 i3(X) :- X = -999..999.
 i4(X) :- X = -9999..9999.
+proof(@proof(i1(X)),i1(X)) :- i1(X).
+proof(@proof(i2(X)),i2(X)) :- i2(X).
+proof(@proof(i3(X)),i3(X)) :- i3(X).
+proof(@proof(i4(X)),i4(X)) :- i4(X).
 
 gather(@gather(I,X)) :- gather(I,X).
 enumerate(I,J,X) :- gather(I), (J-1,X) = @sort(I).

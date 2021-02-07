@@ -1,0 +1,19 @@
+>>> % 30. Find all the numbers that can be written as the sum of fourth powers of their digits.
+>>> 
+>>> #macro char.S: substring[S, 1..length.S, 1].
+--> char(C,MuS) :- C = @substring(MuS,B,1), A = @length(MuS), B = 1 .. A.
+understood.
+
+>>> #macro digit.N: decimal.char.show.N.
+--> digit(G,MuN) :- G = @decimal(D), D = @substring(A,E,1), F = @length(A), E = 1 .. F, A = @show(MuN).
+understood.
+
+>>> 
+>>> N sum.#bag((digit.N)**4) n4?
+--> what(M) :- M = MuN, M = @sumof(L), bagof((1,MuN),L), n4(M).
+    gather((1,MuN),(K,P0)) :- proof(P0,aggregation((1,MuN),K)), M = MuN, n4(M).
+    aggregation((1,MuN),J) :- E = @decimal(F), F = @substring(G,H,1), I = @length(G), H = 1 .. I, G = @show(MuN), J = E ** 4, M = MuN, n4(M).
+that: 1 | 1634 | 8208 | 9474.
+
+>>> thanks.
+YOU'RE WELCOME!
