@@ -1,7 +1,7 @@
 import pytest
 import os.path
 
-scripts = ['dcg', 'golf', 'hanoi', 'shortest-path', 'zebra']
+scripts = ['dcg', 'golf', 'hanoi', 'shortest-path', 'zebra', 'uva/10131']
 
 for i in range(1000):
     name = f'euler/{i:03}'

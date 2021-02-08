@@ -1,0 +1,46 @@
+>>> % 10131 - Is Bigger Smarter?
+>>> 
+>>> elephant: 1..csv_rows.
+--> elephant(B) :- csv_rows(A), B = 1 .. A.
+understood.
+
+>>> weight.I: csv[I,1].
+--> weight(A,MuI) :- csv(A,MuI,1).
+understood.
+
+>>> smarts.I: csv[I,2].
+--> smarts(A,MuI) :- csv(A,MuI,2).
+understood.
+
+>>> 
+>>> init: start(0).
+--> init(start(0)).
+understood.
+
+>>> holds(start(0), T) :: holds(allowed(elephant), T).
+--> holds(B,MuT) :- elephant(A), B = allowed(A), holds(start(0),MuT).
+understood.
+
+>>> holds(current(I), T), weight.I < weight.J, smarts.I > smarts.J :: holds(allowed(J), T).
+--> holds(allowed(MuJ),MuT) :- holds(current(MuI),MuT), A < B, weight(A,MuI), weight(B,MuJ), C > D, smarts(C,MuI), smarts(D,MuJ).
+understood.
+
+>>> select(I, weight.I, smarts.I) :: action demands.allowed(I) deletes.start(0) deletes.current(elephant) adds.current(I) costs.(-1).
+--> action(C) :- weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
+    demands(C,allowed(MuI)) :- weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
+    deletes(C,start(0)) :- weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
+    deletes(C,E) :- elephant(D), E = current(D), weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
+    adds(C,current(MuI)) :- weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
+    costs(C,-1) :- weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
+understood.
+
+>>> #any current(elephant)!
+--> { goal(B) : elephant(A), B = current(A) } = 1.
+cost: -4.
+select(4, 1000, 4000)!
+select(5, 1100, 3000)!
+select(6, 6000, 2000)!
+select(7, 8000, 1400)!
+
+>>> thanks.
+YOU'RE WELCOME!
