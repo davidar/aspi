@@ -67,10 +67,10 @@ large block behind.pyramid?
 #any on(small block, green cube supports.pyramid)!
 
 % PUT THE LITTLEST PYRAMID ON TOP OF IT.
-on(#most(little, pyramid), small block)!
+on(little'est.{pyramid}, small block)!
 
 % DOES THE SHORTEST THING THE TALLEST PYRAMID'S SUPPORT SUPPORTS SUPPORT ANYTHING GREEN?
-green on.#most(short, on.supports.#most(tall, pyramid))?
+green on.short'est.{on.supports.tall'est.{pyramid}}?
 
 % WHAT COLOR IS IT?
 colour.supports.that?
@@ -117,7 +117,7 @@ on(blue block, box)!
 #any on(blue pyramid, block in.box)!
 
 % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
-object #each(big, pyramid) X wide'.supports.X?
+object big'each.{pyramid} X wide'.supports.X?
 
 % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
 steeple$stack(green cube, green cube, pyramid).
@@ -129,7 +129,7 @@ steeple$stack(green cube, green cube, pyramid).
 #any steeple!
 
 % CALL THE BIGGEST BLOCK "SUPERBLOCK".
-superblock(#most(big, block)).
+superblock: big'est.{block}.
 
 % HAVE YOU PICKED SUPERBLOCK UP SINCE WE BEGAN?
 #any holding.superblock?

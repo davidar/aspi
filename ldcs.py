@@ -20,7 +20,8 @@ ebnf = r'''
 
 CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
 BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
-SUP_OP: "most" | "each" | "argmin" | "argmax"
+SUP_OP: "argmin" | "argmax"
+SUP_SUFFIX: "'est" | "'each" | "'"
 VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
 
@@ -71,7 +72,7 @@ constant: INT
     | "(" "-" bracketed ")" -> negative
 func: atom
     | atom "$" func -> compose
-    | func "'" -> flip
+    | func SUP_SUFFIX -> flip
 join: func "." arg
     | func "[" disj "]"
     | func "[" disjs [";" disjs] "]" -> multijoin
@@ -233,7 +234,7 @@ class LDCS(lark.Transformer[str]):
         terms = []
         pvars = []
         for term in body.split(', '):
-            if ' = @' in term:
+            if ' = @' in term and ':' not in term and ';' not in term:
                 terms.append(term)
                 var = 'P' + str(self.counter('proof'))
                 eq = term.replace(' = @', ',')
@@ -404,8 +405,16 @@ class LDCS(lark.Transformer[str]):
     def compose(self, name: str, lam: Variadic) -> Variadic:
         return lambda *args: f'{name}({lam(*args)})'
 
-    def flip(self, lam: Variadic) -> Variadic:
-        return lambda *args: lam(*reversed(args))
+    def flip(self, rel: Variadic, op: str = 'by') -> Variadic:
+        if op == "'":
+            return lambda *args: rel(*reversed(args))
+        elif op == "'each":
+            y = self.gensym()
+            return lambda x, z: f'{rel(x, y)} : {y} = @memberof({z});'
+        elif op == "'est":
+            y = self.gensym()
+            return lambda x, z: f'{rel(x, y)} : {y} = @memberof({z}), {x} != {y}; {x} = @memberof({z})'
+        assert False
 
     def join(self, rel: Binary, lam: Unary) -> Unary:
         y, body = self.ldcs(lam)
@@ -454,16 +463,11 @@ class LDCS(lark.Transformer[str]):
         y = self.gensym()
         if ' ' in lam(y):
             lam = self.lift(self.ldcs(lam), 'superlative', False)
-        if op == 'most':
-            return lambda x: f'{rel(x, y)} : {lam(y)}, {x} != {y}; {lam(x)}'
-        elif op == 'each':
-            return lambda x: f'{rel(x, y)} : {lam(y)};'
-        elif op in ('argmin', 'argmax'):
+        if op in ('argmin', 'argmax'):
             agg = self.join(self.func(op[3:]),
                             self.setof(self.ldcs(self.join(rel, lam))))
             return lambda x: commas(agg(y), rel(y, x), lam(x))
-        else:
-            assert False
+        assert False
 
     def enumerate(self, idx: Unary, lam: Unary) -> Unary:
         i = self.counter('gather')

@@ -87,6 +87,8 @@ def minof(a):
     return min(x.number for x in a.arguments)
 def maxof(a):
     return max(x.number for x in a.arguments)
+def memberof(a):
+    return a.arguments
 
 def proof(head, *args):
     if len(args) == 0:
