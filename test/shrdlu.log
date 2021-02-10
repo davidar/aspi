@@ -1,3 +1,6 @@
+>>> #include "test/shrdlu-world.lp".
+>>> #include "test/shrdlu-actions.lp".
+>>> 
 >>> % PICK UP A BIG RED BLOCK.
 >>> pickup(big red block)!
 --> goal(B) :- big(A), red(A), block(A), B = pickup(A).
@@ -233,8 +236,9 @@ that: apply(pickup(green pyramid),15) | apply(pickup(red cube),17) | apply(put_o
 
 >>> 
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
->>> #count(pickup.object during.that.2)?
---> what(M) :- M = #count { L : aggregation((1),L) }.
+>>> count{pickup.object during.that.2}?
+--> what(N) :- N = @countof(M), setof((1),M).
+    gather((1),L) :- aggregation((1),L).
     aggregation((1),G) :- pickup(G,A), object(A), start_time(H,G), end_time(I,G), start_time(J,B), end_time(K,B), H = J .. K, I = H .. K, G != B, that(B,2).
 that: 2.
 
@@ -250,12 +254,15 @@ that: green pyramid.
 --> what(G) :- block(G), left_of(D,G,F), end_time(E - 1,D), start_time(E,B), cleanoff(B,A), red(A), cube(A), box(F).
 that: red cube.
 
->>> #count(that)?
---> what(B) :- B = #count { A : that(A) }.
+>>> count{that}?
+--> what(C) :- C = @countof(B), setof((2),B).
+    gather((2),A) :- that(A).
 that: 1.
 
 >>> 
 >>> #reset.
+>>> #include "test/shrdlu-world.lp".
+>>> #include "test/shrdlu-actions.lp".
 >>> on(blue block, box)!
 --> goal(C) :- blue(A), block(A), box(B), C = on(A,B).
 cost: 2.

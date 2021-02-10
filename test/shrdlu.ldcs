@@ -1,3 +1,6 @@
+#include "test/shrdlu-world.lp".
+#include "test/shrdlu-actions.lp".
+
 % PICK UP A BIG RED BLOCK.
 pickup(big red block)!
 
@@ -96,16 +99,18 @@ why.that?
 event during.that?
 
 % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
-#count(pickup.object during.that.2)?
+count{pickup.object during.that.2}?
 
 % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
 supports'[red cube, just_before.cleanoff[red cube]]?
 
 % THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
 block left_of[box; just_before.cleanoff[red cube]]?
-#count(that)?
+count{that}?
 
 #reset.
+#include "test/shrdlu-world.lp".
+#include "test/shrdlu-actions.lp".
 on(blue block, box)!
 
 % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.

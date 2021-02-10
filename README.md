@@ -47,7 +47,7 @@ This project started as an interactive shell for [clingo](https://github.com/pot
   ```
 - [Automated planning](https://en.wikipedia.org/wiki/Automated_planning_and_scheduling)
   - [Tower of Hanoi solver](test/hanoi.log)
-  - [SHRDLU-inspired dialogue](shrdlu/test.out)
+  - [SHRDLU-inspired dialogue](test/shrdlu.log)
 
 The language is still unstable and lacking much documentation yet, but there are several example programs in this repo, e.g. [solutions to Project Euler-like problems](test/euler/).
 
