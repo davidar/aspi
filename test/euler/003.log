@@ -20,8 +20,9 @@ understood.
 --> what(A) :- factor(A,42).
 that: 2 | 3 | 7.
 
->>> #max(factor.42)?
---> what(B) :- B = #max { A : factor(A,42) }.
+>>> max{factor.42}?
+--> what(C) :- C = @maxof(B), setof((1),B).
+    gather((1),A) :- factor(A,42).
 that: 7.
 
 >>> thanks.

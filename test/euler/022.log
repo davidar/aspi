@@ -18,7 +18,7 @@ understood.
     gather(1,B) :- name(B).
 understood.
 
->>> value[name S]: sum.#bag(letter.char.S).
+>>> value[name S]: sum{{letter.char.S}}.
 --> value(T,A) :- name(A), A = MuS, T = @sumof(S), bagof((2,MuS),S).
     gather((2,MuS),(R,P0)) :- proof(P0,aggregation((1,MuS),R)), name(A), A = MuS.
     aggregation((1,MuS),N) :- O = @codepoint(F), P = @codepoint("A"), Q = O - P, N = Q + 1, F = @substring(MuS,G,H), I = @length(MuS), G = 1 .. I, J = I - G + 1, H = 0 .. J, 1 = @length(F), name(A), A = MuS.
@@ -28,7 +28,7 @@ understood.
 --> score(D,A) :- name(A), A = MuS, position(B,MuS), value(C,MuS), D = B * C.
 understood.
 
->>> sum.#bag(score.name)?
+>>> sum{{score.name}}?
 --> what(E) :- E = @sumof(D), bagof((3),D).
     gather((3),(C,P0)) :- proof(P0,aggregation((2),C)).
     aggregation((2),B) :- score(B,A), name(A).

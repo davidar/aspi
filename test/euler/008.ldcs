@@ -2,5 +2,5 @@
 four_digits: substring."0319989000" length'.4.
 four_digits?
 #macro char.S: substring.S length'.1.
-product.#bag(decimal.char.S): four_digits(S)?
-#max(that)?
+product{{decimal.char.S}}: four_digits(S)?
+max{that}?

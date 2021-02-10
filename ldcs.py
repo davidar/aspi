@@ -20,7 +20,6 @@ ebnf = r'''
 
 CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
 BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
-AGG_OP: "count" | "sum" | "min" | "max" | "set" | "bag"
 SUP_OP: "most" | "each" | "argmin" | "argmax"
 VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
@@ -54,6 +53,7 @@ atom: NAME
 ldcs: disj [":" clause]
 disjs: disj ("," disj)*
 disj: conj ("|" conj)*
+    | "_"
 conj: lams
 lams: lam+
 ?lam: arg
@@ -77,7 +77,8 @@ join: func "." arg
     | func "[" disjs [";" disjs] "]" -> multijoin
 neg: "~" bracketed
 ineq: CMP_OP bracketed
-hof: "#" AGG_OP "(" ldcs ")" -> aggregation
+hof: [func] "{{" ldcs "}}" -> bagof
+   | [func] "{" ldcs "}" -> setof
    | "#" SUP_OP "(" func "," disj ")" -> superlative
    | "#" "enumerate" "(" disj "," disj ")" -> enumerate
 '''
@@ -372,6 +373,8 @@ class LDCS(lark.Transformer[str]):
         return list(args)
 
     def disj(self, *lams: Unary) -> Unary:
+        if len(lams) == 0:
+            return lambda x: ''
         if len(lams) == 1:
             return lams[0]
         i = self.counter('disjunction')
@@ -416,36 +419,36 @@ class LDCS(lark.Transformer[str]):
         var, body = var_body
         return lambda x: commas(f'{x} {op} {var}', body)
 
-    def aggregation(self, op: str, var_body: CSym,
-                    cond: Optional[str] = None) -> Unary:
-        var, body = var_body
-        body = commas(body, cond)
-        if ' ' in body:
-            var, body = self.ldcs(self.lift((var, body), 'aggregation'))
-        if op in ('count', 'sum', 'min', 'max'):
-            if body:
-                return lambda x: f'{x} = #{op} {{ {var} : {body} }}'
-            else:
-                return lambda x: f'{x} = #{op} {{ {var} }}'
-        elif op in ('set', 'bag'):
-            i = self.counter('gather')
-            vars = sorted(set(re.findall('Mu[A-Z]', commas(var, body))))
-            closure = ','.join([str(i)] + vars)
+    def bagof(self, a, b=None) -> Unary:
+        if b is not None:
+            return self.join(a, self.bagof(b))
+        return self.aggregation('bag', a)
 
-            def f(x: str) -> str:
-                return f'{op}of(({closure}),{x})'
-            context = None
-            if len(vars) > 0:
-                context = f'@context({f("_")})'
-            if op == 'set':
-                rule = f'gather(({closure}),{var}) :- {commas(body, context)}'
-            elif op == 'bag':
-                rule = f'gather(({closure}),({var},P0)) :- ' + \
-                       commas(f'proof(P0,{body})', context)
-            self.rules.insert(0, rule + '.')
-            return f
-        else:
-            assert False
+    def setof(self, a, b=None) -> Unary:
+        if b is not None:
+            return self.join(a, self.setof(b))
+        return self.aggregation('set', a)
+
+    def aggregation(self, op: str, var_body: CSym) -> Unary:
+        var, body = var_body
+        if body is not None and ' ' in body:
+            var, body = self.ldcs(self.lift((var, body), 'aggregation'))
+        i = self.counter('gather')
+        vars = sorted(set(re.findall('Mu[A-Z]', commas(var, body))))
+        closure = ','.join([str(i)] + vars)
+
+        def f(x: str) -> str:
+            return f'{op}of(({closure}),{x})'
+        context = None
+        if len(vars) > 0:
+            context = f'@context({f("_")})'
+        if op == 'set':
+            rule = f'gather(({closure}),{var}) :- {commas(body, context)}'
+        elif op == 'bag':
+            rule = f'gather(({closure}),({var},P0)) :- ' + \
+                    commas(f'proof(P0,{body})', context)
+        self.rules.insert(0, rule + '.')
+        return f
 
     def superlative(self, op: str, rel: Binary, lam: Unary) -> Unary:
         y = self.gensym()
@@ -456,7 +459,8 @@ class LDCS(lark.Transformer[str]):
         elif op == 'each':
             return lambda x: f'{rel(x, y)} : {lam(y)};'
         elif op in ('argmin', 'argmax'):
-            agg = self.aggregation(op[3:], self.ldcs(self.join(rel, lam)))
+            agg = self.join(self.func(op[3:]),
+                            self.setof(self.ldcs(self.join(rel, lam))))
             return lambda x: commas(agg(y), rel(y, x), lam(x))
         else:
             assert False

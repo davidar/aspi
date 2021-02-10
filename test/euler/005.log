@@ -1,6 +1,7 @@
 >>> % 5. What is the smallest number divisible by each of the numbers 1 to 10?
->>> #min(#each(multiple, 1..10) n4)?
---> what(E) :- E = #min { D : aggregation((1),D) }.
+>>> min{#each(multiple, 1..10) n4}?
+--> what(F) :- F = @minof(E), setof((1),E).
+    gather((1),D) :- aggregation((1),D).
     superlative((1),B) :- B = 1 .. 10.
     aggregation((1),C) :- C \ A = 0 : superlative((1),A); C = 1 .. 9999.
 that: 2520.

@@ -2,4 +2,4 @@
 2**10?
 #macro char.S: substring.S length'.1.
 #macro digit.N: decimal.char.show.N.
-sum.#bag(digit[2**10])?
+sum{{digit[2**10]}}?

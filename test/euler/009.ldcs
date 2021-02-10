@@ -3,5 +3,5 @@ pythag(A n2, B n2, C n2): A**2 = (B**2) + (C**2).
 pythag[3,4]?
 triple(A,B,C): pythag(A,B,C)?
 triple(A,B,C): pythag(A,B,C), (A+B)+C = 96?
-#set(triple(A,B,C): pythag(A,B,C), (A+B)+C = 96)?
+{triple(A,B,C): pythag(A,B,C), (A+B)+C = 96}?
 (A*B)*C: pythag(A,B,C), (A+B)+C = 96?

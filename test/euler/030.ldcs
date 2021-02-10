@@ -3,4 +3,4 @@
 #macro char.S: substring[S, 1..length.S, 1].
 #macro digit.N: decimal.char.show.N.
 
-N sum.#bag((digit.N)**4) n4?
+N sum.{{(digit.N)**4}} n4?

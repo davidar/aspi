@@ -15,7 +15,7 @@ that: triple(5,3,4) | triple(5,4,3) | triple(10,6,8) | triple(10,8,6) | triple(1
 --> what(triple(MuA,MuB,MuC)) :- pythag(MuA,MuB,MuC), ((MuA+MuB)+MuC) = 96.
 that: triple(40,24,32) | triple(40,32,24).
 
->>> #set(triple(A,B,C): pythag(A,B,C), (A+B)+C = 96)?
+>>> {triple(A,B,C): pythag(A,B,C), (A+B)+C = 96}?
 --> what(B) :- setof((1,MuA,MuB,MuC),B).
     gather((1,MuA,MuB,MuC),A) :- aggregation((1,MuA,MuB,MuC),A).
     aggregation((1,MuA,MuB,MuC),triple(MuA,MuB,MuC)) :- pythag(MuA,MuB,MuC), ((MuA+MuB)+MuC) = 96.

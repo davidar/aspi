@@ -5,6 +5,6 @@
 
 name: csv[1, 1..1000].
 position[name S]: N: S = #enumerate(N, name).
-value[name S]: sum.#bag(letter.char.S).
+value[name S]: sum{{letter.char.S}}.
 score[name S]: position.S * value.S.
-sum.#bag(score.name)?
+sum{{score.name}}?

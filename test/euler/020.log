@@ -1,5 +1,5 @@
 >>> % 20. Find the sum of digits in 10!
->>> factorial[N 1..12]: product.#set(1..N).
+>>> factorial[N 1..12]: product{1..N}.
 --> factorial(E,A) :- A = MuN, A = 1 .. 12, E = @productof(D), setof((1,MuN),D).
     gather((1,MuN),C) :- aggregation((1,MuN),C), A = MuN, A = 1 .. 12.
     aggregation((1,MuN),B) :- B = 1 .. MuN, A = MuN, A = 1 .. 12.
@@ -9,7 +9,7 @@ understood.
 --> what(A) :- factorial(A,10).
 that: 3628800.
 
->>> sum.#bag(decimal[substring.show.factorial.10 length'.1])?
+>>> sum{{decimal[substring.show.factorial.10 length'.1]}}?
 --> what(O) :- O = @sumof(N), bagof((2),N).
     gather((2),(M,P0)) :- proof(P0,aggregation((2),M)).
     aggregation((2),L) :- L = @decimal(G), G = @substring(B,H,I), J = @length(B), H = 1 .. J, K = J - H + 1, I = 0 .. K, B = @show(A), factorial(A,10), 1 = @length(G).

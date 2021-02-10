@@ -7,4 +7,4 @@
 % permutation.A: insert[head.A, permutation.tail.A, 1..length.A].
 
 permutation."DDDDRRRR"?
-#count(that)?
+count{that}?

@@ -81,6 +81,10 @@ def sumof(a):
     return sum(x.number for x in a.arguments) % sys.maxsize
 def productof(a):
     return math.prod(x.number for x in a.arguments) % sys.maxsize
+def minof(a):
+    return min(x.number for x in a.arguments)
+def maxof(a):
+    return max(x.number for x in a.arguments)
 
 def proof(head, *args):
     if len(args) == 0:
