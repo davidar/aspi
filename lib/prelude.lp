@@ -25,9 +25,11 @@ proof(@proof(csv_rows(R)),csv_rows(R)) :- csv_rows(R).
 gather(@gather(I,X)) :- gather(I,X).
 enumerate(I,J,X) :- gather(I), (J-1,X) = @sort(I).
 proof(@proof(enumerate(I,J,X)),enumerate(I,J,X)) :- enumerate(I,J,X).
-setof(I,X) :- gather(I), X = @setof(I).
+setof_(I,X) :- gather(I), gather(I,Y), X = @setof(I).
+setof(I,S) :- setof_(I,S), @countof(S) = #max { @countof(X) : setof_(I,X) }.
 proof(@proof(setof(I,X)),setof(I,X)) :- setof(I,X).
-bagof(I,X) :- gather(I), X = @bagof(I).
+bagof_(I,X) :- gather(I), gather(I,Y), X = @bagof(I).
+bagof(I,S) :- bagof_(I,S), @countof(S) = #max { @countof(X) : bagof_(I,X) }.
 proof(@proof(bagof(I,X)),bagof(I,X)) :- bagof(I,X).
 
 #script (python)
