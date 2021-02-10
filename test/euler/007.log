@@ -8,9 +8,9 @@ understood.
     negation((1),A) :- composite(A), A = 1 .. 999.
 understood.
 
->>> #enumerate(101, prime)?
---> what(B) :- enumerate(1,A,B), A = 101.
-    gather(1,A) :- prime(A).
+>>> 101'th.{prime}?
+--> what(D) :- A = 101, (A,D) = @enumerateof(C), setof((1),C).
+    gather((1),B) :- prime(B).
 that: 547.
 
 >>> thanks.

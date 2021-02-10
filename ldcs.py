@@ -21,7 +21,7 @@ ebnf = r'''
 CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
 BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
 SUP_OP: "argmin" | "argmax"
-SUP_SUFFIX: "'est" | "'each" | "'"
+SUP_SUFFIX: "'est" | "'each" | "'th" | "'"
 VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
 
@@ -72,7 +72,7 @@ constant: INT
     | "(" "-" bracketed ")" -> negative
 func: atom
     | atom "$" func -> compose
-    | func SUP_SUFFIX -> flip
+    | (func | constant) SUP_SUFFIX -> flip
 join: func "." arg
     | func "[" disj "]"
     | func "[" disjs [";" disjs] "]" -> multijoin
@@ -81,7 +81,6 @@ ineq: CMP_OP bracketed
 hof: [func] "{{" ldcs "}}" -> bagof
    | [func] "{" ldcs "}" -> setof
    | "#" SUP_OP "(" func "," disj ")" -> superlative
-   | "#" "enumerate" "(" disj "," disj ")" -> enumerate
 '''
 
 Sym = str
@@ -405,7 +404,7 @@ class LDCS(lark.Transformer[str]):
     def compose(self, name: str, lam: Variadic) -> Variadic:
         return lambda *args: f'{name}({lam(*args)})'
 
-    def flip(self, rel: Variadic, op: str = 'by') -> Variadic:
+    def flip(self, rel: Variadic, op: str) -> Variadic:
         if op == "'":
             return lambda *args: rel(*reversed(args))
         elif op == "'each":
@@ -414,6 +413,9 @@ class LDCS(lark.Transformer[str]):
         elif op == "'est":
             y = self.gensym()
             return lambda x, z: f'{rel(x, y)} : {y} = @memberof({z}), {x} != {y}; {x} = @memberof({z})'
+        elif op == "'th":
+            y = self.gensym()
+            return lambda x, z: f'{rel(y)}, ({y},{x}) = @enumerateof({z})'
         assert False
 
     def join(self, rel: Binary, lam: Unary) -> Unary:
@@ -468,12 +470,6 @@ class LDCS(lark.Transformer[str]):
                             self.setof(self.ldcs(self.join(rel, lam))))
             return lambda x: commas(agg(y), rel(y, x), lam(x))
         assert False
-
-    def enumerate(self, idx: Unary, lam: Unary) -> Unary:
-        i = self.counter('gather')
-        y = self.gensym()
-        self.rules.append(f'gather({i},{y}) :- {lam(y)}.')
-        return lambda x: f'enumerate({i},{y},{x}), {idx(y)}'
 
     def unify(self, pred_body: CSym) -> Unary:
         pred, body = pred_body
