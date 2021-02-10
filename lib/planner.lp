@@ -15,6 +15,7 @@ success(A,T) :- apply(A,T).
 :- finished(F), apply(A,T), A != nop, T > F.
 
 % Optimise
+costs(A,C) :- rewards(A,-C).
 :~ apply(A,T), costs(A,C), T = now+1..M, tmax(M). [C,T]
 
 #show already/1.

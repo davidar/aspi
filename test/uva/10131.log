@@ -13,34 +13,34 @@ understood.
 understood.
 
 >>> 
->>> init: start(0).
---> init(start(0)).
+>>> init: start().
+--> init(start).
 understood.
 
->>> holds(start(0), T) :: holds(allowed(elephant), T).
---> holds(B,MuT) :- elephant(A), B = allowed(A), holds(start(0),MuT).
+>>> holds(start(), T) :: holds(allowed(elephant), T).
+--> holds(B,MuT) :- elephant(A), B = allowed(A), holds(start,MuT).
 understood.
 
 >>> holds(current(I), T), weight.I < weight.J, smarts.I > smarts.J :: holds(allowed(J), T).
 --> holds(allowed(MuJ),MuT) :- holds(current(MuI),MuT), A < B, weight(A,MuI), weight(B,MuJ), C > D, smarts(C,MuI), smarts(D,MuJ).
 understood.
 
->>> select(I, weight.I, smarts.I) :: action demands.allowed(I) deletes.start(0) deletes.current(elephant) adds.current(I) costs.(-1).
+>>> select(I, weight.I, smarts.I) :: action demands.allowed(I) deletes.start() deletes.current(elephant) adds.current(I) rewards.1.
 --> action(C) :- weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
     demands(C,allowed(MuI)) :- weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
-    deletes(C,start(0)) :- weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
+    deletes(C,start) :- weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
     deletes(C,E) :- elephant(D), E = current(D), weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
     adds(C,current(MuI)) :- weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
-    costs(C,-1) :- weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
+    rewards(C,1) :- weight(A,MuI), smarts(B,MuI), C = select(MuI,A,B).
 understood.
 
->>> #any current(elephant)!
---> { goal(B) : elephant(A), B = current(A) } = 1.
-cost: -4.
+>>> #any!
+--> 
+reward: 4.
 select(4, 1000, 4000)!
 select(5, 1100, 3000)!
-select(6, 6000, 2000)!
-select(7, 8000, 1400)!
+select(9, 2000, 1900)!
+select(8, 6000, 1200)!
 
 >>> thanks.
 YOU'RE WELCOME!

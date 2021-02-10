@@ -4,8 +4,8 @@ elephant: 1..csv_rows.
 weight.I: csv[I,1].
 smarts.I: csv[I,2].
 
-init: start(0).
-holds(start(0), T) :: holds(allowed(elephant), T).
+init: start().
+holds(start(), T) :: holds(allowed(elephant), T).
 holds(current(I), T), weight.I < weight.J, smarts.I > smarts.J :: holds(allowed(J), T).
-select(I, weight.I, smarts.I) :: action demands.allowed(I) deletes.start(0) deletes.current(elephant) adds.current(I) costs.(-1).
-#any current(elephant)!
+select(I, weight.I, smarts.I) :: action demands.allowed(I) deletes.start() deletes.current(elephant) adds.current(I) rewards.1.
+#any!

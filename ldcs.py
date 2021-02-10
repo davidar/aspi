@@ -31,7 +31,7 @@ start: cmd
     | "#" "relation" atom "(" rparam ("," rparam)* ")" "." -> relation
     | "#" "any" (ldcs | cmpop) "." -> constraint_any
     | "#" "any" ldcs "?" -> query_any
-    | "#" "any" ldcs "!" -> goal_any
+    | "#" "any" [ldcs] "!" -> goal_any
     | ["#" "macro"] define_heads ":" ldcs "." -> define
     | ldcs "::" define_heads "." -> reverse_define
     | term [":" clause] "." -> claim
@@ -43,7 +43,7 @@ clause: term ("," term)*
 ?term: pred
      | cmpop
      | "#" "each" "(" term "," term ")" -> foreach
-pred: atom "(" ldcs ("," ldcs)* ")"
+pred: atom "(" [ldcs ("," ldcs)*] ")"
     | atom "$" pred
 cmpop: ldcs CMP_OP ldcs -> binop
 binop: bracketed BIN_OP bracketed
@@ -303,7 +303,9 @@ class LDCS(lark.Transformer[str]):
             body = commas(body, v, b)
         return body
 
-    def goal_any(self, var_body: CSym) -> str:
+    def goal_any(self, var_body: Optional[CSym] = None) -> Optional[str]:
+        if var_body is None:
+            return None
         var, body = var_body
         if body is None:
             return f'{{ goal({var}) }} = 1'

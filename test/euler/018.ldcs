@@ -1,10 +1,10 @@
 % 18. Find the maximum sum travelling from the top of the triangle to the base.
 
 node[R,C]: csv[R,C].
-end: 5.
+end: csv_rows.
 
-left (R+1, C,   node[R+1, C])   :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C)   costs.negate.node[R+1, C].
-right(R+1, C+1, node[R+1, C+1]) :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C+1) costs.negate.node[R+1, C+1].
+left (R+1, C,   node[R+1, C])   :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C)   rewards.node[R+1, C].
+right(R+1, C+1, node[R+1, C+1]) :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C+1) rewards.node[R+1, C+1].
 
 init: at(0,1).
 #any at(end, 1..end)!

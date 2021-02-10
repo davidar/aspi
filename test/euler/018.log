@@ -4,25 +4,25 @@
 --> node(A,MuR,MuC) :- csv(A,MuR,MuC).
 understood.
 
->>> end: 5.
---> end(5).
+>>> end: csv_rows.
+--> end(A) :- csv_rows(A).
 understood.
 
 >>> 
->>> left (R+1, C,   node[R+1, C])   :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C)   costs.negate.node[R+1, C].
+>>> left (R+1, C,   node[R+1, C])   :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C)   rewards.node[R+1, C].
 --> action(B) :- node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
     demands(B,at(MuR,MuC)) :- node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
     deletes(B,at(MuR,MuC)) :- node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
     adds(B,at(MuR+1,MuC)) :- node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
-    costs(B,D) :- D = - C, node(C,MuR+1,MuC), node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
+    rewards(B,C) :- node(C,MuR+1,MuC), node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
 understood.
 
->>> right(R+1, C+1, node[R+1, C+1]) :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C+1) costs.negate.node[R+1, C+1].
+>>> right(R+1, C+1, node[R+1, C+1]) :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C+1) rewards.node[R+1, C+1].
 --> action(B) :- node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
     demands(B,at(MuR,MuC)) :- node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
     deletes(B,at(MuR,MuC)) :- node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
     adds(B,at(MuR+1,MuC+1)) :- node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
-    costs(B,D) :- D = - C, node(C,MuR+1,MuC+1), node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
+    rewards(B,C) :- node(C,MuR+1,MuC+1), node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
 understood.
 
 >>> 
@@ -32,7 +32,7 @@ understood.
 
 >>> #any at(end, 1..end)!
 --> { goal(D) : end(A), end(B), C = 1 .. B, D = at(A,C) } = 1.
-cost: -390.
+reward: 390.
 left(1, 1, 75)!
 right(2, 2, 64)!
 right(3, 3, 82)!

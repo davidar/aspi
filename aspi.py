@@ -49,7 +49,10 @@ def run_clingo(lp: str) -> List[str]:
     if result['Result'] == 'OPTIMUM FOUND':
         costs = result['Models']['Costs']
         assert costs == witness['Costs']
-        print(f"cost: {costs[0]}.")
+        if costs[0] < 0:
+            print(f"reward: {-costs[0]}.")
+        else:
+            print(f"cost: {costs[0]}.")
     return cast(List[str], witness['Value'])
 
 
