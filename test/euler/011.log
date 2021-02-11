@@ -13,10 +13,10 @@ understood.
     gather((1,MuC,MuI,MuJ,MuR),(A,P0)) :- proof(P0,line(A,MuR,MuC,MuI,MuJ)).
 understood.
 
->>> #argmax(product, lines)?
---> what(F) :- A = @maxof(E), setof((2),E), A = @productof(F), lines(F).
-    gather((2),D) :- aggregation((1),D).
-    aggregation((1),C) :- C = @productof(B), lines(B).
+>>> product'.max{product.lines} lines?
+--> what(F) :- E = @productof(F), E = @maxof(D), setof((2),D), lines(F).
+    gather((2),C) :- aggregation((1),C).
+    aggregation((1),B) :- B = @productof(A), lines(A).
 that: bag(49,71,95,99).
 
 >>> product.that?

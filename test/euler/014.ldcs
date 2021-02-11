@@ -5,4 +5,4 @@ collatz_steps.1: 0.
 collatz_steps[N >1 n3]: 1 + collatz_steps[collatz.N].
 collatz_steps[1..10]?
 max{collatz_steps[1..10]}?
-#argmax(collatz_steps, 1..10)?
+collatz_steps'.max{collatz_steps[1..10]} 1..10?

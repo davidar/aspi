@@ -28,11 +28,10 @@ understood.
 --> what(A) :- prime_generator_max(A,p(1,41)).
 that: 39.
 
->>> #argmax(prime_generator_max, p(i2,i2))?
---> what(I) :- C = @maxof(H), setof((2),H), prime_generator_max(C,I), superlative((1),I).
-    gather((2),G) :- aggregation((1),G).
-    superlative((1),D) :- A = - 99 .. 99, B = - 99 .. 99, D = p(A,B).
-    aggregation((1),F) :- prime_generator_max(F,E), superlative((1),E).
+>>> prime_generator_max'.max{prime_generator_max.p(i2,i2)}?
+--> what(H) :- prime_generator_max(G,H), G = @maxof(F), setof((2),F).
+    gather((2),E) :- aggregation((1),E).
+    aggregation((1),D) :- prime_generator_max(D,C), A = - 99 .. 99, B = - 99 .. 99, C = p(A,B).
 that: p(-15,97).
 
 >>> prime_generator_max.that?

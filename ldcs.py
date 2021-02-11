@@ -65,22 +65,18 @@ constant: INT
 ?arg: func
     | constant
     | join
-    | neg
-    | ineq
-    | hof
+    | "~" bracketed -> neg
+    | CMP_OP bracketed -> ineq
     | pred -> unify
     | "(" "-" bracketed ")" -> negative
+    | [func] "{{" ldcs "}}" -> bagof
+    | [func] "{" ldcs "}" -> setof
 func: atom
     | atom "$" func -> compose
-    | (func | constant) SUP_SUFFIX -> flip
+    | (func | constant) SUP_SUFFIX -> superlative
 join: func "." arg
     | func "[" disj "]"
     | func "[" disjs [";" disjs] "]" -> multijoin
-neg: "~" bracketed
-ineq: CMP_OP bracketed
-hof: [func] "{{" ldcs "}}" -> bagof
-   | [func] "{" ldcs "}" -> setof
-   | "#" SUP_OP "(" func "," disj ")" -> superlative
 '''
 
 Sym = str
@@ -404,7 +400,7 @@ class LDCS(lark.Transformer[str]):
     def compose(self, name: str, lam: Variadic) -> Variadic:
         return lambda *args: f'{name}({lam(*args)})'
 
-    def flip(self, rel: Variadic, op: str) -> Variadic:
+    def superlative(self, rel: Variadic, op: str) -> Variadic:
         if op == "'":
             return lambda *args: rel(*reversed(args))
         elif op == "'each":
@@ -460,16 +456,6 @@ class LDCS(lark.Transformer[str]):
                     commas(f'proof(P0,{body})', context)
         self.rules.insert(0, rule + '.')
         return f
-
-    def superlative(self, op: str, rel: Binary, lam: Unary) -> Unary:
-        y = self.gensym()
-        if ' ' in lam(y):
-            lam = self.lift(self.ldcs(lam), 'superlative', False)
-        if op in ('argmin', 'argmax'):
-            agg = self.join(self.func(op[3:]),
-                            self.setof(self.ldcs(self.join(rel, lam))))
-            return lambda x: commas(agg(y), rel(y, x), lam(x))
-        assert False
 
     def unify(self, pred_body: CSym) -> Unary:
         pred, body = pred_body
