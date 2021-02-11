@@ -20,7 +20,6 @@ ebnf = r'''
 
 CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
 BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
-SUP_OP: "argmin" | "argmax"
 SUP_SUFFIX: "'est" | "'each" | "'th" | "'"
 VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
