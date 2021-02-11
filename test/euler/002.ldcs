@@ -3,7 +3,7 @@ fib[0]: 0.
 fib[1]: 1.
 fib[N 2..45]: fib[N-1] + fib[N-2].
 fib: fib[0..45].
-#set(fib)?
-#bag(fib)?
+{fib}?
+{{fib}}?
 proof.fib(13)?
-#sum(even fib <1000000)?
+sum{even fib <1000000}?

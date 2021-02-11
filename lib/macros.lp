@@ -36,3 +36,5 @@ codepoint(X,A) :- X = @codepoint(A).
 count(X,L) :- X = @countof(L).
 sum(X,L) :- X = @sumof(L).
 product(X,L) :- X = @productof(L).
+min(X,L) :- X = @minof(L).
+max(X,L) :- X = @maxof(L).

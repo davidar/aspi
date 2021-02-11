@@ -19,15 +19,16 @@ understood.
 --> what(B) :- collatz_steps(B,A), A = 1 .. 10.
 that: 0 | 1 | 2 | 3 | 5 | 6 | 7 | 8 | 16 | 19.
 
->>> #max(collatz_steps[1..10])?
---> what(D) :- D = #max { C : aggregation((1),C) }.
+>>> max{collatz_steps[1..10]}?
+--> what(E) :- E = @maxof(D), setof((1),D).
+    gather((1),C) :- aggregation((1),C).
     aggregation((1),B) :- collatz_steps(B,A), A = 1 .. 10.
 that: 19.
 
->>> #argmax(collatz_steps, 1..10)?
---> what(F) :- A = #max { E : aggregation((2),E) }, collatz_steps(A,F), superlative((1),F).
-    superlative((1),B) :- B = 1 .. 10.
-    aggregation((2),D) :- collatz_steps(D,C), superlative((1),C).
+>>> collatz_steps'.max{collatz_steps[1..10]} 1..10?
+--> what(F) :- collatz_steps(E,F), E = @maxof(D), setof((2),D), F = 1 .. 10.
+    gather((2),C) :- aggregation((2),C).
+    aggregation((2),B) :- collatz_steps(B,A), A = 1 .. 10.
 that: 9.
 
 >>> thanks.

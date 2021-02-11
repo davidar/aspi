@@ -1,7 +1,7 @@
 import pytest
 import os.path
 
-scripts = ['dcg', 'golf', 'hanoi', 'shortest-path', 'zebra', 'uva/10131']
+scripts = ['dcg', 'golf', 'hanoi', 'shortest-path', 'shrdlu', 'zebra', 'uva/10131']
 
 for i in range(1000):
     name = f'euler/{i:03}'
@@ -20,13 +20,4 @@ def test_script(script_runner, name):
         with open(f'test/{name}.log', 'w') as f:
             f.write(ret.stdout)
     assert ret.stdout == open(f'test/{name}.log', 'r').read()
-    assert ret.stderr == ''
-
-
-def test_shrdlu(script_runner):
-    ret = script_runner.run(
-        './aspi.py', 'shrdlu/world.lp', 'shrdlu/actions.lp',
-        stdin=open('shrdlu/test.in', 'r'))
-    assert ret.success
-    assert ret.stdout == open('shrdlu/test.out', 'r').read()
     assert ret.stderr == ''

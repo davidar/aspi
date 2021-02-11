@@ -1,7 +1,7 @@
 >>> % 22. What is the total of all the name scores in the file of first names? 
 >>> 
->>> #macro char.S: substring.S length'.1.
---> char(E,MuS) :- E = @substring(MuS,F,G), H = @length(MuS), F = 1 .. H, I = H - F + 1, G = 0 .. I, 1 = @length(E).
+>>> #macro char.S: substring[S, 1..length.S, 1].
+--> char(C,MuS) :- C = @substring(MuS,B,1), A = @length(MuS), B = 1 .. A.
 understood.
 
 >>> #macro letter.C: (codepoint.C - codepoint."A") + 1.
@@ -13,22 +13,22 @@ understood.
 --> name(B) :- csv(B,1,A), A = 1 .. 1000.
 understood.
 
->>> position[name S]: N: S = #enumerate(N, name).
---> position(MuN,A) :- name(A), A = MuS, MuS = C, enumerate(1,B,C), B = MuN.
-    gather(1,B) :- name(B).
+>>> position[name S]: N: S = N'th.{name}.
+--> position(MuN,A) :- name(A), A = MuS, MuS = E, B = MuN, (B,E) = @enumerateof(D), setof((1),D).
+    gather((1),C) :- name(C).
 understood.
 
->>> value[name S]: sum.#bag(letter.char.S).
---> value(T,A) :- name(A), A = MuS, T = @sumof(S), bagof((2,MuS),S).
-    gather((2,MuS),(R,P0)) :- proof(P0,aggregation((1,MuS),R)), name(A), A = MuS.
-    aggregation((1,MuS),N) :- O = @codepoint(F), P = @codepoint("A"), Q = O - P, N = Q + 1, F = @substring(MuS,G,H), I = @length(MuS), G = 1 .. I, J = I - G + 1, H = 0 .. J, 1 = @length(F), name(A), A = MuS.
+>>> value[name S]: sum{{letter.char.S}}.
+--> value(P,A) :- name(A), A = MuS, P = @sumof(O), bagof((2,MuS),O).
+    gather((2,MuS),(N,P0)) :- proof(P0,aggregation((1,MuS),N)), name(A), A = MuS.
+    aggregation((1,MuS),J) :- K = @codepoint(D), L = @codepoint("A"), M = K - L, J = M + 1, D = @substring(MuS,E,1), F = @length(MuS), E = 1 .. F, name(A), A = MuS.
 understood.
 
 >>> score[name S]: position.S * value.S.
 --> score(D,A) :- name(A), A = MuS, position(B,MuS), value(C,MuS), D = B * C.
 understood.
 
->>> sum.#bag(score.name)?
+>>> sum{{score.name}}?
 --> what(E) :- E = @sumof(D), bagof((3),D).
     gather((3),(C,P0)) :- proof(P0,aggregation((2),C)).
     aggregation((2),B) :- score(B,A), name(A).

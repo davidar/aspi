@@ -8,8 +8,9 @@ understood.
     negation((1),A) :- composite(A), A = 1 .. 999.
 understood.
 
->>> #sum(prime <100)?
---> what(C) :- C = #sum { B : aggregation((1),B) }.
+>>> sum{prime <100}?
+--> what(D) :- D = @sumof(C), setof((1),C).
+    gather((1),B) :- aggregation((1),B).
     aggregation((1),A) :- prime(A), A < 100.
 that: 1060.
 

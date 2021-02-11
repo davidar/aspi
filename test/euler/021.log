@@ -3,7 +3,7 @@
 --> proper_divisor(B,A) :- A = MuN, A = 1 .. 999, B = 1 .. (MuN-1), MuN \ B = 0.
 understood.
 
->>> aliquot[N n3]: sum.#set(proper_divisor.N).
+>>> aliquot[N n3]: sum{proper_divisor.N}.
 --> aliquot(D,A) :- A = MuN, A = 1 .. 999, D = @sumof(C), setof((1,MuN),C).
     gather((1,MuN),B) :- proper_divisor(B,MuN), A = MuN, A = 1 .. 999.
 understood.
@@ -28,8 +28,9 @@ understood.
 --> what(A) :- amicable(A).
 that: 220 | 284.
 
->>> #sum(amicable <1000)?
---> what(C) :- C = #sum { B : aggregation((1),B) }.
+>>> sum{amicable <1000}?
+--> what(D) :- D = @sumof(C), setof((2),C).
+    gather((2),B) :- aggregation((1),B).
     aggregation((1),A) :- amicable(A), A < 1000.
 that: 504.
 

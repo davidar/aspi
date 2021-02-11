@@ -18,8 +18,9 @@ understood.
 --> prime_generator(MuN,p(MuA,MuB)) :- prime_generator(MuN-1,p(MuA,MuB)), prime(((MuN+MuA)*MuN)+MuB).
 understood.
 
->>> prime_generator_max.p(A,B): #max(prime_generator.p(A,B)): prime_generator(0, p(A,B)).
---> prime_generator_max(B,p(MuA,MuB)) :- B = #max { A : prime_generator(A,p(MuA,MuB)) }, prime_generator(0,p(MuA,MuB)).
+>>> prime_generator_max.p(A,B): max{prime_generator.p(A,B)}: prime_generator(0, p(A,B)).
+--> prime_generator_max(C,p(MuA,MuB)) :- C = @maxof(B), setof((1,MuA,MuB),B), prime_generator(0,p(MuA,MuB)).
+    gather((1,MuA,MuB),A) :- prime_generator(A,p(MuA,MuB)), prime_generator(0,p(MuA,MuB)).
 understood.
 
 >>> 
@@ -27,10 +28,10 @@ understood.
 --> what(A) :- prime_generator_max(A,p(1,41)).
 that: 39.
 
->>> #argmax(prime_generator_max, p(i2,i2))?
---> what(H) :- C = #max { G : aggregation((1),G) }, prime_generator_max(C,H), superlative((1),H).
-    superlative((1),D) :- A = - 99 .. 99, B = - 99 .. 99, D = p(A,B).
-    aggregation((1),F) :- prime_generator_max(F,E), superlative((1),E).
+>>> prime_generator_max'.max{prime_generator_max.p(i2,i2)}?
+--> what(H) :- prime_generator_max(G,H), G = @maxof(F), setof((2),F).
+    gather((2),E) :- aggregation((1),E).
+    aggregation((1),D) :- prime_generator_max(D,C), A = - 99 .. 99, B = - 99 .. 99, C = p(A,B).
 that: p(-15,97).
 
 >>> prime_generator_max.that?

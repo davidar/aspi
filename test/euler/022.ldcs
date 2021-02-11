@@ -1,10 +1,10 @@
 % 22. What is the total of all the name scores in the file of first names? 
 
-#macro char.S: substring.S length'.1.
+#macro char.S: substring[S, 1..length.S, 1].
 #macro letter.C: (codepoint.C - codepoint."A") + 1.
 
 name: csv[1, 1..1000].
-position[name S]: N: S = #enumerate(N, name).
-value[name S]: sum.#bag(letter.char.S).
+position[name S]: N: S = N'th.{name}.
+value[name S]: sum{{letter.char.S}}.
 score[name S]: position.S * value.S.
-sum.#bag(score.name)?
+sum{{score.name}}?

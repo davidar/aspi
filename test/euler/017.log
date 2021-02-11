@@ -141,7 +141,7 @@ that: 742.
 --> char(E,MuS) :- E = @substring(MuS,F,G), H = @length(MuS), F = 1 .. H, I = H - F + 1, G = 0 .. I, 1 = @length(E).
 understood.
 
->>> count.#bag(char.say[1..100] ~" ")?
+>>> count{{char.say[1..100] ~" "}}?
 --> what(N) :- N = @countof(M), bagof((1),M).
     gather((1),(L,P0)) :- proof(P0,aggregation((1),L)).
     negation((3)," ").

@@ -2,6 +2,6 @@
 
 grid[R,C]: csv[R,C].
 line[R 1..10, C 1..10, I (-1)..1, J (-1)..1]: grid[R + (I*N), C + (J*N)]: N = 0..3.
-lines: #bag(line[R,C,I,J]).
-#argmax(product, lines)?
+lines: {{line[R,C,I,J]}}.
+product'.max{product.lines} lines?
 product.that?

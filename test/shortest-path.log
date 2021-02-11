@@ -66,8 +66,9 @@ understood.
 --> paths(C,MuB) :- path(A,MuA), edge(B,MuA,MuB), C = A + B.
 understood.
 
->>> path[node B ~start]: #min(paths.B).
---> path(D,B) :- node(B), B = MuB, not negation((1),B), D = #min { C : paths(C,MuB) }.
+>>> path[node B ~start]: min{paths.B}.
+--> path(E,B) :- node(B), B = MuB, not negation((1),B), E = @minof(D), setof((1,MuB),D).
+    gather((1,MuB),C) :- paths(C,MuB), node(B), B = MuB, not negation((1),B).
     negation((1),A) :- start(A), node(A).
 understood.
 

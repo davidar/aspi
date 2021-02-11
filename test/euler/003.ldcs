@@ -4,4 +4,4 @@ prime: >1 ~composite n3.
 prime?
 factor[X n3]: prime multiple'[X].
 factor.42?
-#max(factor.42)?
+max{factor.42}?

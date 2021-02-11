@@ -21,7 +21,7 @@ start: "BOS".
 
 % via recurrence equation
 paths.B: path.A + edge[A,B].
-path[node B ~start]: #min(paths.B).
+path[node B ~start]: min{paths.B}.
 path.start: 0.
 result(A, path.A)?
 

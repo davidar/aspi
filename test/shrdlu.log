@@ -1,3 +1,6 @@
+>>> #include "test/shrdlu-world.lp".
+>>> #include "test/shrdlu-actions.lp".
+>>> 
 >>> % PICK UP A BIG RED BLOCK.
 >>> pickup(big red block)!
 --> goal(B) :- big(A), red(A), block(A), B = pickup(A).
@@ -162,17 +165,20 @@ put_on(red cube, green cube supports[red pyramid])!
 
 >>> 
 >>> % PUT THE LITTLEST PYRAMID ON TOP OF IT.
->>> on(#most(little, pyramid), small block)!
---> goal(D) :- little(B,A) : pyramid(A), B != A; pyramid(B), small(C), block(C), D = on(B,C).
+>>> on(little'est.{pyramid}, small block)!
+--> goal(F) :- little(D,A) : A = @memberof(C), D != A; D = @memberof(C), setof((1),C), small(E), block(E), F = on(D,E).
+    gather((1),B) :- pyramid(B).
 cost: 2.
 pickup(green pyramid)!
 put_on(green pyramid, red cube)!
 
 >>> 
 >>> % DOES THE SHORTEST THING THE TALLEST PYRAMID'S SUPPORT SUPPORTS SUPPORT ANYTHING GREEN?
->>> green on.#most(short, on.supports.#most(tall, pyramid))?
---> what(G) :- green(G), on(G,F), short(F,D) : superlative((1),D), F != D; superlative((1),F).
-    superlative((1),E) :- on(E,C), supports(C,B), tall(B,A) : pyramid(A), B != A; pyramid(B).
+>>> green on.short'est.{on.supports.tall'est.{pyramid}}?
+--> what(K) :- green(K), on(K,J), short(J,A) : A = @memberof(I), J != A; J = @memberof(I), setof((3),I).
+    gather((3),H) :- aggregation((1),H).
+    gather((2),C) :- pyramid(C).
+    aggregation((1),G) :- on(G,F), supports(F,E), tall(E,B) : B = @memberof(D), E != B; E = @memberof(D), setof((2),D).
 that: green pyramid.
 
 >>> 
@@ -233,9 +239,10 @@ that: apply(pickup(green pyramid),15) | apply(pickup(red cube),17) | apply(put_o
 
 >>> 
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
->>> #count(pickup.object during.that.2)?
---> what(M) :- M = #count { L : aggregation((1),L) }.
-    aggregation((1),G) :- pickup(G,A), object(A), start_time(H,G), end_time(I,G), start_time(J,B), end_time(K,B), H = J .. K, I = H .. K, G != B, that(B,2).
+>>> count{pickup.object during.that.2}?
+--> what(N) :- N = @countof(M), setof((4),M).
+    gather((4),L) :- aggregation((2),L).
+    aggregation((2),G) :- pickup(G,A), object(A), start_time(H,G), end_time(I,G), start_time(J,B), end_time(K,B), H = J .. K, I = H .. K, G != B, that(B,2).
 that: 2.
 
 >>> 
@@ -250,12 +257,15 @@ that: green pyramid.
 --> what(G) :- block(G), left_of(D,G,F), end_time(E - 1,D), start_time(E,B), cleanoff(B,A), red(A), cube(A), box(F).
 that: red cube.
 
->>> #count(that)?
---> what(B) :- B = #count { A : that(A) }.
+>>> count{that}?
+--> what(C) :- C = @countof(B), setof((5),B).
+    gather((5),A) :- that(A).
 that: 1.
 
 >>> 
 >>> #reset.
+>>> #include "test/shrdlu-world.lp".
+>>> #include "test/shrdlu-actions.lp".
 >>> on(blue block, box)!
 --> goal(C) :- blue(A), block(A), box(B), C = on(A,B).
 cost: 2.
@@ -272,8 +282,9 @@ put_on(blue pyramid, blue block)!
 
 >>> 
 >>> % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
->>> object #each(big, pyramid) X wide'.supports.X?
---> what(C) :- object(C), big(C,A) : pyramid(A); C = MuX, wide(B,C), supports(B,MuX).
+>>> object big'each.{pyramid} X wide'.supports.X?
+--> what(E) :- object(E), big(E,A) : A = @memberof(C); setof((1),C), E = MuX, wide(D,E), supports(D,MuX).
+    gather((1),B) :- pyramid(B).
 that: blue block.
 
 >>> 
@@ -303,8 +314,9 @@ put_on(green pyramid, green cube)!
 
 >>> 
 >>> % CALL THE BIGGEST BLOCK "SUPERBLOCK".
->>> superblock(#most(big, block)).
---> superblock(B) :- big(B,A) : block(A), B != A; block(B).
+>>> superblock: big'est.{block}.
+--> superblock(D) :- big(D,A) : A = @memberof(C), D != A; D = @memberof(C), setof((2),C).
+    gather((2),B) :- block(B).
 understood.
 
 >>> 

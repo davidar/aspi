@@ -8,14 +8,15 @@ understood.
 --> line(F,A,B,C,D) :- A = MuR, A = 1 .. 10, B = MuC, B = 1 .. 10, C = MuI, C = (-1) .. 1, D = MuJ, D = (-1) .. 1, grid(F,MuR+(MuI*MuN),MuC+(MuJ*MuN)), MuN = E, E = 0 .. 3.
 understood.
 
->>> lines: #bag(line[R,C,I,J]).
+>>> lines: {{line[R,C,I,J]}}.
 --> lines(B) :- bagof((1,MuC,MuI,MuJ,MuR),B).
     gather((1,MuC,MuI,MuJ,MuR),(A,P0)) :- proof(P0,line(A,MuR,MuC,MuI,MuJ)).
 understood.
 
->>> #argmax(product, lines)?
---> what(E) :- A = #max { D : aggregation((1),D) }, A = @productof(E), lines(E).
-    aggregation((1),C) :- C = @productof(B), lines(B).
+>>> product'.max{product.lines} lines?
+--> what(F) :- E = @productof(F), E = @maxof(D), setof((2),D), lines(F).
+    gather((2),C) :- aggregation((1),C).
+    aggregation((1),B) :- B = @productof(A), lines(A).
 that: bag(49,71,95,99).
 
 >>> product.that?

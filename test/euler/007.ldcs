@@ -1,4 +1,4 @@
 % 7. Find the 101st prime.
 composite: N multiple[2..(N-1)] n3.
 prime: >1 ~composite n3.
-#enumerate(101, prime)?
+101'th.{prime}?

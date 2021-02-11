@@ -9,7 +9,7 @@ understood.
 understood.
 
 >>> 
->>> N sum.#bag((digit.N)**4) n4?
+>>> N sum.{{(digit.N)**4}} n4?
 --> what(M) :- M = MuN, M = @sumof(L), bagof((1,MuN),L), M = 1 .. 9999.
     gather((1,MuN),(K,P0)) :- proof(P0,aggregation((1,MuN),K)), M = MuN, M = 1 .. 9999.
     aggregation((1,MuN),J) :- E = @decimal(F), F = @substring(G,H,1), I = @length(G), H = 1 .. I, G = @show(MuN), J = E ** 4, M = MuN, M = 1 .. 9999.

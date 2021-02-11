@@ -20,8 +20,7 @@ ebnf = r'''
 
 CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
 BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
-AGG_OP: "count" | "sum" | "min" | "max" | "set" | "bag"
-SUP_OP: "most" | "each" | "argmin" | "argmax"
+SUP_SUFFIX: "'est" | "'each" | "'th" | "'"
 VARIABLE: UCASE_LETTER
 NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
 
@@ -54,6 +53,7 @@ atom: NAME
 ldcs: disj [":" clause]
 disjs: disj ("," disj)*
 disj: conj ("|" conj)*
+    | "_"
 conj: lams
 lams: lam+
 ?lam: arg
@@ -64,22 +64,18 @@ constant: INT
 ?arg: func
     | constant
     | join
-    | neg
-    | ineq
-    | hof
+    | "~" bracketed -> neg
+    | CMP_OP bracketed -> ineq
     | pred -> unify
     | "(" "-" bracketed ")" -> negative
+    | [func] "{{" ldcs "}}" -> bagof
+    | [func] "{" ldcs "}" -> setof
 func: atom
     | atom "$" func -> compose
-    | func "'" -> flip
+    | (func | constant) SUP_SUFFIX -> superlative
 join: func "." arg
     | func "[" disj "]"
     | func "[" disjs [";" disjs] "]" -> multijoin
-neg: "~" bracketed
-ineq: CMP_OP bracketed
-hof: "#" AGG_OP "(" ldcs ")" -> aggregation
-   | "#" SUP_OP "(" func "," disj ")" -> superlative
-   | "#" "enumerate" "(" disj "," disj ")" -> enumerate
 '''
 
 Sym = str
@@ -232,7 +228,7 @@ class LDCS(lark.Transformer[str]):
         terms = []
         pvars = []
         for term in body.split(', '):
-            if ' = @' in term:
+            if ' = @' in term and ':' not in term and ';' not in term:
                 terms.append(term)
                 var = 'P' + str(self.counter('proof'))
                 eq = term.replace(' = @', ',')
@@ -372,6 +368,8 @@ class LDCS(lark.Transformer[str]):
         return list(args)
 
     def disj(self, *lams: Unary) -> Unary:
+        if len(lams) == 0:
+            return lambda x: ''
         if len(lams) == 1:
             return lams[0]
         i = self.counter('disjunction')
@@ -401,8 +399,19 @@ class LDCS(lark.Transformer[str]):
     def compose(self, name: str, lam: Variadic) -> Variadic:
         return lambda *args: f'{name}({lam(*args)})'
 
-    def flip(self, lam: Variadic) -> Variadic:
-        return lambda *args: lam(*reversed(args))
+    def superlative(self, rel: Variadic, op: str) -> Variadic:
+        if op == "'":
+            return lambda *args: rel(*reversed(args))
+        elif op == "'each":
+            y = self.gensym()
+            return lambda x, z: f'{rel(x, y)} : {y} = @memberof({z});'
+        elif op == "'est":
+            y = self.gensym()
+            return lambda x, z: f'{rel(x, y)} : {y} = @memberof({z}), {x} != {y}; {x} = @memberof({z})'
+        elif op == "'th":
+            y = self.gensym()
+            return lambda x, z: f'{rel(y)}, ({y},{x}) = @enumerateof({z})'
+        assert False
 
     def join(self, rel: Binary, lam: Unary) -> Unary:
         y, body = self.ldcs(lam)
@@ -416,56 +425,36 @@ class LDCS(lark.Transformer[str]):
         var, body = var_body
         return lambda x: commas(f'{x} {op} {var}', body)
 
-    def aggregation(self, op: str, var_body: CSym,
-                    cond: Optional[str] = None) -> Unary:
+    def bagof(self, a, b=None) -> Unary:
+        if b is not None:
+            return self.join(a, self.bagof(b))
+        return self.aggregation('bag', a)
+
+    def setof(self, a, b=None) -> Unary:
+        if b is not None:
+            return self.join(a, self.setof(b))
+        return self.aggregation('set', a)
+
+    def aggregation(self, op: str, var_body: CSym) -> Unary:
         var, body = var_body
-        body = commas(body, cond)
-        if ' ' in body:
+        if body is not None and ' ' in body:
             var, body = self.ldcs(self.lift((var, body), 'aggregation'))
-        if op in ('count', 'sum', 'min', 'max'):
-            if body:
-                return lambda x: f'{x} = #{op} {{ {var} : {body} }}'
-            else:
-                return lambda x: f'{x} = #{op} {{ {var} }}'
-        elif op in ('set', 'bag'):
-            i = self.counter('gather')
-            vars = sorted(set(re.findall('Mu[A-Z]', commas(var, body))))
-            closure = ','.join([str(i)] + vars)
-
-            def f(x: str) -> str:
-                return f'{op}of(({closure}),{x})'
-            context = None
-            if len(vars) > 0:
-                context = f'@context({f("_")})'
-            if op == 'set':
-                rule = f'gather(({closure}),{var}) :- {commas(body, context)}'
-            elif op == 'bag':
-                rule = f'gather(({closure}),({var},P0)) :- ' + \
-                       commas(f'proof(P0,{body})', context)
-            self.rules.insert(0, rule + '.')
-            return f
-        else:
-            assert False
-
-    def superlative(self, op: str, rel: Binary, lam: Unary) -> Unary:
-        y = self.gensym()
-        if ' ' in lam(y):
-            lam = self.lift(self.ldcs(lam), 'superlative', False)
-        if op == 'most':
-            return lambda x: f'{rel(x, y)} : {lam(y)}, {x} != {y}; {lam(x)}'
-        elif op == 'each':
-            return lambda x: f'{rel(x, y)} : {lam(y)};'
-        elif op in ('argmin', 'argmax'):
-            agg = self.aggregation(op[3:], self.ldcs(self.join(rel, lam)))
-            return lambda x: commas(agg(y), rel(y, x), lam(x))
-        else:
-            assert False
-
-    def enumerate(self, idx: Unary, lam: Unary) -> Unary:
         i = self.counter('gather')
-        y = self.gensym()
-        self.rules.append(f'gather({i},{y}) :- {lam(y)}.')
-        return lambda x: f'enumerate({i},{y},{x}), {idx(y)}'
+        vars = sorted(set(re.findall('Mu[A-Z]', commas(var, body))))
+        closure = ','.join([str(i)] + vars)
+
+        def f(x: str) -> str:
+            return f'{op}of(({closure}),{x})'
+        context = None
+        if len(vars) > 0:
+            context = f'@context({f("_")})'
+        if op == 'set':
+            rule = f'gather(({closure}),{var}) :- {commas(body, context)}'
+        elif op == 'bag':
+            rule = f'gather(({closure}),({var},P0)) :- ' + \
+                    commas(f'proof(P0,{body})', context)
+        self.rules.insert(0, rule + '.')
+        return f
 
     def unify(self, pred_body: CSym) -> Unary:
         pred, body = pred_body

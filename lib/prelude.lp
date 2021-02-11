@@ -23,11 +23,11 @@ proof(@proof(csv_cols(C,R)),csv_cols(C,R)) :- csv_cols(C,R).
 proof(@proof(csv_rows(R)),csv_rows(R)) :- csv_rows(R).
 
 gather(@gather(I,X)) :- gather(I,X).
-enumerate(I,J,X) :- gather(I), (J-1,X) = @sort(I).
-proof(@proof(enumerate(I,J,X)),enumerate(I,J,X)) :- enumerate(I,J,X).
-setof(I,X) :- gather(I), X = @setof(I).
+setof_(I,X) :- gather(I), gather(I,Y), X = @setof(I).
+setof(I,S) :- setof_(I,S), @countof(S) = #max { @countof(X) : setof_(I,X) }.
 proof(@proof(setof(I,X)),setof(I,X)) :- setof(I,X).
-bagof(I,X) :- gather(I), X = @bagof(I).
+bagof_(I,X) :- gather(I), gather(I,Y), X = @bagof(I).
+bagof(I,S) :- bagof_(I,S), @countof(S) = #max { @countof(X) : bagof_(I,X) }.
 proof(@proof(bagof(I,X)),bagof(I,X)) :- bagof(I,X).
 
 #script (python)
@@ -65,9 +65,9 @@ def gather(i, a):
         gathered[i] = []
     gathered[i].append(a)
     return i
-def sort(i):
-    return list(enumerate(sorted(gathered[i]))) if i in gathered else []
 def setof(i):
+    if i not in gathered:
+        return clingo.Function('empty')
     return clingo.Function('set', sorted(gathered[i]))
 def bagof(i):
     try:
@@ -81,6 +81,14 @@ def sumof(a):
     return sum(x.number for x in a.arguments) % sys.maxsize
 def productof(a):
     return math.prod(x.number for x in a.arguments) % sys.maxsize
+def minof(a):
+    return min(x.number for x in a.arguments)
+def maxof(a):
+    return max(x.number for x in a.arguments)
+def memberof(a):
+    return a.arguments
+def enumerateof(a):
+    return list((i+1,x) for i,x in enumerate(sorted(a.arguments)))
 
 def proof(head, *args):
     if len(args) == 0:
