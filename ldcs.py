@@ -128,29 +128,31 @@ class LDCS(lark.Transformer[str]):
             return f'X{i}'
 
     def lift(self, var_body: CSym, prefix: str,
-             context: bool = True, ground: bool = False) -> Unary:
+             context: bool = True, ground: bool = False,
+             gather: bool = False) -> Unary:
         # TODO: only suppress context for vars not used in the parent context
         #       this has functional effects for aggregations
         var, body = var_body
-        i = self.counter(prefix)
+        prefix_gather = 'gather' if gather else prefix
+        i = self.counter(prefix_gather)
         vars = []
         if context:
             vars = sorted(set(re.findall('Mu[A-Z]', commas(var, body))))
         if var[0] not in string.ascii_uppercase:
             ground = False
 
-        def f(x: str) -> str:
+        def f(x: str, name: str = prefix) -> str:
             closure = ','.join([str(i)] + vars)
-            return f'{prefix}(({closure}),{x})'
+            return f'{name}(({closure}),{x})'
         if len(vars) > 0 or ground:
             args = f('_')
             if ground:
                 args = f'{var},{args}'
             body = commas(body, f'@context({args})')
         if body:
-            self.rules.append(f'{f(var)} :- {body}.')
+            self.rules.append(f'{f(var, prefix_gather)} :- {body}.')
         else:
-            self.rules.append(f'{f(var)}.')
+            self.rules.append(f'{f(var, prefix_gather)}.')
         return f
 
     def expand_macro(self, name: str, *args: Sym) -> str:
@@ -159,6 +161,7 @@ class LDCS(lark.Transformer[str]):
         return RuleBody(subst, self.gensym).transform(tree)
 
     def expand_contexts(self) -> None:
+        updated = False
         for i, rule in enumerate(self.rules):
             if (match := re.search(r'@context\((.*)\)', rule)):
                 pred = match.group(1)
@@ -189,6 +192,9 @@ class LDCS(lark.Transformer[str]):
                                     match.group(0), commas(*context))
                                 rule = rule.replace(', .', '.')
                                 self.rules[i] = rule
+                                updated = True
+        if updated:
+            self.expand_contexts()
 
     def start(self, rule: Optional[str]) -> str:
         if rule:
@@ -425,36 +431,20 @@ class LDCS(lark.Transformer[str]):
         var, body = var_body
         return lambda x: commas(f'{x} {op} {var}', body)
 
-    def bagof(self, a, b=None) -> Unary:
-        if b is not None:
-            return self.join(a, self.bagof(b))
-        return self.aggregation('bag', a)
-
     def setof(self, a, b=None) -> Unary:
         if b is not None:
             return self.join(a, self.setof(b))
-        return self.aggregation('set', a)
+        return self.lift(a, 'setof', gather=True)
 
-    def aggregation(self, op: str, var_body: CSym) -> Unary:
-        var, body = var_body
+    def bagof(self, a, b=None) -> Unary:
+        if b is not None:
+            return self.join(a, self.bagof(b))
+        var, body = a
         if body is not None and ' ' in body:
             var, body = self.ldcs(self.lift((var, body), 'aggregation'))
-        i = self.counter('gather')
-        vars = sorted(set(re.findall('Mu[A-Z]', commas(var, body))))
-        closure = ','.join([str(i)] + vars)
-
-        def f(x: str) -> str:
-            return f'{op}of(({closure}),{x})'
-        context = None
-        if len(vars) > 0:
-            context = f'@context({f("_")})'
-        if op == 'set':
-            rule = f'gather(({closure}),{var}) :- {commas(body, context)}'
-        elif op == 'bag':
-            rule = f'gather(({closure}),({var},P0)) :- ' + \
-                    commas(f'proof(P0,{body})', context)
-        self.rules.insert(0, rule + '.')
-        return f
+        var = f'({var},P0)'
+        body = f'proof(P0,{body})'
+        return self.lift((var, body), 'bagof', gather=True)
 
     def unify(self, pred_body: CSym) -> Unary:
         pred, body = pred_body

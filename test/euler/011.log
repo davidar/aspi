@@ -14,9 +14,8 @@ understood.
 understood.
 
 >>> product'.max{product.lines} lines?
---> what(F) :- E = @productof(F), E = @maxof(D), setof((2),D), lines(F).
-    gather((2),C) :- aggregation((1),C).
-    aggregation((1),B) :- B = @productof(A), lines(A).
+--> what(E) :- D = @productof(E), D = @maxof(C), setof((2),C), lines(E).
+    gather((2),B) :- B = @productof(A), lines(A).
 that: bag(49,71,95,99).
 
 >>> product.that?

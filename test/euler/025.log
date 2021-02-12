@@ -25,8 +25,8 @@ understood.
 
 >>> fib N: count{{digit.N}} = 10?
 --> what(Q) :- fib(Q), Q = MuN, P = 10, P = @countof(O), bagof((1,MuN),O).
-    gather((1,MuN),(N,P0)) :- proof(P0,aggregation((1,MuN),N)), fib(Q), Q = MuN, P = 10.
     aggregation((1,MuN),G) :- G = @decimal(H), H = @substring(I,J,K), L = @length(I), J = 1 .. L, M = L - J + 1, K = 0 .. M, 1 = @length(H), I = @show(MuN), fib(Q), Q = MuN, P = 10.
+    gather((1,MuN),(N,P0)) :- proof(P0,aggregation((1,MuN),N)), fib(Q), Q = MuN, P = 10.
 that: 1134903170.
 
 >>> thanks.

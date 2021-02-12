@@ -68,8 +68,8 @@ understood.
 
 >>> path[node B ~start]: min{paths.B}.
 --> path(E,B) :- node(B), B = MuB, not negation((1),B), E = @minof(D), setof((1,MuB),D).
-    gather((1,MuB),C) :- paths(C,MuB), node(B), B = MuB, not negation((1),B).
     negation((1),A) :- start(A), node(A).
+    gather((1,MuB),C) :- paths(C,MuB), node(B), B = MuB, not negation((1),B).
 understood.
 
 >>> path.start: 0.

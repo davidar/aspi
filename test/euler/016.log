@@ -13,8 +13,8 @@ understood.
 
 >>> sum{{digit[2**10]}}?
 --> what(P) :- P = @sumof(O), bagof((1),O).
-    gather((1),(N,P0)) :- proof(P0,aggregation((1),N)).
     aggregation((1),G) :- G = @decimal(H), H = @substring(I,J,K), L = @length(I), J = 1 .. L, M = L - J + 1, K = 0 .. M, 1 = @length(H), I = @show(2**10).
+    gather((1),(N,P0)) :- proof(P0,aggregation((1),N)).
 that: 7.
 
 >>> thanks.

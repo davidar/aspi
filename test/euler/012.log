@@ -1,8 +1,7 @@
 >>> % 12. What is the first triangle number to have over twenty divisors?
 >>> triangle: sum{1..N}: N = 1..99.
---> triangle(E) :- E = @sumof(C), setof((1,MuN),C), MuN = D, D = 1 .. 99.
-    gather((1,MuN),B) :- aggregation((1,MuN),B), MuN = D, D = 1 .. 99.
-    aggregation((1,MuN),A) :- A = 1 .. MuN, MuN = D, D = 1 .. 99.
+--> triangle(D) :- D = @sumof(B), setof((1,MuN),B), MuN = C, C = 1 .. 99.
+    gather((1,MuN),A) :- A = 1 .. MuN, MuN = C, C = 1 .. 99.
 understood.
 
 >>> triangle <100?

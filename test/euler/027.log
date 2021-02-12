@@ -29,9 +29,8 @@ understood.
 that: 39.
 
 >>> prime_generator_max'.max{prime_generator_max.p(i2,i2)}?
---> what(H) :- prime_generator_max(G,H), G = @maxof(F), setof((2),F).
-    gather((2),E) :- aggregation((1),E).
-    aggregation((1),D) :- prime_generator_max(D,C), A = - 99 .. 99, B = - 99 .. 99, C = p(A,B).
+--> what(G) :- prime_generator_max(F,G), F = @maxof(E), setof((2),E).
+    gather((2),D) :- prime_generator_max(D,C), A = - 99 .. 99, B = - 99 .. 99, C = p(A,B).
 that: p(-15,97).
 
 >>> prime_generator_max.that?

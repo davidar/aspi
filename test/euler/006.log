@@ -1,14 +1,12 @@
 >>> % 6. What is the difference between the sum of the squares and the square of the sums?
 >>> sum{(1..100) ** 2}?
---> what(E) :- E = @sumof(D), setof((1),D).
-    gather((1),C) :- aggregation((1),C).
-    aggregation((1),B) :- A = 1 .. 100, B = A ** 2.
+--> what(D) :- D = @sumof(C), setof((1),C).
+    gather((1),B) :- A = 1 .. 100, B = A ** 2.
 that: 338350.
 
 >>> sum{1..100} ** 2?
---> what(E) :- D = @sumof(C), setof((2),C), E = D ** 2.
-    gather((2),B) :- aggregation((2),B).
-    aggregation((2),A) :- A = 1 .. 100.
+--> what(D) :- C = @sumof(B), setof((2),B), D = C ** 2.
+    gather((2),A) :- A = 1 .. 100.
 that: 25502500.
 
 >>> thanks.

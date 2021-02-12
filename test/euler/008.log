@@ -13,8 +13,8 @@ understood.
 
 >>> product{{decimal.char.S}}: four_digits(S)?
 --> what(M) :- M = @productof(L), bagof((1,MuS),L), four_digits(MuS).
-    gather((1,MuS),(K,P0)) :- proof(P0,aggregation((1,MuS),K)), four_digits(MuS).
     aggregation((1,MuS),J) :- J = @decimal(E), E = @substring(MuS,F,G), H = @length(MuS), F = 1 .. H, I = H - F + 1, G = 0 .. I, 1 = @length(E), four_digits(MuS).
+    gather((1,MuS),(K,P0)) :- proof(P0,aggregation((1,MuS),K)), four_digits(MuS).
 that: 0 | 243 | 648 | 5832.
 
 >>> max{that}?

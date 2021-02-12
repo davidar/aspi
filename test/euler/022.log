@@ -20,8 +20,8 @@ understood.
 
 >>> value[name S]: sum{{letter.char.S}}.
 --> value(P,A) :- name(A), A = MuS, P = @sumof(O), bagof((2,MuS),O).
-    gather((2,MuS),(N,P0)) :- proof(P0,aggregation((1,MuS),N)), name(A), A = MuS.
     aggregation((1,MuS),J) :- K = @codepoint(D), L = @codepoint("A"), M = K - L, J = M + 1, D = @substring(MuS,E,1), F = @length(MuS), E = 1 .. F, name(A), A = MuS.
+    gather((2,MuS),(N,P0)) :- proof(P0,aggregation((1,MuS),N)), name(A), A = MuS.
 understood.
 
 >>> score[name S]: position.S * value.S.
@@ -30,8 +30,8 @@ understood.
 
 >>> sum{{score.name}}?
 --> what(E) :- E = @sumof(D), bagof((3),D).
-    gather((3),(C,P0)) :- proof(P0,aggregation((2),C)).
     aggregation((2),B) :- score(B,A), name(A).
+    gather((3),(C,P0)) :- proof(P0,aggregation((2),C)).
 that: 31683477.
 
 >>> thanks.
