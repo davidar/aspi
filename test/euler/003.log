@@ -4,8 +4,8 @@
 understood.
 
 >>> prime: >1 ~composite n3.
---> prime(B) :- B > 1, not negation((1),B), B = 1 .. 999.
-    negation((1),A) :- composite(A), A = 1 .. 999.
+--> prime(B) :- B > 1, not negation((2),B), B = 1 .. 999.
+    negation((2),A) :- composite(A), A = 1 .. 999.
 understood.
 
 >>> prime?

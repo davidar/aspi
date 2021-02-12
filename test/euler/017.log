@@ -112,8 +112,8 @@ understood.
 understood.
 
 >>> say[N ~multiple.10 20..99]: concatenate[say[(N/10)*10], " ", say[N\10]].
---> say(F,B) :- B = MuN, not negation((1),B), B = 20 .. 99, F = @concatenate(C,G), G = @concatenate(" ",D), say(C,(MuN/10)*10), say(D,MuN\10).
-    negation((1),A) :- A \ 10 = 0, A = 20 .. 99.
+--> say(F,B) :- B = MuN, not negation((2),B), B = 20 .. 99, F = @concatenate(C,G), G = @concatenate(" ",D), say(C,(MuN/10)*10), say(D,MuN\10).
+    negation((2),A) :- A \ 10 = 0, A = 20 .. 99.
 understood.
 
 >>> say[N multiple.100 100..900]: concatenate[say[N/100], " hundred"].
@@ -121,8 +121,8 @@ understood.
 understood.
 
 >>> say[N ~multiple.100 101..999]: concatenate[say[(N/100)*100], " and ", say[N\100]].
---> say(F,B) :- B = MuN, not negation((2),B), B = 101 .. 999, F = @concatenate(C,G), G = @concatenate(" and ",D), say(C,(MuN/100)*100), say(D,MuN\100).
-    negation((2),A) :- A \ 100 = 0, A = 101 .. 999.
+--> say(F,B) :- B = MuN, not negation((3),B), B = 101 .. 999, F = @concatenate(C,G), G = @concatenate(" and ",D), say(C,(MuN/100)*100), say(D,MuN\100).
+    negation((3),A) :- A \ 100 = 0, A = 101 .. 999.
 understood.
 
 >>> say[N multiple.1000 1000..9000]: concatenate[say[N/1000], " thousand"].
@@ -143,8 +143,8 @@ understood.
 
 >>> count{{char.say[1..100] ~" "}}?
 --> what(N) :- N = @countof(M), bagof((1),M).
-    negation((3)," ").
-    aggregation((1),G) :- G = @substring(B,H,I), J = @length(B), H = 1 .. J, K = J - H + 1, I = 0 .. K, 1 = @length(G), say(B,A), A = 1 .. 100, not negation((3),G).
+    negation((4)," ").
+    aggregation((1),G) :- G = @substring(B,H,I), J = @length(B), H = 1 .. J, K = J - H + 1, I = 0 .. K, 1 = @length(G), say(B,A), A = 1 .. 100, not negation((4),G).
     gather((1),(L,P0)) :- proof(P0,aggregation((1),L)).
 that: 864.
 

@@ -21,7 +21,7 @@ ebnf = r'''
 CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
 BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
 SUP_SUFFIX: "'est" | "'each" | "'th" | "'"
-VARIABLE: UCASE_LETTER
+VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
 NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
 
 start: cmd

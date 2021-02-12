@@ -64,13 +64,19 @@ class ASPI:
         self.now = 0
         self.program = ''
 
-        for arg in ['lib/prelude.lp', 'lib/macros.lp', 'lib/plans.lp'] + args:
+        for arg in ['lib/prelude.lp', 'lib/macros.lp', 'lib/plans.ldcs'] + args:
             self.include(arg)
 
     def include(self, arg: str) -> None:
         if arg != 'lib/macros.lp':
             if arg.endswith('.lp'):
                 self.program += f'#include "{arg}".\n'
+            elif arg.endswith('.ldcs'):
+                with open(arg, 'r') as f:
+                    for line in f:
+                        if line.strip() and line[0] != '%':
+                            lp = self.ldcs.toASP(line)
+                            self.program += lp + '\n'
             elif arg.endswith('.csv'):
                 with open(arg, 'r') as f:
                     rows = 0

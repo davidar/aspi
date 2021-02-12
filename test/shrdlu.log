@@ -51,8 +51,8 @@ that: box.
 >>> 
 >>> % HOW MANY BLOCKS ARE NOT IN THE BOX?
 >>> block ~in.box?
---> what(C) :- block(C), not negation((1),C).
-    negation((1),B) :- in(B,A), box(A), block(B).
+--> what(C) :- block(C), not negation((2),C).
+    negation((2),B) :- in(B,A), box(A), block(B).
 that: large red block | green cube supports[red pyramid] | red cube.
 
 >>> 
@@ -103,9 +103,9 @@ understood.
 >>> 
 >>> % I OWN BLOCKS WHICH ARE NOT RED BUT I DON'T OWN ANYTHING WHICH SUPPORTS A PYRAMID.
 >>> mine(block ~red ~supports.pyramid).
---> mine(D) :- block(D), not negation((2),D), not negation((3),D).
-    negation((2),A) :- red(A), block(A).
-    negation((3),C) :- supports(C,B), pyramid(B), block(C).
+--> mine(D) :- block(D), not negation((3),D), not negation((4),D).
+    negation((3),A) :- red(A), block(A).
+    negation((4),C) :- supports(C,B), pyramid(B), block(C).
 understood.
 
 >>> 
@@ -328,7 +328,6 @@ yes.
 >>> % WHY DID YOU DROP IT?
 >>> why.put_on(superblock, table)?
 --> what(D) :- why(D,C), superblock(A), table(B), C = put_on(A,B).
-that: nonexistent.
 
 >>> 
 >>> left_of(red pyramid, box)!
