@@ -361,15 +361,16 @@ class LDCS(lark.Transformer[str]):
         return name
 
     def ldcs(self, lam: Unary, cond: Optional[str] = None) -> CSym:
-        lam_ = lam('_')
-        if lam_.startswith('_ = ') and \
-                ', ' not in lam_ and \
-                '{' not in lam_ and \
-                '..' not in lam_:
-            x = lam_[len('_ = '):]
+        head_body = lam('_').split(', ', 1)
+        head = head_body[0]
+        body = head_body[1] if len(head_body) > 1 else ''
+        if head.startswith('_ = ') and \
+                '_' not in body and \
+                '..' not in head:
+            x = head[len('_ = '):]
             if x[0] != '"':
                 x = x.replace(' ', '')
-            return x, cond
+            return x, commas(body, cond)
         else:
             x = self.gensym()
             return x, commas(lam(x), cond)
@@ -449,7 +450,7 @@ class LDCS(lark.Transformer[str]):
 
     def unify(self, pred_body: CSym) -> Unary:
         pred, body = pred_body
-        return lambda x: commas(body, f'{x} = {pred}')
+        return lambda x: commas(f'{x} = {pred}', body)
 
     def multijoin(self, rel: Variadic, lams_tail: List[Unary],
                   lams_head: List[Unary] = []) -> Unary:

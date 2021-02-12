@@ -11,7 +11,7 @@ understood.
 
 >>> 
 >>> prime_generator(0, p(i2 A, prime i2 B)).
---> prime_generator(0,C) :- A = - 99 .. 99, A = MuA, prime(B), B = - 99 .. 99, B = MuB, C = p(A,B).
+--> prime_generator(0,p(A,B)) :- A = - 99 .. 99, A = MuA, prime(B), B = - 99 .. 99, B = MuB.
 understood.
 
 >>> prime_generator(N-1, p(A,B)), prime(((N + A) * N) + B) :: prime_generator(N, p(A,B)).
@@ -29,8 +29,8 @@ understood.
 that: 39.
 
 >>> prime_generator_max'.max{prime_generator_max.p(i2,i2)}?
---> what(G) :- prime_generator_max(F,G), F = @maxof(E), setof((2),E).
-    gather((2),D) :- prime_generator_max(D,C), A = - 99 .. 99, B = - 99 .. 99, C = p(A,B).
+--> what(F) :- prime_generator_max(E,F), E = @maxof(D), setof((2),D).
+    gather((2),C) :- prime_generator_max(C,p(A,B)), A = - 99 .. 99, B = - 99 .. 99.
 that: p(-15,97).
 
 >>> prime_generator_max.that?

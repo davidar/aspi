@@ -3,7 +3,7 @@
 >>> 
 >>> % PICK UP A BIG RED BLOCK.
 >>> pickup(big red block)!
---> goal(B) :- big(A), red(A), block(A), B = pickup(A).
+--> goal(pickup(A)) :- big(A), red(A), block(A).
 cost: 3.
 pickup(green cube ~supports[red pyramid])!
 put_on(green cube holding, blue block)!
@@ -12,7 +12,7 @@ pickup(large red block)!
 >>> 
 >>> % GRASP THE PYRAMID.
 >>> holding(that pyramid)!
---> goal(B) :- that(A), pyramid(A), B = holding(A).
+--> goal(holding(A)) :- that(A), pyramid(A).
 cost: 0.
 
 >>> 
@@ -22,7 +22,7 @@ cost: 0.
 that: blue block.
 
 >>> in(that, box)!
---> goal(C) :- that(A), box(B), C = in(A,B).
+--> goal(in(A,B)) :- that(A), box(B).
 cost: 5.
 put_on(large red block, table)!
 pickup(green cube ~supports[red pyramid])!
@@ -32,7 +32,7 @@ put_on(blue block, green cube ~supports[red pyramid])!
 
 >>> 
 >>> in(blue pyramid, box)!
---> goal(C) :- blue(A), pyramid(A), box(B), C = in(A,B).
+--> goal(in(A,B)) :- blue(A), pyramid(A), box(B).
 cost: 0.
 in(blue pyramid, box).
 
@@ -91,7 +91,7 @@ no.
 >>> 
 >>> % STACK UP TWO PYRAMIDS.
 >>> stack(pyramid, pyramid)!
---> goal(C) :- pyramid(A), pyramid(B), C = stack(A,B).
+--> goal(stack(A,B)) :- pyramid(A), pyramid(B).
 impossible.
 
 >>> 
@@ -124,7 +124,7 @@ that: blue block | blue pyramid | green cube supports[blue block].
 >>> 
 >>> % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
 >>> #any stack(red block, red block, green cube | pyramid)!
---> { goal(F) : red(A), block(A), red(B), block(B), disjunction((1),E), F = stack(A,B,E) } = 1.
+--> { goal(stack(A,B,E)) : red(A), block(A), red(B), block(B), disjunction((1),E) } = 1.
     disjunction((1),C) :- green(C), cube(C).
     disjunction((1),D) :- pyramid(D).
 cost: 6.
@@ -149,14 +149,14 @@ that: blue block | green cube supports[blue block].
 
 >>> 
 >>> #any on(red pyramid, green cube)!
---> { goal(C) : red(A), pyramid(A), green(B), cube(B), C = on(A,B) } = 1.
+--> { goal(on(A,B)) : red(A), pyramid(A), green(B), cube(B) } = 1.
 cost: 0.
 on(red pyramid, green cube supports[red pyramid]).
 
 >>> 
 >>> % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
 >>> #any on(small block, green cube supports.pyramid)!
---> { goal(D) : small(A), block(A), green(C), cube(C), supports(C,B), pyramid(B), D = on(A,C) } = 1.
+--> { goal(on(A,C)) : small(A), block(A), green(C), cube(C), supports(C,B), pyramid(B) } = 1.
 cost: 4.
 pickup(green pyramid)!
 put_on(green pyramid, green cube supports[blue block])!
@@ -166,7 +166,7 @@ put_on(red cube, green cube supports[red pyramid])!
 >>> 
 >>> % PUT THE LITTLEST PYRAMID ON TOP OF IT.
 >>> on(little'est.{pyramid}, small block)!
---> goal(F) :- little(D,A) : A = @memberof(C), D != A; D = @memberof(C), setof((1),C), small(E), block(E), F = on(D,E).
+--> goal(on(D,E)) :- little(D,A) : A = @memberof(C), D != A; D = @memberof(C), setof((1),C), small(E), block(E).
     gather((1),B) :- pyramid(B).
 cost: 2.
 pickup(green pyramid)!
@@ -195,7 +195,7 @@ that: blue block | green pyramid | red cube | red pyramid.
 >>> 
 >>> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
 >>> pickup.pyramid before.goal.on(green pyramid, little cube)?
---> what(H) :- pickup(H,A), pyramid(A), end_time(I,H), I = 0 .. J - 1, start_time(J,E), goal(E,D), green(B), pyramid(B), little(C), cube(C), D = on(B,C).
+--> what(G) :- pickup(G,A), pyramid(A), end_time(H,G), H = 0 .. I - 1, start_time(I,D), goal(D,on(B,C)), green(B), pyramid(B), little(C), cube(C).
 that: apply(pickup(green pyramid),9) | apply(pickup(green pyramid),13) | apply(pickup(green pyramid),15).
 
 >>> 
@@ -265,7 +265,7 @@ that: 1.
 >>> #include "test/shrdlu-world.lp".
 >>> #include "test/shrdlu-actions.lp".
 >>> on(blue block, box)!
---> goal(C) :- blue(A), block(A), box(B), C = on(A,B).
+--> goal(on(A,B)) :- blue(A), block(A), box(B).
 cost: 2.
 pickup(blue block)!
 put_on(blue block, box)!
@@ -273,7 +273,7 @@ put_on(blue block, box)!
 >>> 
 >>> % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
 >>> #any on(blue pyramid, block in.box)!
---> { goal(D) : blue(A), pyramid(A), block(C), in(C,B), box(B), D = on(A,C) } = 1.
+--> { goal(on(A,C)) : blue(A), pyramid(A), block(C), in(C,B), box(B) } = 1.
 cost: 2.
 pickup(blue pyramid)!
 put_on(blue pyramid, blue block)!
@@ -327,12 +327,12 @@ yes.
 >>> 
 >>> % WHY DID YOU DROP IT?
 >>> why.put_on(superblock, table)?
---> what(D) :- why(D,C), superblock(A), table(B), C = put_on(A,B).
+--> what(C) :- why(C,put_on(A,B)), superblock(A), table(B).
 that: nonexistent.
 
 >>> 
 >>> left_of(red pyramid, box)!
---> goal(C) :- red(A), pyramid(A), box(B), C = left_of(A,B).
+--> goal(left_of(A,B)) :- red(A), pyramid(A), box(B).
 cost: 2.
 pickup(red pyramid)!
 put_on(red pyramid, red cube)!

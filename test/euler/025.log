@@ -8,7 +8,7 @@ understood.
 understood.
 
 >>> fib[N 2..45]: fib[N-1] + fib[N-2].
---> fib(D,A) :- A = MuN, A = 2 .. 45, fib(B,MuN-1), fib(C,MuN-2), D = B + C.
+--> fib(B+C,A) :- A = MuN, A = 2 .. 45, fib(B,MuN-1), fib(C,MuN-2).
 understood.
 
 >>> fib: fib[0..45].
