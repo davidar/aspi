@@ -124,9 +124,9 @@ that: blue block | blue pyramid | green cube supports[blue block].
 >>> 
 >>> % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
 >>> #any stack(red block, red block, green cube | pyramid)!
---> { goal(E) : red(A), block(A), red(B), block(B), disjunction1(D), E = stack(A,B,D) } = 1.
-    disjunction1(C) :- green(C), cube(C).
-    disjunction1(C) :- pyramid(C).
+--> { goal(F) : red(A), block(A), red(B), block(B), disjunction((1),E), F = stack(A,B,E) } = 1.
+    disjunction((1),C) :- green(C), cube(C).
+    disjunction((1),D) :- pyramid(D).
 cost: 6.
 pickup(green pyramid)!
 put_on(green pyramid, large red block)!

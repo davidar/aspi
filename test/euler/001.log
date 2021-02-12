@@ -1,9 +1,9 @@
 >>> % 1. Add all the natural numbers below 1000 that are multiples of 3 or 5.
 >>> sum{0..999 multiple[3|5]}?
---> what(E) :- E = @sumof(D), setof((1),D).
-    disjunction1(A) :- A = 3.
-    disjunction1(A) :- A = 5.
-    gather((1),C) :- C = 0 .. 999, C \ B = 0, disjunction1(B).
+--> what(D) :- D = @sumof(C), setof((1),C).
+    disjunction((1),3).
+    disjunction((1),5).
+    gather((1),B) :- B = 0 .. 999, B \ A = 0, disjunction((1),A).
 that: 233168.
 
 >>> thanks.

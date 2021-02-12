@@ -127,32 +127,36 @@ class LDCS(lark.Transformer[str]):
             i -= len(string.ascii_uppercase)
             return f'X{i}'
 
-    def lift(self, var_body: CSym, prefix: str,
-             context: bool = True, ground: bool = False,
-             gather: bool = False) -> Unary:
+    def lift(self, var_body: CSym, prefix: str, **kwargs) -> Unary:
+        return self.lifts([var_body], prefix, **kwargs)
+
+    def lifts(self, var_bodies: [CSym], prefix: str,
+              context: bool = True, ground: bool = False,
+              gather: bool = False) -> Unary:
         # TODO: only suppress context for vars not used in the parent context
         #       this has functional effects for aggregations
-        var, body = var_body
+        vars, bodies = unzip(var_bodies)
         prefix_gather = 'gather' if gather else prefix
         i = self.counter(prefix_gather)
-        vars = []
+        muvars = []
         if context:
-            vars = sorted(set(re.findall('Mu[A-Z]', commas(var, body))))
-        if var[0] not in string.ascii_uppercase:
+            muvars = sorted(set(re.findall('Mu[A-Z]', commas(*vars, *bodies))))
+        if vars[0][0] not in string.ascii_uppercase:
             ground = False
 
         def f(x: str, name: str = prefix) -> str:
-            closure = ','.join([str(i)] + vars)
+            closure = ','.join([str(i)] + muvars)
             return f'{name}(({closure}),{x})'
-        if len(vars) > 0 or ground:
-            args = f('_')
-            if ground:
-                args = f'{var},{args}'
-            body = commas(body, f'@context({args})')
-        if body:
-            self.rules.append(f'{f(var, prefix_gather)} :- {body}.')
-        else:
-            self.rules.append(f'{f(var, prefix_gather)}.')
+        for var, body in var_bodies:
+            if len(muvars) > 0 or ground:
+                args = f('_')
+                if ground:
+                    args = f'{var},{args}'
+                body = commas(body, f'@context({args})')
+            if body:
+                self.rules.append(f'{f(var, prefix_gather)} :- {body}.')
+            else:
+                self.rules.append(f'{f(var, prefix_gather)}.')
         return f
 
     def expand_macro(self, name: str, *args: Sym) -> str:
@@ -378,10 +382,7 @@ class LDCS(lark.Transformer[str]):
             return lambda x: ''
         if len(lams) == 1:
             return lams[0]
-        i = self.counter('disjunction')
-        x = self.gensym()
-        self.rules.extend(f'disjunction{i}({x}) :- {lam(x)}.' for lam in lams)
-        return lambda x: f'disjunction{i}({x})'
+        return self.lifts([self.ldcs(lam) for lam in lams], 'disjunction')
 
     def lams(self, *lams: Unary) -> List[Unary]:
         return list(lams)
@@ -424,7 +425,7 @@ class LDCS(lark.Transformer[str]):
         return lambda x: commas(rel(x, y), body)
 
     def neg(self, var_body: CSym) -> Unary:
-        lam = self.lift(var_body, 'negation', True, True)
+        lam = self.lift(var_body, 'negation', ground=True)
         return lambda x: 'not ' + lam(x)
 
     def ineq(self, op: str, var_body: CSym) -> Unary:

@@ -15,15 +15,15 @@ understood.
 understood.
 
 >>> det: "a" | "the".
---> det(B) :- disjunction1(B).
-    disjunction1(A) :- A = "a".
-    disjunction1(A) :- A = "the".
+--> det(A) :- disjunction((1),A).
+    disjunction((1),"a").
+    disjunction((1),"the").
 understood.
 
 >>> noun: "bat" | "cat".
---> noun(B) :- disjunction2(B).
-    disjunction2(A) :- A = "bat".
-    disjunction2(A) :- A = "cat".
+--> noun(A) :- disjunction((2),A).
+    disjunction((2),"bat").
+    disjunction((2),"cat").
 understood.
 
 >>> verb: "eats".
