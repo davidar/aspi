@@ -2,7 +2,7 @@
 >>> min{multiple'each.{1..10} n4}?
 --> what(F) :- F = @minof(E), setof((2),E).
     gather((1),B) :- B = 1 .. 10.
-    gather((2),D) :- D \ A = 0 : A = @memberof(C); setof((1),C), D = 1 .. 9999.
+    gather((2),D) :- (D \ A) = 0 : A = @memberof(C); setof((1),C), D = 1 .. 9999.
 that: 2520.
 
 >>> thanks.

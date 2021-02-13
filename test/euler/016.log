@@ -4,17 +4,17 @@
 that: 1024.
 
 >>> #macro char.S: substring.S length'.1.
---> char(E,MuS) :- E = @substring(MuS,F,G), H = @length(MuS), F = 1 .. H, I = H - F + 1, G = 0 .. I, 1 = @length(E).
+--> char(G,MuS) :- G = @substring(MuS,H,I), J = @length(MuS), H = K, K = 1 .. J, L = ((J - H) + 1), I = M, M = 0 .. L, 1 = @length(G).
 understood.
 
 >>> #macro digit.N: decimal.char.show.N.
---> digit(K,MuN) :- K = @decimal(F), F = @substring(A,G,H), I = @length(A), G = 1 .. I, J = I - G + 1, H = 0 .. J, 1 = @length(F), A = @show(MuN).
+--> digit(O,MuN) :- O = @decimal(H), H = @substring(A,I,J), K = @length(A), I = L, L = 1 .. K, M = ((K - I) + 1), J = N, N = 0 .. M, 1 = @length(H), A = @show(MuN).
 understood.
 
 >>> sum{{digit[2**10]}}?
---> what(P) :- P = @sumof(O), bagof((1),O).
-    aggregation((1),G) :- G = @decimal(H), H = @substring(I,J,K), L = @length(I), J = 1 .. L, M = L - J + 1, K = 0 .. M, 1 = @length(H), I = @show(2**10).
-    gather((1),(N,P0)) :- proof(P0,aggregation((1),N)).
+--> what(T) :- T = @sumof(S), bagof((1),S).
+    aggregation((1),I) :- I = @decimal(J), J = @substring(K,L,M), N = @length(K), L = O, O = 1 .. N, P = ((N - L) + 1), M = Q, Q = 0 .. P, 1 = @length(J), K = @show(2**10).
+    gather((1),(R,P0)) :- proof(P0,aggregation((1),R)).
 that: 7.
 
 >>> thanks.

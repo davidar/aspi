@@ -166,13 +166,13 @@ understood.
 >>> 
 >>> % A leap year occurs on any year evenly divisible by 4, but not on a century unless it is divisible by 400.
 >>> leap: year multiple.4 ~(century ~multiple.400).
---> leap(C) :- year(C), C \ 4 = 0, not negation((6),C).
-    negation((5),A) :- A \ 400 = 0, century(A).
+--> leap(C) :- year(C), (C \ 4) = 0, not negation((6),C).
+    negation((5),A) :- (A \ 400) = 0, century(A).
     negation((6),B) :- century(B), not negation((5),B), year(B).
 understood.
 
 >>> century: year multiple.100.
---> century(A) :- year(A), A \ 100 = 0.
+--> century(A) :- year(A), (A \ 100) = 0.
 understood.
 
 >>> 

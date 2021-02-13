@@ -1,6 +1,6 @@
 >>> % 23. Find the largest even positive integer which cannot be written as the sum of two abundant numbers.
 >>> proper_divisor[N n3]: 1..(N-1) multiple'.N.
---> proper_divisor(B,A) :- A = MuN, A = 1 .. 999, B = 1 .. (MuN-1), MuN \ B = 0.
+--> proper_divisor(B,A) :- A = MuN, A = 1 .. 999, B = 1 .. (MuN-1), (MuN \ B) = 0.
 understood.
 
 >>> aliquot[N n3]: sum{proper_divisor.N}.
@@ -27,7 +27,7 @@ that: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 
 
 >>> max{that even}?
 --> what(C) :- C = @maxof(B), setof((2),B).
-    gather((2),A) :- that(A), A \ 2 = 0.
+    gather((2),A) :- that(A), (A \ 2) = 0.
 that: 46.
 
 >>> thanks.

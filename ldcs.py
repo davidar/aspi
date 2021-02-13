@@ -22,7 +22,7 @@ CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
 BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
 SUP_SUFFIX: "'est" | "'each" | "'th" | "'"
 VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
-NAME: LCASE_LETTER ("_"|LETTER|DIGIT)*
+NAME: ["@"] LCASE_LETTER ("_"|LETTER|DIGIT)*
 
 start: cmd
 ?cmd: "#" "fluent" pred [":" clause] "." -> fluent
@@ -344,9 +344,9 @@ class LDCS(lark.Transformer[str]):
     def binop(self, a: CSym, op: str, b: CSym) -> CSym:
         arg1, body1 = a
         arg2, body2 = b
-        if not arg1.isalnum():
+        if not arg1.isalnum() and arg1[0] != '@':
             arg1 = f'({arg1})'
-        if not arg2.isalnum():
+        if not arg2.isalnum() and arg2[0] != '@':
             arg2 = f'({arg2})'
         return f'{arg1} {op} {arg2}', commas(body1, body2)
 
@@ -502,6 +502,7 @@ pred: ATOM [ "(" value ("," value)* ")" ]
       | var
       | INT
       | ESCAPED_STRING
+      | "(" value ")" -> paren
 var: VARIABLE
 head: ATOM "(" var ("," var)* ")"
 '''
@@ -552,6 +553,9 @@ class RuleBody(lark.Transformer[str]):
         if not expr.isalnum():
             expr = f'({expr})'
         return expr
+
+    def paren(self, val: str) -> str:
+        return f'({val})'
 
 
 if __name__ == '__main__':
