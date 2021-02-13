@@ -11,6 +11,7 @@
 true(true).
 false(false).
 now(now).
+infinity(#sup).
 
 history(counter, goal(F)) :- goal(F).
 history(counter, what(X)) :- what(X).

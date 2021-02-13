@@ -130,7 +130,7 @@ class LDCS(lark.Transformer[str]):
     def lift(self, var_body: CSym, prefix: str, **kwargs) -> Unary:
         return self.lifts([var_body], prefix, **kwargs)
 
-    def lifts(self, var_bodies: [CSym], prefix: str,
+    def lifts(self, var_bodies: List[CSym], prefix: str,
               context: bool = True, ground: bool = False,
               gather: bool = False) -> Unary:
         # TODO: only suppress context for vars not used in the parent context

@@ -1,12 +1,15 @@
 import pytest
 import os.path
 
-scripts = ['dcg', 'golf', 'hanoi', 'shortest-path', 'shrdlu', 'zebra', 'uva/10131']
+scripts = ['dcg', 'golf', 'hanoi', 'shortest-path', 'shrdlu', 'zebra']
 
 for i in range(1000):
     name = f'euler/{i:03}'
     if os.path.exists(f'test/{name}.ldcs'):
         scripts.append(name)
+
+for i in (10131, 10154):
+    scripts.append(f'uva/{i}')
 
 
 @pytest.mark.parametrize('name', scripts)

@@ -1,0 +1,48 @@
+>>> % 10154 - Weights and Measures
+>>> 
+>>> turtle: 1..csv_rows.
+--> turtle(B) :- B = 1 .. A, csv_rows(A).
+understood.
+
+>>> weight.I: csv[I,1].
+--> weight(A,MuI) :- csv(A,MuI,1).
+understood.
+
+>>> strength.I: csv[I,2].
+--> strength(A,MuI) :- csv(A,MuI,2).
+understood.
+
+>>> 
+>>> init: capacity(infinity).
+--> init(capacity(A)) :- infinity(A).
+understood.
+
+>>> holds(capacity(M), T), weight.I <= M :: holds(allowed(I), T).
+--> holds(allowed(MuI),MuT) :- holds(capacity(MuM),MuT), A <= MuM, weight(A,MuI).
+understood.
+
+>>> holds(capacity(M), T), apply(select(I, W weight.I, S strength.I), T+1) :: holds(capacity(min{M - W | S - W}), T+1).
+--> holds(capacity(E),MuT+1) :- E = @minof(D), setof((1,MuM,MuS,MuW),D), holds(capacity(MuM),MuT), apply(select(MuI,A,B),MuT+1), A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
+    disjunction((1,MuM,MuS,MuW),MuM-MuW) :- holds(capacity(MuM),MuT), apply(select(MuI,A,B),MuT+1), A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
+    disjunction((1,MuM,MuS,MuW),MuS-MuW) :- holds(capacity(MuM),MuT), apply(select(MuI,A,B),MuT+1), A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
+    gather((1,MuM,MuS,MuW),C) :- disjunction((1,MuM,MuS,MuW),C), holds(capacity(MuM),MuT), apply(select(MuI,A,B),MuT+1), A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
+understood.
+
+>>> select(I, W weight.I, S strength.I) :: action demands.allowed(I) demands_not.used(I) deletes.capacity(infinity) adds.used(I) rewards.1.
+--> action(select(MuI,A,B)) :- A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
+    demands(select(MuI,A,B),allowed(MuI)) :- A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
+    demands_not(select(MuI,A,B),used(MuI)) :- A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
+    deletes(select(MuI,A,B),capacity(C)) :- infinity(C), A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
+    adds(select(MuI,A,B),used(MuI)) :- A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
+    rewards(select(MuI,A,B),1) :- A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
+understood.
+
+>>> #any!
+--> 
+reward: 3.
+select(1, 300, 1000)!
+select(3, 200, 600)!
+select(4, 100, 101)!
+
+>>> thanks.
+YOU'RE WELCOME!
