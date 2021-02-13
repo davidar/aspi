@@ -5,7 +5,7 @@ weight.I: csv[I,1].
 strength.I: csv[I,2].
 
 init: capacity(infinity).
-holds(capacity(M), T), weight.I <= M :: holds(allowed(I), T).
-holds(capacity(M), T), apply(select(I, W weight.I, S strength.I), T+1) :: holds(capacity(min{M - W | S - W}), T+1).
+holds(capacity(M), T), weight.I <= M -: holds(allowed(I), T).
+holds(capacity(M), T), apply(select(I, W weight.I, S strength.I), T+1) -: holds(capacity(min{M - W | S - W}), T+1).
 select(I, W weight.I, S strength.I) :: action demands.allowed(I) demands_not.used(I) deletes.capacity(infinity) adds.used(I) rewards.1.
 #any!

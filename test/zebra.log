@@ -7,15 +7,15 @@ understood.
 --> left(A,B) :- house(A), A = MuA, house(B), B = MuA + 1.
 understood.
 
->>> right(A,B): left(B,A).
+>>> right(A,B) :- left(B,A).
 --> right(MuA,MuB) :- left(MuB,MuA).
 understood.
 
->>> adjacent(A,B): left(A,B).
+>>> adjacent(A,B) :- left(A,B).
 --> adjacent(MuA,MuB) :- left(MuA,MuB).
 understood.
 
->>> adjacent(A,B): right(A,B).
+>>> adjacent(A,B) :- right(A,B).
 --> adjacent(MuA,MuB) :- right(MuA,MuB).
 understood.
 

@@ -17,11 +17,11 @@ understood.
 --> init(start).
 understood.
 
->>> holds(start(), T) :: holds(allowed(elephant), T).
+>>> holds(start(), T) -: holds(allowed(elephant), T).
 --> holds(allowed(A),MuT) :- elephant(A), holds(start,MuT).
 understood.
 
->>> holds(current(I), T), weight.I < weight.J, smarts.I > smarts.J :: holds(allowed(J), T).
+>>> holds(current(I), T), weight.I < weight.J, smarts.I > smarts.J -: holds(allowed(J), T).
 --> holds(allowed(MuJ),MuT) :- holds(current(MuI),MuT), A < B, weight(A,MuI), weight(B,MuJ), C > D, smarts(C,MuI), smarts(D,MuJ).
 understood.
 

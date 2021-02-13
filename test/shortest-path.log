@@ -42,16 +42,16 @@ understood.
 >>> % TODO: handle cycles:
 >>> % edge["ORD","DFW"]:  802.
 >>> 
->>> edge(A,B): edge(X,A,B).
+>>> edge(A,B) :- edge(X,A,B).
 --> edge(MuA,MuB) :- edge(MuX,MuA,MuB).
 understood.
 
 >>> 
->>> node(A): edge(A,B).
+>>> node(A) :- edge(A,B).
 --> node(MuA) :- edge(MuA,MuB).
 understood.
 
->>> node(A): edge(B,A).
+>>> node(A) :- edge(B,A).
 --> node(MuA) :- edge(MuB,MuA).
 understood.
 

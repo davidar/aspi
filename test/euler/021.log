@@ -8,7 +8,7 @@ understood.
     gather((1,MuN),B) :- proper_divisor(B,MuN), A = MuN, A = 1 .. 999.
 understood.
 
->>> perfect(A): aliquot(A,A).
+>>> perfect(A) :- aliquot(A,A).
 --> perfect(MuA) :- aliquot(MuA,MuA).
 understood.
 
@@ -16,7 +16,7 @@ understood.
 --> what(A) :- perfect(A).
 that: 6 | 28 | 496.
 
->>> amicable(A,B): aliquot(A,B), aliquot(B,A), A != B.
+>>> amicable(A,B) :- aliquot(A,B), aliquot(B,A), A != B.
 --> amicable(MuA,MuB) :- aliquot(MuA,MuB), aliquot(MuB,MuA), MuA != MuB.
 understood.
 

@@ -14,7 +14,7 @@ understood.
 --> prime_generator(0,p(A,B)) :- A = (- 99) .. 99, A = MuA, prime(B), B = (- 99) .. 99, B = MuB.
 understood.
 
->>> prime_generator(N-1, p(A,B)), prime(((N + A) * N) + B) :: prime_generator(N, p(A,B)).
+>>> prime_generator(N-1, p(A,B)), prime(((N + A) * N) + B) -: prime_generator(N, p(A,B)).
 --> prime_generator(MuN,p(MuA,MuB)) :- prime_generator(MuN-1,p(MuA,MuB)), prime(((MuN+MuA)*MuN)+MuB).
 understood.
 

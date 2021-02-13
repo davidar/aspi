@@ -8,7 +8,7 @@ understood.
     gather((1,MuN),B) :- proper_divisor(B,MuN), A = MuN, A = 1 .. 999.
 understood.
 
->>> abundant(N n3): N < aliquot.N.
+>>> abundant(N n3) :- N < aliquot.N.
 --> abundant(A) :- A = MuN, A = 1 .. 999, MuN < B, aliquot(B,MuN).
 understood.
 

@@ -17,11 +17,11 @@ understood.
 --> init(capacity(A)) :- infinity(A).
 understood.
 
->>> holds(capacity(M), T), weight.I <= M :: holds(allowed(I), T).
+>>> holds(capacity(M), T), weight.I <= M -: holds(allowed(I), T).
 --> holds(allowed(MuI),MuT) :- holds(capacity(MuM),MuT), A <= MuM, weight(A,MuI).
 understood.
 
->>> holds(capacity(M), T), apply(select(I, W weight.I, S strength.I), T+1) :: holds(capacity(min{M - W | S - W}), T+1).
+>>> holds(capacity(M), T), apply(select(I, W weight.I, S strength.I), T+1) -: holds(capacity(min{M - W | S - W}), T+1).
 --> holds(capacity(E),MuT+1) :- E = @minof(D), setof((1,MuM,MuS,MuW),D), holds(capacity(MuM),MuT), apply(select(MuI,A,B),MuT+1), A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
     disjunction((1,MuM,MuS,MuW),MuM-MuW) :- holds(capacity(MuM),MuT), apply(select(MuI,A,B),MuT+1), A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
     disjunction((1,MuM,MuS,MuW),MuS-MuW) :- holds(capacity(MuM),MuT), apply(select(MuI,A,B),MuT+1), A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).

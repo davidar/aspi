@@ -33,8 +33,8 @@ start: cmd
     | "#" "any" [ldcs] "!" -> goal_any
     | ["#" "macro"] define_heads ":" ldcs "." -> define
     | ldcs "::" define_heads "." -> reverse_define
-    | term [":" clause] "." -> claim
-    | clause "::" term "." -> reverse_claim
+    | term [":-" clause] "." -> claim
+    | clause "-:" term "." -> reverse_claim
     | ldcs "?" -> query
     | ldcs "!" -> goal
 define_heads: (func | join)+

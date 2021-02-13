@@ -1,9 +1,9 @@
 % 1. There are five houses.
 house: 1..5.
 left(house A, house A+1).
-right(A,B): left(B,A).
-adjacent(A,B): left(A,B).
-adjacent(A,B): right(A,B).
+right(A,B) :- left(B,A).
+adjacent(A,B) :- left(A,B).
+adjacent(A,B) :- right(A,B).
 
 % In the interest of clarity, it must be added that
 % each of the five houses is painted a different colour,
