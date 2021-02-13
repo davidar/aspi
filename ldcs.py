@@ -496,7 +496,7 @@ OPERATOR: "=" | "!=" | "<=" | ">=" | "<" | ">"
         | "\\" | "**" | "&" | "?" | "^" | ".."
 
 ?start: rule
-rule: head ":-" pred ("," pred)* "."
+rule: head [":-" pred ("," pred)*] "."
 pred: ATOM [ "(" value ("," value)* ")" ]
     | [value] OPERATOR value -> predop
 ?value: pred
