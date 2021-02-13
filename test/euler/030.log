@@ -1,18 +1,18 @@
 >>> % 30. Find all the numbers that can be written as the sum of fourth powers of their digits.
 >>> 
 >>> #macro char.S: substring[S, 1..length.S, 1].
---> char(C,MuS) :- C = @substring(MuS,B,1), A = @length(MuS), B = 1 .. A.
+--> char(C,MuS) :- C = @substring(MuS,B,1), B = 1 .. A, A = @length(MuS).
 understood.
 
 >>> #macro digit.N: decimal.char.show.N.
---> digit(G,MuN) :- G = @decimal(D), D = @substring(A,E,1), F = @length(A), E = 1 .. F, A = @show(MuN).
+--> digit(G,MuN) :- G = @decimal(D), D = @substring(A,E,1), E = 1 .. F, F = @length(A), A = @show(MuN).
 understood.
 
 >>> 
 >>> N sum.{{(digit.N)**4}} n4?
---> what(M) :- M = MuN, M = @sumof(L), bagof((1,MuN),L), M = 1 .. 9999.
-    aggregation((1,MuN),J) :- E = @decimal(F), F = @substring(G,H,1), I = @length(G), H = 1 .. I, G = @show(MuN), J = E ** 4, M = MuN, M = 1 .. 9999.
-    gather((1,MuN),(K,P0)) :- proof(P0,aggregation((1,MuN),K)), M = MuN, M = 1 .. 9999.
+--> what(L) :- L = MuN, L = @sumof(K), bagof((1,MuN),K), L = 1 .. 9999.
+    aggregation((1,MuN),E**4) :- E = @decimal(F), F = @substring(G,H,1), H = 1 .. I, I = @length(G), G = @show(MuN), L = MuN, L = 1 .. 9999.
+    gather((1,MuN),(J,P0)) :- proof(P0,aggregation((1,MuN),J)), L = MuN, L = 1 .. 9999.
 that: 1 | 1634 | 8208 | 9474.
 
 >>> thanks.

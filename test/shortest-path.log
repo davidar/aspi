@@ -63,7 +63,7 @@ understood.
 >>> 
 >>> % via recurrence equation
 >>> paths.B: path.A + edge[A,B].
---> paths(C,MuB) :- path(A,MuA), edge(B,MuA,MuB), C = A + B.
+--> paths(A+B,MuB) :- path(A,MuA), edge(B,MuA,MuB).
 understood.
 
 >>> path[node B ~start]: min{paths.B}.
@@ -77,13 +77,13 @@ understood.
 understood.
 
 >>> result(A, path.A)?
---> what(B) :- path(A,MuA), B = result(MuA,A).
+--> what(result(MuA,A)) :- path(A,MuA).
 that: result("BOS",0) | result("DFW",1578) | result("JFK",187) | result("LAX",2813) | result("MIA",1258) | result("ORD",2380) | result("SFO",2769).
 
 >>> 
 >>> % via goal-directed planning
 >>> init: at(start).
---> init(B) :- start(A), B = at(A).
+--> init(at(A)) :- start(A).
 understood.
 
 >>> go(A,B): edge(A,B) :: action demands.at(A) deletes.at(A) adds.at(B) costs.edge[A,B].

@@ -10,19 +10,19 @@ understood.
 
 >>> 
 >>> left (R+1, C,   node[R+1, C])   :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C)   rewards.node[R+1, C].
---> action(B) :- node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
-    demands(B,at(MuR,MuC)) :- node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
-    deletes(B,at(MuR,MuC)) :- node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
-    adds(B,at(MuR+1,MuC)) :- node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
-    rewards(B,C) :- node(C,MuR+1,MuC), node(A,MuR+1,MuC), B = left(MuR+1,MuC,A).
+--> action(left(MuR+1,MuC,A)) :- node(A,MuR+1,MuC).
+    demands(left(MuR+1,MuC,A),at(MuR,MuC)) :- node(A,MuR+1,MuC).
+    deletes(left(MuR+1,MuC,A),at(MuR,MuC)) :- node(A,MuR+1,MuC).
+    adds(left(MuR+1,MuC,A),at(MuR+1,MuC)) :- node(A,MuR+1,MuC).
+    rewards(left(MuR+1,MuC,A),B) :- node(B,MuR+1,MuC), node(A,MuR+1,MuC).
 understood.
 
 >>> right(R+1, C+1, node[R+1, C+1]) :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C+1) rewards.node[R+1, C+1].
---> action(B) :- node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
-    demands(B,at(MuR,MuC)) :- node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
-    deletes(B,at(MuR,MuC)) :- node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
-    adds(B,at(MuR+1,MuC+1)) :- node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
-    rewards(B,C) :- node(C,MuR+1,MuC+1), node(A,MuR+1,MuC+1), B = right(MuR+1,MuC+1,A).
+--> action(right(MuR+1,MuC+1,A)) :- node(A,MuR+1,MuC+1).
+    demands(right(MuR+1,MuC+1,A),at(MuR,MuC)) :- node(A,MuR+1,MuC+1).
+    deletes(right(MuR+1,MuC+1,A),at(MuR,MuC)) :- node(A,MuR+1,MuC+1).
+    adds(right(MuR+1,MuC+1,A),at(MuR+1,MuC+1)) :- node(A,MuR+1,MuC+1).
+    rewards(right(MuR+1,MuC+1,A),B) :- node(B,MuR+1,MuC+1), node(A,MuR+1,MuC+1).
 understood.
 
 >>> 
@@ -31,7 +31,7 @@ understood.
 understood.
 
 >>> #any at(end, 1..end)!
---> { goal(D) : end(A), end(B), C = 1 .. B, D = at(A,C) } = 1.
+--> { goal(at(A,C)) : end(A), C = 1 .. B, end(B) } = 1.
 reward: 390.
 left(1, 1, 75)!
 right(2, 2, 64)!

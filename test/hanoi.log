@@ -48,22 +48,22 @@ understood.
 
 >>> 
 >>> init: on(disk, left peg).
---> init(C) :- disk(A), left(B), peg(B), C = on(A,B).
+--> init(on(A,B)) :- disk(A), left(B), peg(B).
 understood.
 
 >>> 
 >>> move(disk D, peg P) :: action demands_not.on(disk small.D, P) demands_not.on_same(D, disk small.D) deletes.on(D, peg) adds.on(D, P) costs.1.
---> action(C) :- disk(A), A = MuD, peg(B), B = MuP, C = move(A,B).
-    demands_not(C,E) :- disk(D), small(D,MuD), E = on(D,MuP), disk(A), A = MuD, peg(B), B = MuP, C = move(A,B).
-    demands_not(C,G) :- disk(F), small(F,MuD), G = on_same(MuD,F), disk(A), A = MuD, peg(B), B = MuP, C = move(A,B).
-    deletes(C,I) :- peg(H), I = on(MuD,H), disk(A), A = MuD, peg(B), B = MuP, C = move(A,B).
-    adds(C,on(MuD,MuP)) :- disk(A), A = MuD, peg(B), B = MuP, C = move(A,B).
-    costs(C,1) :- disk(A), A = MuD, peg(B), B = MuP, C = move(A,B).
+--> action(move(A,B)) :- disk(A), A = MuD, peg(B), B = MuP.
+    demands_not(move(A,B),on(C,MuP)) :- disk(C), small(C,MuD), disk(A), A = MuD, peg(B), B = MuP.
+    demands_not(move(A,B),on_same(MuD,D)) :- disk(D), small(D,MuD), disk(A), A = MuD, peg(B), B = MuP.
+    deletes(move(A,B),on(MuD,E)) :- peg(E), disk(A), A = MuD, peg(B), B = MuP.
+    adds(move(A,B),on(MuD,MuP)) :- disk(A), A = MuD, peg(B), B = MuP.
+    costs(move(A,B),1) :- disk(A), A = MuD, peg(B), B = MuP.
 understood.
 
 >>> 
 >>> on(disk, right peg)!
---> goal(C) :- disk(A), right(B), peg(B), C = on(A,B).
+--> goal(on(A,B)) :- disk(A), right(B), peg(B).
 cost: 15.
 move(tiny, middle)!
 move(small, right)!
