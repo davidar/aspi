@@ -9,9 +9,9 @@ understood.
 that: 3628800.
 
 >>> sum{{decimal[substring.show.factorial.10 length'.1]}}?
---> what(S) :- S = @sumof(R), bagof((2),R).
-    aggregation((1),P) :- P = @decimal(I), I = @substring(B,J,K), L = @length(B), J = M, M = 1 .. L, N = ((L - J) + 1), K = O, O = 0 .. N, B = @show(A), factorial(A,10), 1 = @length(I).
-    gather((2),(Q,P0)) :- proof(P0,aggregation((1),Q)).
+--> what(Q) :- Q = @sumof(P), bagof((2),P).
+    aggregation((1),N) :- N = @decimal(H), H = I, J = K, J = 1 .. L, M = 0 .. ((L - K) + 1), I = @substring(B,J,M), L = @length(B), B = @show(A), factorial(A,10), 1 = @length(H).
+    gather((2),(O,P0)) :- proof(P0,aggregation((1),O)).
 that: 27.
 
 >>> thanks.
