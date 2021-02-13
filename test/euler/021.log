@@ -1,6 +1,6 @@
 >>> % 21. Evaluate the sum of all amicable numbers under 1000.
 >>> proper_divisor[N n3]: 1..(N-1) multiple'.N.
---> proper_divisor(B,A) :- A = MuN, A = 1 .. 999, B = 1 .. (MuN-1), MuN \ B = 0.
+--> proper_divisor(B,A) :- A = MuN, A = 1 .. 999, B = 1 .. (MuN-1), (MuN \ B) = 0.
 understood.
 
 >>> aliquot[N n3]: sum{proper_divisor.N}.

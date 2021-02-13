@@ -64,36 +64,39 @@ class ASPI:
         self.now = 0
         self.program = ''
 
-        for arg in ['lib/prelude.lp', 'lib/macros.lp', 'lib/plans.lp'] + args:
+        for arg in ['lib/prelude.lp', 'lib/macros.ldcs', 'lib/plans.ldcs'] + args:
             self.include(arg)
 
     def include(self, arg: str) -> None:
-        if arg != 'lib/macros.lp':
-            if arg.endswith('.lp'):
-                self.program += f'#include "{arg}".\n'
-            elif arg.endswith('.csv'):
-                with open(arg, 'r') as f:
-                    rows = 0
-                    for r, line in enumerate(f):
-                        rows += 1
-                        cols = 0
-                        for c, v in enumerate(line.split(',')):
-                            cols += 1
-                            v = v.strip()
-                            self.program += f'csv({v},{r+1},{c+1}).\n'
-                        self.program += f'csv_cols({cols},{r+1}).\n'
-                    self.program += f'csv_rows({rows}).\n'
-            elif arg.endswith('.txt'):
-                name = os.path.basename(arg)[:-4]
-                with open(arg, 'r') as f:
-                    for line in f:
-                        k, v = line.split()
-                        self.program += f'{name}({v},{k}).\n'
-        else:
+        if arg.endswith('.lp'):
+            self.program += f'#include "{arg}".\n'
+        elif arg.endswith('.ldcs'):
             with open(arg, 'r') as f:
                 for line in f:
-                    if line.strip():
-                        self.ldcs.add_macro(line)
+                    if line.strip() and line[0] != '%':
+                        lp = self.ldcs.toASP(line)
+                        if 'macros' in arg:
+                            self.ldcs.add_macro(lp.split('\n')[0])
+                        else:
+                            self.program += lp + '\n'
+        elif arg.endswith('.csv'):
+            with open(arg, 'r') as f:
+                rows = 0
+                for r, line in enumerate(f):
+                    rows += 1
+                    cols = 0
+                    for c, v in enumerate(line.split(',')):
+                        cols += 1
+                        v = v.strip()
+                        self.program += f'csv({v},{r+1},{c+1}).\n'
+                    self.program += f'csv_cols({cols},{r+1}).\n'
+                self.program += f'csv_rows({rows}).\n'
+        elif arg.endswith('.txt'):
+            name = os.path.basename(arg)[:-4]
+            with open(arg, 'r') as f:
+                for line in f:
+                    k, v = line.split()
+                    self.program += f'{name}({v},{k}).\n'
 
     def repl(self, cmd: str) -> None:
         if not cmd or cmd.startswith('%'):

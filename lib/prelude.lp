@@ -8,13 +8,12 @@
 #show describe/4.
 #show describe/5.
 
-history(counter, goal(F)) :- goal(F).
-history(counter, what(X)) :- what(X).
-
 true(true).
 false(false).
 now(now).
 
+history(counter, goal(F)) :- goal(F).
+history(counter, what(X)) :- what(X).
 that(X,N) :- history(counter-N, what(X)).
 that(X) :- that(X,1).
 

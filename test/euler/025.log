@@ -16,16 +16,16 @@ understood.
 understood.
 
 >>> #macro char.S: substring.S length'.1.
---> char(E,MuS) :- E = @substring(MuS,F,G), H = @length(MuS), F = 1 .. H, I = H - F + 1, G = 0 .. I, 1 = @length(E).
+--> char(E,MuS) :- E = @substring(MuS,F,G), F = H, F = 1 .. I, G = 0 .. ((I - H) + 1), I = @length(MuS), 1 = @length(E).
 understood.
 
 >>> #macro digit.N: decimal.char.show.N.
---> digit(K,MuN) :- K = @decimal(F), F = @substring(A,G,H), I = @length(A), G = 1 .. I, J = I - G + 1, H = 0 .. J, 1 = @length(F), A = @show(MuN).
+--> digit(K,MuN) :- K = @decimal(F), F = @substring(A,G,H), G = I, G = 1 .. J, H = 0 .. ((J - I) + 1), J = @length(A), 1 = @length(F), A = @show(MuN).
 understood.
 
 >>> fib N: count{{digit.N}} = 10?
 --> what(Q) :- fib(Q), Q = MuN, P = 10, P = @countof(O), bagof((1,MuN),O).
-    aggregation((1,MuN),G) :- G = @decimal(H), H = @substring(I,J,K), L = @length(I), J = 1 .. L, M = L - J + 1, K = 0 .. M, 1 = @length(H), I = @show(MuN), fib(Q), Q = MuN, P = 10.
+    aggregation((1,MuN),G) :- G = @decimal(H), H = @substring(I,J,K), J = L, J = 1 .. M, K = 0 .. ((M - L) + 1), M = @length(I), 1 = @length(H), I = @show(MuN), fib(Q), Q = MuN, P = 10.
     gather((1,MuN),(N,P0)) :- proof(P0,aggregation((1,MuN),N)), fib(Q), Q = MuN, P = 10.
 that: 1134903170.
 

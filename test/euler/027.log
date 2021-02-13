@@ -1,17 +1,17 @@
 >>> % 27. Find a quadratic formula that produces the maximum number of primes for consecutive values of n.
 >>> 
 >>> composite: N multiple[2..(N-1)] n4.
---> composite(B) :- B = MuN, B \ A = 0, A = 2 .. (MuN-1), B = 1 .. 9999.
+--> composite(B) :- B = MuN, (B \ A) = 0, A = 2 .. (MuN-1), B = 1 .. 9999.
 understood.
 
 >>> prime: >1 ~composite n4.
---> prime(B) :- B > 1, not negation((1),B), B = 1 .. 9999.
-    negation((1),A) :- composite(A), A = 1 .. 9999.
+--> prime(B) :- B > 1, not negation((2),B), B = 1 .. 9999.
+    negation((2),A) :- composite(A), A = 1 .. 9999.
 understood.
 
 >>> 
 >>> prime_generator(0, p(i2 A, prime i2 B)).
---> prime_generator(0,p(A,B)) :- A = - 99 .. 99, A = MuA, prime(B), B = - 99 .. 99, B = MuB.
+--> prime_generator(0,p(A,B)) :- A = (- 99) .. 99, A = MuA, prime(B), B = (- 99) .. 99, B = MuB.
 understood.
 
 >>> prime_generator(N-1, p(A,B)), prime(((N + A) * N) + B) :: prime_generator(N, p(A,B)).
@@ -30,7 +30,7 @@ that: 39.
 
 >>> prime_generator_max'.max{prime_generator_max.p(i2,i2)}?
 --> what(F) :- prime_generator_max(E,F), E = @maxof(D), setof((2),D).
-    gather((2),C) :- prime_generator_max(C,p(A,B)), A = - 99 .. 99, B = - 99 .. 99.
+    gather((2),C) :- prime_generator_max(C,p(A,B)), A = (- 99) .. 99, B = (- 99) .. 99.
 that: p(-15,97).
 
 >>> prime_generator_max.that?

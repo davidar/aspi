@@ -1,11 +1,11 @@
 >>> % 10. Calculate the sum of all the primes below one hundred.
 >>> composite: N multiple[2..(N-1)] n3.
---> composite(B) :- B = MuN, B \ A = 0, A = 2 .. (MuN-1), B = 1 .. 999.
+--> composite(B) :- B = MuN, (B \ A) = 0, A = 2 .. (MuN-1), B = 1 .. 999.
 understood.
 
 >>> prime: >1 ~composite n3.
---> prime(B) :- B > 1, not negation((1),B), B = 1 .. 999.
-    negation((1),A) :- composite(A), A = 1 .. 999.
+--> prime(B) :- B > 1, not negation((2),B), B = 1 .. 999.
+    negation((2),A) :- composite(A), A = 1 .. 999.
 understood.
 
 >>> sum{prime <100}?

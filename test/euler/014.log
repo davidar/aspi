@@ -1,10 +1,10 @@
 >>> % 14. Find the longest Collatz sequence using a starting number under ten.
 >>> collatz[N even n3]: N / 2.
---> collatz(MuN/2,A) :- A = MuN, A \ 2 = 0, A = 1 .. 999.
+--> collatz(MuN/2,A) :- A = MuN, (A \ 2) = 0, A = 1 .. 999.
 understood.
 
 >>> collatz[N odd n3]: (3*N) + 1.
---> collatz((3*MuN)+1,A) :- A = MuN, A \ 2 = 1, A = 1 .. 999.
+--> collatz((3*MuN)+1,A) :- A = MuN, (A \ 2) = 1, A = 1 .. 999.
 understood.
 
 >>> collatz_steps.1: 0.

@@ -9,7 +9,7 @@ understood.
 that: 1 | 3 | 6 | 10 | 15 | 21 | 28 | 36 | 45 | 55 | 66 | 78 | 91.
 
 >>> divisor[X n3]: multiple'[X] n3.
---> divisor(B,A) :- A = MuX, A = 1 .. 999, MuX \ B = 0, B = 1 .. 999.
+--> divisor(B,A) :- A = MuX, A = 1 .. 999, (MuX \ B) = 0, B = 1 .. 999.
 understood.
 
 >>> divisors[X n3]: count{divisor.X}.

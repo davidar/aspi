@@ -51,8 +51,8 @@ that: box.
 >>> 
 >>> % HOW MANY BLOCKS ARE NOT IN THE BOX?
 >>> block ~in.box?
---> what(C) :- block(C), not negation((1),C).
-    negation((1),B) :- in(B,A), box(A), block(B).
+--> what(C) :- block(C), not negation((2),C).
+    negation((2),B) :- in(B,A), box(A), block(B).
 that: large red block | green cube supports[red pyramid] | red cube.
 
 >>> 
@@ -103,9 +103,9 @@ understood.
 >>> 
 >>> % I OWN BLOCKS WHICH ARE NOT RED BUT I DON'T OWN ANYTHING WHICH SUPPORTS A PYRAMID.
 >>> mine(block ~red ~supports.pyramid).
---> mine(D) :- block(D), not negation((2),D), not negation((3),D).
-    negation((2),A) :- red(A), block(A).
-    negation((3),C) :- supports(C,B), pyramid(B), block(C).
+--> mine(D) :- block(D), not negation((3),D), not negation((4),D).
+    negation((3),A) :- red(A), block(A).
+    negation((4),C) :- supports(C,B), pyramid(B), block(C).
 understood.
 
 >>> 
@@ -195,7 +195,7 @@ that: blue block | green pyramid | red cube | red pyramid.
 >>> 
 >>> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
 >>> pickup.pyramid before.goal.on(green pyramid, little cube)?
---> what(G) :- pickup(G,A), pyramid(A), end_time(H,G), H = 0 .. I - 1, start_time(I,D), goal(D,on(B,C)), green(B), pyramid(B), little(C), cube(C).
+--> what(G) :- pickup(G,A), pyramid(A), end_time(H,G), H = 0 .. (I - 1), start_time(I,D), goal(D,on(B,C)), green(B), pyramid(B), little(C), cube(C).
 that: apply(pickup(green pyramid),9) | apply(pickup(green pyramid),13) | apply(pickup(green pyramid),15).
 
 >>> 
@@ -206,7 +206,7 @@ that: apply(pickup(green pyramid),9) | apply(pickup(green pyramid),13) | apply(p
 >>> 
 >>> % WHEN DID YOU PICK IT UP?
 >>> event during'.that?
---> what(F) :- event(F), start_time(G,A), end_time(H,A), start_time(I,F), end_time(J,F), G = I .. J, H = G .. J, A != F, that(A).
+--> what(H) :- event(H), start_time(I,A), I = J, I = K .. L, end_time(M,A), M = J .. L, start_time(K,N), N = H, N != A, end_time(L,H), that(A).
 that: history(16,goal(stack(red cube,large red block,green pyramid))) | history(20,goal(on(red cube,green cube supports[red pyramid]))).
 
 >>> 
@@ -233,14 +233,14 @@ that: apply(pickup(green pyramid),13) | history(20,goal(on(red cube,green cube s
 >>> 
 >>> % HOW DID YOU DO IT?
 >>> event during.that?
---> what(F) :- event(F), start_time(G,F), end_time(H,F), start_time(I,A), end_time(J,A), G = I .. J, H = G .. J, F != A, that(A).
+--> what(H) :- event(H), start_time(I,H), I = J, I = K .. L, end_time(M,H), M = J .. L, start_time(K,N), N = A, N != H, end_time(L,A), that(A).
 that: apply(pickup(green pyramid),15) | apply(pickup(red cube),17) | apply(put_on(green pyramid,green cube supports[blue block]),16) | apply(put_on(red cube,green cube supports[red pyramid]),18).
 
 >>> 
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
 >>> count{pickup.object during.that.2}?
---> what(M) :- M = @countof(L), setof((4),L).
-    gather((4),G) :- pickup(G,A), object(A), start_time(H,G), end_time(I,G), start_time(J,B), end_time(K,B), H = J .. K, I = H .. K, G != B, that(B,2).
+--> what(Q) :- Q = @countof(P), setof((4),P).
+    gather((4),I) :- pickup(I,A), object(A), start_time(J,I), J = K, J = L .. M, end_time(N,I), N = K .. M, start_time(L,O), O = B, O != I, end_time(M,B), that(B,2).
 that: 2.
 
 >>> 
@@ -328,7 +328,6 @@ yes.
 >>> % WHY DID YOU DROP IT?
 >>> why.put_on(superblock, table)?
 --> what(C) :- why(C,put_on(A,B)), superblock(A), table(B).
-that: nonexistent.
 
 >>> 
 >>> left_of(red pyramid, box)!
