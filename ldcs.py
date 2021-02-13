@@ -162,7 +162,7 @@ class LDCS(lark.Transformer[str]):
     def expand_macro(self, name: str, *args: Sym) -> str:
         params, tree = self.macros[f'{name}/{len(args)}']
         subst = dict(zip(params, args))
-        return RuleBody(subst, self.gensym).transform(tree)
+        return RuleBody(subst, self.gensym, params).transform(tree)
 
     def expand_contexts(self) -> None:
         updated = False
@@ -503,8 +503,9 @@ pred: ATOM [ "(" value ("," value)* ")" ]
       | var
       | INT
       | ESCAPED_STRING
+      | "(" value ")" -> paren
 var: VARIABLE
-head: ATOM "(" var ("," var)* ")"
+head: ATOM "(" value ("," value)* ")"
 '''
 
 rule_parser = lark.Lark(rule_ebnf)
@@ -519,7 +520,14 @@ class RuleHead(lark.Transformer[Tuple[str, List[str]]]):
         return name
 
     def head(self, name: str, *args: str) -> Tuple[str, List[str]]:
-        return str(name), [str(arg) for arg in args]
+        params = []
+        for i, arg in enumerate(args):
+            arg = str(arg)
+            if arg.isalpha() and arg[0].isupper():
+                params.append(arg)
+            else:
+                params.append(f'Head{i}')
+        return str(name), params
 
 
 def unparen(s: str) -> str:
@@ -531,16 +539,26 @@ def unparen(s: str) -> str:
 
 @lark.v_args(inline=True)
 class RuleBody(lark.Transformer[str]):
-    def __init__(self, subst: Dict[Sym, Sym], gensym: Callable[[], Sym]):
+    def __init__(self, subst: Dict[Sym, Sym], gensym: Callable[[], Sym],
+                 params: List[str]):
         self.subst = subst
         self.gensym = gensym
+        self.params = params
 
-    def rule(self, head: str, *body: str) -> str:
-        return ', '.join(body)
+    def head(self, name: str, *args: str) -> List[str]:
+        body = []
+        for param, arg in zip(self.params, args):
+            arg = str(arg)
+            if param.startswith('Head'):
+                body.append(f'{self.var(param)} = {arg}')
+        return body
+
+    def rule(self, head: List[str], *body: str) -> str:
+        return ', '.join(head + list(body))
 
     def pred(self, name: str, *args: str) -> str:
         if not args:
-            name
+            return name
         return f"{name}({','.join(unparen(arg) for arg in args)})"
 
     def predop(self, *args: str) -> str:
@@ -553,6 +571,9 @@ class RuleBody(lark.Transformer[str]):
         if not expr.isalnum():
             expr = f'({expr})'
         return expr
+
+    def paren(self, val: str) -> str:
+        return f'({val})'
 
 
 if __name__ == '__main__':
