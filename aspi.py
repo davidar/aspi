@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import atexit
 import clingo
-import collections
 import enum
 import json
 import os
@@ -186,7 +185,6 @@ class Results:
         self.already: List[str] = []
         self.shows: List[str] = []
         self.names: Dict[str, str] = {}
-        self.names_t: Dict[int, Dict[str, str]] = collections.defaultdict(dict)
         for result in results:
             self.parse(result)
         self.acts = [self.replace_names(act, t)
@@ -194,19 +192,15 @@ class Results:
         self.already = [self.replace_names(fact) for fact in self.already]
 
     def replace_names(self, s: str, offset: int = 0) -> str:
-        d = self.names_t[self.parent.now + offset]
         while True:
             r = s
             for k, v in self.names.items():
-                if k in d:
-                    v += ' ' + d[k]
                 if k[-1] == ')':
                     r = r.replace(k, v)
                 else:
                     r = re.sub('\\b' + k + '\\b', v, r)
             if s == r:
                 return s
-            d = {}
             s = r
 
     def parse(self, result: str) -> None:
@@ -226,8 +220,6 @@ class Results:
         elif result.startswith('describe('):
             r = result[len('describe('):-1].split(',')
             self.names[r[0]] = ' '.join(r[1:])
-        elif result.startswith('describe_extra('):
-            self.parse_describe_extra(result)
         elif result in ('ok', 'yes', 'no'):
             self.status = result
 
@@ -237,12 +229,6 @@ class Results:
         m = re.fullmatch(r'apply\((.*),\d+\)', result)
         if m:
             self.acts.append(m.group(1).replace(',', ', '))
-
-    def parse_describe_extra(self, result: str) -> None:
-        r = result[len('describe_extra('):-1].split(',')
-        t = int(r[0])
-        self.names_t[t][r[1]] = ' '.join(r[2:]).replace(
-            '(', '[').replace(')', ']').replace('not_', '~')
 
 
 if __name__ == '__main__':

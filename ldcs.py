@@ -44,7 +44,6 @@ clause: term ("," term)*
      | "#" "each" "(" term "," term ")" -> foreach
      | "not" term -> not_term
 pred: atom "(" [ldcs ("," ldcs)*] ")"
-    | atom "$" pred
 cmpop: ldcs CMP_OP ldcs -> binop
 binop: bracketed BIN_OP bracketed
 ?bracketed: "(" ldcs ")"
@@ -72,7 +71,6 @@ constant: INT
     | [func] "{{" ldcs "}}" -> bagof
     | [func] "{" ldcs "}" -> setof
 func: atom
-    | atom "$" func -> compose
     | (func | constant) SUP_SUFFIX -> superlative
 join: func "." arg
     | func "[" disj "]"
@@ -408,9 +406,6 @@ class LDCS(lark.Transformer[str]):
             else:
                 return f"{name}({','.join(args)})"
         return f
-
-    def compose(self, name: str, lam: Variadic) -> Variadic:
-        return lambda *args: f'{name}({lam(*args)})'
 
     def superlative(self, rel: Variadic, op: str) -> Variadic:
         if op == "'":

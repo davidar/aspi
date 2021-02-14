@@ -51,8 +51,8 @@ that: red cube | second green cube.
 
 >>> 
 >>> % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
->>> that narrow.command$pickup?
---> what(B) :- that(B), narrow(B,A), command(pickup(A)).
+>>> that narrow.X: command(pickup(X))?
+--> what(A) :- that(A), narrow(A,MuX), command(pickup(MuX)).
 that: red cube.
 
 >>> 
@@ -62,23 +62,16 @@ that: red cube.
 that: front left table.
 
 >>> 
->>> % CAN THE TABLE PICK UP BLOCKS?
->>> #any table action$pickup.block?
---> yes :- table(B), action(pickup(B,A)), block(A).
-    no :- not yes.
-no.
-
->>> 
 >>> % CAN A PYRAMID BE SUPPORTED BY A BLOCK?
->>> #any pyramid action$put_on.block?
---> yes :- pyramid(B), action(put_on(B,A)), block(A).
+>>> #any _: action(put_on(pyramid, block))?
+--> yes :- action(put_on(A,B)), pyramid(A), block(B).
     no :- not yes.
 yes.
 
 >>> 
 >>> % CAN A PYRAMID SUPPORT A PYRAMID?
->>> #any pyramid action$put_on.pyramid?
---> yes :- pyramid(B), action(put_on(B,A)), pyramid(A).
+>>> #any _: action(put_on(pyramid, pyramid))?
+--> yes :- action(put_on(A,B)), pyramid(A), pyramid(B).
     no :- not yes.
 no.
 
@@ -212,7 +205,7 @@ that: apply(pickup(green pyramid),9) | apply(pickup(green pyramid),13) | apply(p
 >>> % WHEN DID YOU PICK IT UP?
 >>> event during'.that?
 --> what(H) :- event(H), start_time(I,A), I = J, I = K .. L, end_time(M,A), M = J .. L, start_time(K,N), N = H, N != A, end_time(L,H), that(A).
-that: history(15,goal(stack(large red block,red cube,green pyramid))) | history(20,goal(on(red cube,second green cube))).
+that: history(14,goal(stack(large red block,red cube,green pyramid))) | history(19,goal(on(red cube,second green cube))).
 
 >>> 
 >>> % WHY?
@@ -233,7 +226,7 @@ that: apply(put_on(red cube,second green cube),18) | apply(put_on(red cube,large
 
 >>> why.that?
 --> what(B) :- why(B,A), that(A).
-that: apply(pickup(green pyramid),13) | history(20,goal(on(red cube,second green cube))).
+that: apply(pickup(green pyramid),13) | history(19,goal(on(red cube,second green cube))).
 
 >>> 
 >>> % HOW DID YOU DO IT?
@@ -292,7 +285,7 @@ that: blue block.
 
 >>> 
 >>> % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
->>> steeple$stack(green cube, green cube, pyramid).
+>>> steeple: stack(green cube, green cube, pyramid).
 --> steeple(stack(A,B,C)) :- green(A), cube(A), green(B), cube(B), pyramid(C).
 understood.
 

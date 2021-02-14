@@ -21,19 +21,16 @@ supports[that pyramid]?
 block ~in.box?
 
 % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
-that narrow.command$pickup?
+that narrow.X: command(pickup(X))?
 
 % IS IT SUPPORTED?
 supports.that?
 
-% CAN THE TABLE PICK UP BLOCKS?
-#any table action$pickup.block?
-
 % CAN A PYRAMID BE SUPPORTED BY A BLOCK?
-#any pyramid action$put_on.block?
+#any _: action(put_on(pyramid, block))?
 
 % CAN A PYRAMID SUPPORT A PYRAMID?
-#any pyramid action$put_on.pyramid?
+#any _: action(put_on(pyramid, pyramid))?
 
 % STACK UP TWO PYRAMIDS.
 stack(pyramid, pyramid)!
@@ -122,7 +119,7 @@ on(blue block, box)!
 object big'each.{pyramid} X wide'.supports.X?
 
 % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
-steeple$stack(green cube, green cube, pyramid).
+steeple: stack(green cube, green cube, pyramid).
 
 % ARE THERE ANY STEEPLES NOW?
 #any steeple holds.now?
