@@ -8,7 +8,7 @@ for i in range(1000):
     if os.path.exists(f'test/{name}.ldcs'):
         scripts.append(name)
 
-for i in (10131, 10154):
+for i in (116, 10131, 10154):
     scripts.append(f'uva/{i}')
 
 

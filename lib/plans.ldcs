@@ -8,6 +8,8 @@ del.T: deletes'.apply.T.
 state[time T]: state[T-1] ~del[T].
 holds.T: state.T.
 
+holds.T: adds_temporary'.apply.T.
+
 holds: holds.now.
 history(F) :- history(C,F).
 command(G) :- history(goal(G)).
