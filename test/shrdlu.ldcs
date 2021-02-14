@@ -1,4 +1,4 @@
-#include "test/shrdlu-world.lp".
+#include "test/shrdlu-world.ldcs".
 #include "test/shrdlu-actions.ldcs".
 
 % PICK UP A BIG RED BLOCK.
@@ -10,8 +10,6 @@ holding(that pyramid)!
 % FIND A BLOCK WHICH IS TALLER THAN THE ONE YOU ARE HOLDING AND PUT IT INTO THE BOX.
 block tall.holding?
 in(that, box)!
-
-in(blue pyramid, box)!
 
 % WHAT DOES THE BOX CONTAIN?
 contains'.box?
@@ -57,6 +55,8 @@ in.box mine?
 
 % WHICH CUBE IS SITTING ON THE TABLE?
 cube on.table?
+
+#any in(large block, back)!
 
 % IS THERE A LARGE BLOCK BEHIND A PYRAMID?
 large block behind.pyramid?
@@ -111,7 +111,7 @@ block left_of[box; just_before.cleanoff[red cube]]?
 count{that}?
 
 #reset.
-#include "test/shrdlu-world.lp".
+#include "test/shrdlu-world.ldcs".
 #include "test/shrdlu-actions.ldcs".
 on(blue block, box)!
 

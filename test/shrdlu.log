@@ -1,12 +1,12 @@
->>> #include "test/shrdlu-world.lp".
+>>> #include "test/shrdlu-world.ldcs".
 >>> #include "test/shrdlu-actions.ldcs".
 >>> 
 >>> % PICK UP A BIG RED BLOCK.
 >>> pickup(big red block)!
 --> goal(pickup(A)) :- big(A), red(A), block(A).
 cost: 3.
-pickup(green cube ~supports[red pyramid])!
-put_on(green cube holding, blue block)!
+pickup(first green cube)!
+put_on(first green cube, blue block)!
 pickup(large red block)!
 
 >>> 
@@ -24,23 +24,17 @@ that: blue block.
 >>> in(that, box)!
 --> goal(in(A,B)) :- that(A), box(B).
 cost: 5.
-put_on(large red block, table)!
-pickup(green cube ~supports[red pyramid])!
-put_on(green cube holding, box)!
+put_on(large red block, box)!
+pickup(first green cube)!
+put_on(first green cube, large red block)!
 pickup(blue block)!
-put_on(blue block, green cube ~supports[red pyramid])!
-
->>> 
->>> in(blue pyramid, box)!
---> goal(in(A,B)) :- blue(A), pyramid(A), box(B).
-cost: 0.
-in(blue pyramid, box).
+put_on(blue block, first green cube)!
 
 >>> 
 >>> % WHAT DOES THE BOX CONTAIN?
 >>> contains'.box?
 --> what(B) :- contains(A,B), box(A).
-that: blue block | blue pyramid | green cube supports[blue block].
+that: blue pyramid | first green cube | large red block | blue block.
 
 >>> 
 >>> % WHAT IS THE PYRAMID SUPPORTED BY?
@@ -51,9 +45,9 @@ that: box.
 >>> 
 >>> % HOW MANY BLOCKS ARE NOT IN THE BOX?
 >>> block ~in.box?
---> what(C) :- block(C), not negation((2),C).
-    negation((2),B) :- in(B,A), box(A), block(B).
-that: large red block | green cube supports[red pyramid] | red cube.
+--> what(C) :- block(C), not negation((4),C).
+    negation((4),B) :- in(B,A), box(A), block(B).
+that: red cube | second green cube.
 
 >>> 
 >>> % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
@@ -65,7 +59,7 @@ that: red cube.
 >>> % IS IT SUPPORTED?
 >>> supports.that?
 --> what(B) :- supports(B,A), that(A).
-that: table.
+that: front left table.
 
 >>> 
 >>> % CAN THE TABLE PICK UP BLOCKS?
@@ -103,9 +97,9 @@ understood.
 >>> 
 >>> % I OWN BLOCKS WHICH ARE NOT RED BUT I DON'T OWN ANYTHING WHICH SUPPORTS A PYRAMID.
 >>> mine(block ~red ~supports.pyramid).
---> mine(D) :- block(D), not negation((3),D), not negation((4),D).
-    negation((3),A) :- red(A), block(A).
-    negation((4),C) :- supports(C,B), pyramid(B), block(C).
+--> mine(D) :- block(D), not negation((5),D), not negation((6),D).
+    negation((5),A) :- red(A), block(A).
+    negation((6),C) :- supports(C,B), pyramid(B), block(C).
 understood.
 
 >>> 
@@ -119,17 +113,17 @@ no.
 >>> % DO I OWN ANYTHING IN THE BOX?
 >>> in.box mine?
 --> what(B) :- in(B,A), box(A), mine(B).
-that: blue block | blue pyramid | green cube supports[blue block].
+that: blue pyramid | first green cube | blue block.
 
 >>> 
 >>> % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
 >>> #any stack(red block, red block, green cube | pyramid)!
---> { goal(stack(A,B,E)) : red(A), block(A), red(B), block(B), disjunction((2),E) } = 1.
-    disjunction((2),C) :- green(C), cube(C).
-    disjunction((2),D) :- pyramid(D).
+--> { goal(stack(A,B,E)) : red(A), block(A), red(B), block(B), disjunction((1),E) } = 1.
+    disjunction((1),C) :- green(C), cube(C).
+    disjunction((1),D) :- pyramid(D).
 cost: 6.
 pickup(green pyramid)!
-put_on(green pyramid, large red block)!
+put_on(green pyramid, blue block)!
 pickup(red cube)!
 put_on(red cube, large red block)!
 pickup(green pyramid)!
@@ -139,19 +133,25 @@ put_on(green pyramid, red cube)!
 >>> % WHICH CUBE IS SITTING ON THE TABLE?
 >>> cube on.table?
 --> what(B) :- cube(B), on(B,A), table(A).
-that: green cube supports[red pyramid].
+that: second green cube.
+
+>>> 
+>>> #any in(large block, back)!
+--> { goal(in(A,B)) : large(A), block(A), back(B) } = 1.
+cost: 0.
+in(large red block, back right table).
 
 >>> 
 >>> % IS THERE A LARGE BLOCK BEHIND A PYRAMID?
 >>> large block behind.pyramid?
 --> what(B) :- large(B), block(B), behind(B,A), pyramid(A).
-that: blue block | green cube supports[blue block].
+that: large red block.
 
 >>> 
 >>> #any on(red pyramid, green cube)!
 --> { goal(on(A,B)) : red(A), pyramid(A), green(B), cube(B) } = 1.
 cost: 0.
-on(red pyramid, green cube supports[red pyramid]).
+on(red pyramid, second green cube).
 
 >>> 
 >>> % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
@@ -159,9 +159,9 @@ on(red pyramid, green cube supports[red pyramid]).
 --> { goal(on(A,C)) : small(A), block(A), green(C), cube(C), supports(C,B), pyramid(B) } = 1.
 cost: 4.
 pickup(green pyramid)!
-put_on(green pyramid, green cube supports[blue block])!
+put_on(green pyramid, blue block)!
 pickup(red cube)!
-put_on(red cube, green cube supports[red pyramid])!
+put_on(red cube, second green cube)!
 
 >>> 
 >>> % PUT THE LITTLEST PYRAMID ON TOP OF IT.
@@ -190,7 +190,7 @@ that: red.
 >>> % HOW MANY THINGS ARE ON TOP OF GREEN CUBES?
 >>> above[green cube]?
 --> what(B) :- above(B,A), green(A), cube(A).
-that: blue block | green pyramid | red cube | red pyramid.
+that: red pyramid | green pyramid | red cube | blue block.
 
 >>> 
 >>> pickup.X: apply(pickup(X),T): apply(pickup(X),T).
@@ -212,13 +212,13 @@ that: apply(pickup(green pyramid),9) | apply(pickup(green pyramid),13) | apply(p
 >>> % WHEN DID YOU PICK IT UP?
 >>> event during'.that?
 --> what(H) :- event(H), start_time(I,A), I = J, I = K .. L, end_time(M,A), M = J .. L, start_time(K,N), N = H, N != A, end_time(L,H), that(A).
-that: history(16,goal(stack(red cube,large red block,green pyramid))) | history(20,goal(on(red cube,green cube supports[red pyramid]))).
+that: history(15,goal(stack(large red block,red cube,green pyramid))) | history(20,goal(on(red cube,second green cube))).
 
 >>> 
 >>> % WHY?
 >>> why.that.2?
 --> what(B) :- why(B,A), that(A,2).
-that: apply(pickup(red cube),11) | apply(pickup(red cube),17) | apply(put_on(green pyramid,large red block),10) | apply(put_on(green pyramid,green cube supports[blue block]),16) | apply(put_on(green pyramid,red cube),14).
+that: apply(pickup(red cube),11) | apply(pickup(red cube),17) | apply(put_on(green pyramid,red cube),14) | apply(put_on(green pyramid,blue block),10) | apply(put_on(green pyramid,blue block),16).
 
 >>> 
 >>> that pickup.cube?
@@ -229,17 +229,17 @@ that: apply(pickup(red cube),11) | apply(pickup(red cube),17).
 >>> % WHY DID YOU DO THAT?
 >>> why.that?
 --> what(B) :- why(B,A), that(A).
-that: apply(put_on(red cube,large red block),12) | apply(put_on(red cube,green cube supports[red pyramid]),18).
+that: apply(put_on(red cube,second green cube),18) | apply(put_on(red cube,large red block),12).
 
 >>> why.that?
 --> what(B) :- why(B,A), that(A).
-that: apply(pickup(green pyramid),13) | history(20,goal(on(red cube,green cube supports[red pyramid]))).
+that: apply(pickup(green pyramid),13) | history(20,goal(on(red cube,second green cube))).
 
 >>> 
 >>> % HOW DID YOU DO IT?
 >>> event during.that?
 --> what(H) :- event(H), start_time(I,H), I = J, I = K .. L, end_time(M,H), M = J .. L, start_time(K,N), N = A, N != H, end_time(L,A), that(A).
-that: apply(pickup(green pyramid),15) | apply(pickup(red cube),17) | apply(put_on(green pyramid,green cube supports[blue block]),16) | apply(put_on(red cube,green cube supports[red pyramid]),18).
+that: apply(pickup(green pyramid),15) | apply(pickup(red cube),17) | apply(put_on(green pyramid,blue block),16) | apply(put_on(red cube,second green cube),18).
 
 >>> 
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?
@@ -267,7 +267,7 @@ that: 1.
 
 >>> 
 >>> #reset.
->>> #include "test/shrdlu-world.lp".
+>>> #include "test/shrdlu-world.ldcs".
 >>> #include "test/shrdlu-actions.ldcs".
 >>> on(blue block, box)!
 --> goal(on(A,B)) :- blue(A), block(A), box(B).
@@ -307,13 +307,11 @@ no.
 >>> % BUILD ONE.
 >>> #any steeple!
 --> { goal(A) : steeple(A) } = 1.
-cost: 6.
-pickup(red pyramid)!
-put_on(red pyramid, blue block)!
-pickup(green cube)!
-put_on(green cube holding, green cube on[large red block])!
+cost: 4.
+pickup(first green cube)!
+put_on(first green cube, second green cube)!
 pickup(green pyramid)!
-put_on(green pyramid, green cube)!
+put_on(green pyramid, first green cube)!
 
 >>> 
 >>> % CALL THE BIGGEST BLOCK "SUPERBLOCK".
@@ -339,13 +337,13 @@ yes.
 --> goal(left_of(A,B)) :- red(A), pyramid(A), box(B).
 cost: 2.
 pickup(red pyramid)!
-put_on(red pyramid, red cube)!
+put_on(red pyramid, large red block)!
 
 >>> 
 >>> % IS THERE ANYTHING TO THE RIGHT OF THE RED PYRAMID?
 >>> right_of[red pyramid]?
 --> what(B) :- right_of(B,A), red(A), pyramid(A).
-that: blue block | blue pyramid | box.
+that: box | green pyramid | blue pyramid | first green cube | second green cube | blue block.
 
 >>> 
 >>> thanks.

@@ -42,6 +42,7 @@ clause: term ("," term)*
 ?term: pred
      | cmpop
      | "#" "each" "(" term "," term ")" -> foreach
+     | "not" term -> not_term
 pred: atom "(" [ldcs ("," ldcs)*] ")"
     | atom "$" pred
 cmpop: ldcs CMP_OP ldcs -> binop
@@ -352,6 +353,10 @@ class LDCS(lark.Transformer[str]):
 
     def foreach(self, lit: CSym, cond: CSym) -> CSym:
         return f'{commas(*lit)} : {commas(*cond)};', None
+
+    def not_term(self, term: CSym) -> CSym:
+        assert not term[1]
+        return f'not {term[0]}', None
 
     def negative(self, var_body: CSym) -> Unary:
         var, body = var_body
