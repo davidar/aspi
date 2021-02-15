@@ -53,10 +53,10 @@ in.box mine?
 % WHICH CUBE IS SITTING ON THE TABLE?
 cube on.table?
 
-#any in(large block, back)!
+#any in(big block, back)!
 
 % IS THERE A LARGE BLOCK BEHIND A PYRAMID?
-large block behind.pyramid?
+big block behind.pyramid?
 
 #any on(red pyramid, green cube)!
 
@@ -64,7 +64,7 @@ large block behind.pyramid?
 #any on(small block, green cube supports.pyramid)!
 
 % PUT THE LITTLEST PYRAMID ON TOP OF IT.
-on(little'est.{pyramid}, small block)!
+on(small'est.{pyramid}, small block)!
 
 % DOES THE SHORTEST THING THE TALLEST PYRAMID'S SUPPORT SUPPORTS SUPPORT ANYTHING GREEN?
 green on.short'est.{on.supports.tall'est.{pyramid}}?
@@ -78,7 +78,7 @@ above[green cube]?
 pickup.X: apply(pickup(X),T): apply(pickup(X),T).
 
 % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
-pickup.pyramid before.goal.on(green pyramid, little cube)?
+pickup.pyramid before.goal.on(green pyramid, small cube)?
 
 that pickup.green?
 

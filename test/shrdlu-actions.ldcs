@@ -1,4 +1,3 @@
 pickup(object X) :: action demands_not.on(object,X) demands_not.holding(object) adds.holding(X) deletes.on(X,location) costs.1.
 put_on(object X, location Y !=X) :: action demands.holding(X) adds.on(X,Y) deletes.holding(X) costs.1.
 put_on(object, small Y) :: demands_not.on(object, Y).
-put_on(large, large Y) :: demands_not.on(object, Y).

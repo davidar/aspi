@@ -1,11 +1,11 @@
 % https://www.uv.es/ivorra/Filosofia/TC/cubos.png
 
-#enum object: red pyramid | green pyramid | blue pyramid | red cube | first green cube | second green cube | large red block | blue block.
+#enum object: red pyramid | green pyramid | blue pyramid | small red cube | first green cube | second green cube | big red block | blue block.
 #enum location: front left table | front right table | back left table | back right table | box.
 #enum colour: red | green | blue.
 
-init: on(first green cube, large red block).
-init: on(large red block, front left table).
+init: on(first green cube, big red block).
+init: on(big red block, front left table).
 init: on(green pyramid, red cube).
 init: on(red cube, front left table).
 init: on(red pyramid, second green cube).
@@ -19,36 +19,34 @@ init: left_of(left, right).
 
 location: block.
 block: cube.
-big: large.
-little: small.
-small: red cube.
 
 colour.red: colour red.
 colour.green: colour green.
 colour.blue: colour blue.
 
-tall(blue block, large red block).
+tall(blue block, big red block).
 tall(red pyramid, blue pyramid).
 tall(blue pyramid, green pyramid).
 tall(red pyramid, red cube).
-tall(A,C) :- tall(A,B), tall(B,C).
-short(A,B) :- tall(B,A).
 
 big(blue block, pyramid).
-big(large, green pyramid).
-big(blue block, large red block).
-big(large red block, green cube).
+big(big red block, green pyramid).
+big(blue block, big red block).
+big(big red block, green cube).
 big(green cube, red cube).
 big(blue pyramid, red pyramid).
 big(red pyramid, green pyramid).
-big(A,C) :- big(A,B), big(B,C).
-small(A,B) :- big(B,A).
-little(A,B) :- small(A,B).
 
 wide(box, object).
 wide(table, object).
-wide(large red block, red cube).
-narrow(A,B) :- wide(B,A).
+wide(big red block, red cube).
+
+tall(A,C) :- tall(A,B), tall(B,C).
+big(A,C) :- big(A,B), big(B,C).
+
+short.X: tall'.X.
+small.X: big'.X.
+narrow.X: wide'.X.
 
 #fluent stack(C ~table ~box, B, A) :- on(A,B), on(B,C).
 #fluent above(A,B) :- on(A,B).
