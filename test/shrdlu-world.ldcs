@@ -71,11 +71,6 @@ behind(B,A) :- holds(behind(B,A)).
 left_of(A,B) :- holds(left_of(A,B)).
 right_of(A,B) :- holds(right_of(A,B)).
 
-on(holds(on(X,Y),T), X,Y) :- holds(on(X,Y),T).
-supports(holds(supports(X,Y),T), X,Y) :- holds(supports(X,Y),T).
-left_of(holds(left_of(X,Y),T), X,Y) :- holds(left_of(X,Y),T).
-holding(holds(holding(X),T), X) :- holds(holding(X),T).
-
 cleanoff_at(X,T) :- holds(on(Y,X), T-1), not holds(on(Y,X), T).
 cleanoff(cleanoff_at(X,T), X) :- cleanoff_at(X,T).
 start_time(T, cleanoff_at(X,T)) :- cleanoff_at(X,T).

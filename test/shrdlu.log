@@ -243,14 +243,14 @@ that: 2.
 
 >>> 
 >>> % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
->>> supports'[red cube, just_before.cleanoff[red cube]]?
---> what(G) :- supports(E,C,G), red(C), cube(C), end_time(F - 1,E), start_time(F,B), cleanoff(B,A), red(A), cube(A).
+>>> supports'[red cube] @ just_before.cleanoff[red cube]?
+--> what(H) :- H = B, event(F,supports(A,B)), red(A), cube(A), end_time(G - 1,F), start_time(G,D), cleanoff(D,C), red(C), cube(C).
 that: green pyramid.
 
 >>> 
 >>> % THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
->>> block left_of[box; just_before.cleanoff[red cube]]?
---> what(G) :- block(G), left_of(D,G,F), end_time(E - 1,D), start_time(E,B), cleanoff(B,A), red(A), cube(A), box(F).
+>>> block left_of.box @ just_before.cleanoff[red cube]?
+--> what(H) :- block(H), H = B, event(F,left_of(B,A)), box(A), end_time(G - 1,F), start_time(G,D), cleanoff(D,C), red(C), cube(C).
 that: red cube.
 
 >>> count{that}?
@@ -315,8 +315,8 @@ understood.
 
 >>> 
 >>> % HAVE YOU PICKED SUPERBLOCK UP SINCE WE BEGAN?
->>> #any holding.superblock?
---> yes :- holding(B,A), superblock(A).
+>>> #any _: holds(holding(superblock), T)?
+--> yes :- holds(holding(A),MuT), superblock(A).
     no :- not yes.
 yes.
 

@@ -20,6 +20,7 @@ goal(history(C,goal(F)), F) :- history(C,goal(F)).
 
 event(history(C,G)) :- history(C,G).
 event(apply(A,T)) :- apply(A,T).
+event(holds(P,T), P) :- holds(P,T).
 
 start_time(T1, history(C,G)) :- history(C,G), plan_interval(C, T1, T2).
   end_time(T2, history(C,G)) :- history(C,G), plan_interval(C, T1, T2).

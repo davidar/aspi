@@ -101,10 +101,10 @@ event during.that?
 count{pickup.object during.that.2}?
 
 % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
-supports'[red cube, just_before.cleanoff[red cube]]?
+supports'[red cube] @ just_before.cleanoff[red cube]?
 
 % THERE WERE FIVE BLOCKS TO THE LEFT OF THE BOX THEN.
-block left_of[box; just_before.cleanoff[red cube]]?
+block left_of.box @ just_before.cleanoff[red cube]?
 count{that}?
 
 #reset.
@@ -131,7 +131,7 @@ steeple: stack(green cube, green cube, pyramid).
 superblock: big'est.{block}.
 
 % HAVE YOU PICKED SUPERBLOCK UP SINCE WE BEGAN?
-#any holding.superblock?
+#any _: holds(holding(superblock), T)?
 
 % WHY DID YOU DROP IT?
 why.put_on(superblock, table)?

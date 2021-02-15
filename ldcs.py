@@ -58,6 +58,7 @@ conj: lams
 lams: lam+
 ?lam: arg
     | binop -> unify
+    | bracketed "@" bracketed -> adverb
 constant: INT
         | VARIABLE
         | ESCAPED_STRING
@@ -451,6 +452,15 @@ class LDCS(lark.Transformer[str]):
     def unify(self, pred_body: CSym) -> Unary:
         pred, body = pred_body
         return lambda x: commas(f'{x} = {pred}', body)
+
+    def adverb(self, var_body: CSym, adverb_body: CSym) -> Unary:
+        var, body = var_body
+        assert body is not None
+        head_body = body.split(', ', 1)
+        head = head_body[0]
+        body = head_body[1] if len(head_body) > 1 else ''
+        avar, abody = adverb_body
+        return lambda x: commas(f'{x} = {var}, event({avar},{head})', body, abody)
 
     def multijoin(self, rel: Variadic, lams_tail: List[Unary],
                   lams_head: List[Unary] = []) -> Unary:
