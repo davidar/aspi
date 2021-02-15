@@ -51,7 +51,6 @@ binop: bracketed BIN_OP bracketed
 rparam: INT ldcs
 atom: NAME
 ldcs: disj [":" clause]
-disjs: disj ("," disj)*
 disj: conj ("|" conj)*
     | "_"
 conj: lams
@@ -74,8 +73,7 @@ constant: INT
 func: atom
     | (func | constant) SUP_SUFFIX -> superlative
 join: func "." arg
-    | func "[" disj "]"
-    | func "[" disjs [";" disjs] "]" -> multijoin
+    | func "[" disj ("," disj)* "]"
 '''
 
 Sym = str
@@ -379,9 +377,6 @@ class LDCS(lark.Transformer[str]):
             x = self.gensym()
             return x, commas(lam(x), cond)
 
-    def disjs(self, *args: str) -> List[str]:
-        return list(args)
-
     def disj(self, *lams: Unary) -> Unary:
         if len(lams) == 0:
             return lambda x: ''
@@ -422,9 +417,9 @@ class LDCS(lark.Transformer[str]):
             return lambda x, z: f'{rel(y)}, ({y},{x}) = @enumerateof({z})'
         assert False
 
-    def join(self, rel: Binary, lam: Unary) -> Unary:
-        y, body = self.ldcs(lam)
-        return lambda x: commas(rel(x, y), body)
+    def join(self, rel: Variadic, *lams: Unary) -> Unary:
+        ys, bs = unzip(self.ldcs(lam) for lam in lams)
+        return lambda x: commas(rel(x, *ys), *bs)
 
     def neg(self, var_body: CSym) -> Unary:
         lam = self.lift(var_body, 'negation', ground=True)
@@ -461,13 +456,6 @@ class LDCS(lark.Transformer[str]):
         body = head_body[1] if len(head_body) > 1 else ''
         avar, abody = adverb_body
         return lambda x: commas(f'{x} = {var}, event({avar},{head})', body, abody)
-
-    def multijoin(self, rel: Variadic, lams_tail: List[Unary],
-                  lams_head: List[Unary] = []) -> Unary:
-        lams_head.reverse()
-        xs, b1 = unzip(self.ldcs(lam) for lam in lams_head)
-        zs, b2 = unzip(self.ldcs(lam) for lam in lams_tail)
-        return lambda y: commas(rel(*xs, y, *zs), commas(*b1, *b2))
 
     def toASP(self, s: str) -> Optional[str]:
         try:
