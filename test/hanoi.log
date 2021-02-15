@@ -36,7 +36,7 @@ understood.
 --> on(MuA,MuB) :- holds(on(MuA,MuB)).
 understood.
 
->>> #fluent on_same(D,E): on(D,P), on(E,P).
+>>> #fluent on_same(D,E) :- on(D,P), on(E,P).
 --> on_same(MuD,MuE) :- holds(on_same(MuD,MuE)).
     holds(on_same(MuD,MuE), Time) :- holds(on(MuD,MuP), Time), holds(on(MuE,MuP), Time).
 understood.

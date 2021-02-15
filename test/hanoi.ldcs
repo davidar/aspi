@@ -1,7 +1,7 @@
 #enum disk: tiny | small | big | huge.
 #enum peg: left | middle | right.
 #fluent on(A,B).
-#fluent on_same(D,E): on(D,P), on(E,P).
+#fluent on_same(D,E) :- on(D,P), on(E,P).
 
 small(disk.I, disk.>I).
 

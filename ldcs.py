@@ -25,7 +25,7 @@ VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
 NAME: ["@"] LCASE_LETTER ("_"|LETTER|DIGIT)*
 
 start: cmd
-?cmd: "#" "fluent" pred [":" clause] "." -> fluent
+?cmd: "#" "fluent" pred [":-" term ("," term)*] "." -> fluent
     | "#" "enum" atom ":" lams ("|" lams)* "." -> enum
     | "#" "relation" atom "(" rparam ("," rparam)* ")" "." -> relation
     | "#" "any" (ldcs | cmpop) "." -> constraint_any
@@ -219,16 +219,12 @@ class LDCS(lark.Transformer[str]):
     def reverse_define(self, var_body: CSym, heads: List[Unary]) -> None:
         return self.define(heads, var_body)
 
-    def fluent(self, head_body: CSym, cond: Optional[str] = None) -> str:
+    def fluent(self, head_body: CSym, *args: CSym) -> str:
         head, body = head_body
-        if cond:
-            terms = []
-            for term in commas(body, cond).split(', '):
-                if ' ' in term:
-                    terms.append(term)
-                else:
-                    terms.append(f'holds({term}, Time)')
-            self.rules.append(f'holds({head}, Time) :- {commas(*terms)}.')
+        if len(args) > 0:
+            for v, b in args:
+                body = commas(body, f'holds({v}, Time)', b)
+            self.rules.append(f'holds({head}, Time) :- {body}.')
         return f'{head} :- holds({head})'
 
     def proof(self, rule: str) -> str:

@@ -50,26 +50,19 @@ wide(table, object).
 wide(large red block, red cube).
 narrow(A,B) :- wide(B,A).
 
-holds(stack(C ~table ~box, B, A), T) :- holds(on(A,B), T), holds(on(B,C), T).
-holds(above(A,B), T) :- holds(on(A,B), T).
-holds(above(A,C), T) :- holds(above(A,B), T), holds(above(B,C), T).
-holds(in(A,B), T) :- holds(above(A,B), T).
-holds(contains(A,B), T) :- holds(in(B,A), T).
-holds(supports(A,B), T) :- holds(on(B,A), T).
-holds(supporter(X), T) :- holds(supports(X,Y), T).
-holds(behind(B,A), T) :- holds(above(B,X), T), holds(above(A,Y), T), table(X), table(Y), holds(behind(X,Y), T).
-holds(left_of(B,A), T) :- holds(above(B,X), T), holds(above(A,Y), T), table(X), table(Y), holds(left_of(X,Y), T).
-holds(right_of(A,B), T) :- holds(left_of(B,A), T).
+#fluent stack(C ~table ~box, B, A) :- on(A,B), on(B,C).
+#fluent above(A,B) :- on(A,B).
+#fluent above(A,C) :- above(A,B), above(B,C).
+#fluent in(A,B) :- above(A,B).
+#fluent contains(A,B) :- in(B,A).
+#fluent supports(A,B) :- on(B,A).
+#fluent supporter(X) :- supports(X,Y).
+#fluent behind(B,A) :- above(B, table X), above(A, table Y), behind(X,Y).
+#fluent left_of(B,A) :- above(B, table X), above(A, table Y), left_of(X,Y).
+#fluent right_of(A,B) :- left_of(B,A).
 
-holding(X) :- holds(holding(X)).
-on(A,B) :- holds(on(A,B)).
-above(A,B) :- holds(above(A,B)).
-in(A,B) :- holds(in(A,B)).
-contains(A,B) :- holds(contains(A,B)).
-supports(A,B) :- holds(supports(A,B)).
-behind(B,A) :- holds(behind(B,A)).
-left_of(A,B) :- holds(left_of(A,B)).
-right_of(A,B) :- holds(right_of(A,B)).
+#fluent holding(X).
+#fluent on(A,B).
 
 cleanoff_at(X,T) :- holds(on(Y,X), T-1), not holds(on(Y,X), T).
 cleanoff(cleanoff_at(X,T), X) :- cleanoff_at(X,T).
