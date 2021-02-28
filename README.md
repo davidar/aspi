@@ -248,7 +248,7 @@ what(B) :- B = MuX, children(B,A),
 </td><td>
 
 ```haskell
-[ x | x <- [minBound..]
+[ x | x <- universe
     , x' <- children =<< influenced =<< [x]
     , x == x' ]
 ```
@@ -279,9 +279,12 @@ numberOfChildren x =
 </tbody>
 </table>
 
-The Haskell code above uses the following definition:
+The Haskell code above uses the following definitions:
 
 ```haskell
+universe :: (Bounded a, Enum a) => [a]
+universe = [minBound .. maxBound]
+
 inv :: (Bounded a, Enum a, Eq b) => (a -> [b]) -> b -> [a]
-inv f y = [x | x <- [minBound..], y `elem` f x]
+inv f y = [ x | x <- universe, y' <- f x, y == y' ]
 ```
