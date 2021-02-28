@@ -227,7 +227,7 @@ what(C) :- C = #count { B : type(B,A),
 </td><td>
 
 ```haskell
-[length (type' =<< [USState])]
+[length . nub $ type' =<< [USState]]
 ```
 
 </td></tr>
@@ -272,7 +272,7 @@ number_of_children(B,MuX) :-
 
 ```haskell
 numberOfChildren x =
-  [length (inv children =<< [x])]
+  [length . nub $ inv children =<< [x]]
 ```
 
 </td></tr>
