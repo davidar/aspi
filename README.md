@@ -53,10 +53,10 @@ The language is still unstable and lacking much documentation yet, but there are
 
 ## Syntax
 
-λdcs can be used to write logic programs in a concise, [pointfree](https://wiki.haskell.org/Pointfree) manner. Below are a number of examples comparing how λdcs expressions translate to standard logic programs.
+λdcs can be used to write logic programs in a concise, [pointfree](https://wiki.haskell.org/Pointfree) manner. Below are a number of examples comparing how λdcs expressions translate to standard logic programs, as well as monadic functional programs.
 
 <table>
-<thead><tr><th scope="col"></th><th scope="col">λdcs</th><th scope="col">ASP logic program</th></tr></thead>
+<thead><tr><th scope="col"></th><th scope="col">λdcs</th><th scope="col">ASP logic program</th><th scope="col">Haskell</th></tr></thead>
 <tbody>
 <tr><th scope="row">Unary predicate</th>
 <td>
@@ -69,6 +69,12 @@ seattle?
 
 ```prolog
 what(A) :- seattle(A).
+```
+
+</td><td>
+
+```haskell
+[Seattle]
 ```
 
 </td></tr>
@@ -85,6 +91,12 @@ place_of_birth.seattle?
 what(B) :- place_of_birth(B,A), seattle(A).
 ```
 
+</td><td>
+
+```haskell
+placeOfBirth =<< [Seattle]
+```
+
 </td></tr>
 <tr><th scope="row">Reverse operator</th>
 <td>
@@ -97,6 +109,12 @@ place_of_birth'.john?
 
 ```prolog
 what(B) :- place_of_birth(A,B), john(A).
+```
+
+</td><td>
+
+```haskell
+inv placeOfBirth =<< [John]
 ```
 
 </td></tr>
@@ -115,6 +133,12 @@ what(C) :- children(C,B),
            seattle(A).
 ```
 
+</td><td>
+
+```haskell
+children =<< placeOfBirth =<< [Seattle]
+```
+
 </td></tr>
 <tr><th scope="row">Intersection</th>
 <td>
@@ -128,6 +152,14 @@ profession.scientist place_of_birth.seattle?
 ```prolog
 what(C) :- profession(C,A), scientist(A),
            place_of_birth(C,B), seattle(B).
+```
+
+</td><td>
+
+```haskell
+[ x | x <- profession =<< [Scientist]
+    , x' <- placeOfBirth =<< [Seattle]
+    , x == x' ]
 ```
 
 </td></tr>
@@ -148,6 +180,13 @@ disjunction(B) :- type(B,A),
                   canadian_province(A).
 ```
 
+</td><td>
+
+```haskell
+[Oregon] <|> [Washington]
+         <|> (type' =<< [CanadianProvince])
+```
+
 </td></tr>
 <tr><th scope="row">Negation</th>
 <td>
@@ -164,12 +203,18 @@ what(D) :- type(D,A), us_state(A),
 negation(C) :- border(C,B), california(B).
 ```
 
+</td><td>
+
+```haskell
+(type' =<< [USState]) \\ (border =<< [California])
+```
+
 </td></tr>
 <tr><th scope="row">Aggregation</th>
 <td>
 
 ```
-#count(type.us_state)?
+count{type.us_state}?
 ```
 
 </td><td>
@@ -177,6 +222,12 @@ negation(C) :- border(C,B), california(B).
 ```prolog
 what(C) :- C = #count { B : type(B,A),
                             us_state(A) }.
+```
+
+</td><td>
+
+```haskell
+[length (type' =<< [USState])]
 ```
 
 </td></tr>
@@ -194,12 +245,20 @@ what(B) :- B = MuX, children(B,A),
            influenced(A,MuX).
 ```
 
+</td><td>
+
+```haskell
+[ x | x <- [minBound..]
+    , x' <- children =<< influenced =<< [x]
+    , x == x' ]
+```
+
 </td></tr>
 <tr><th scope="row">λ abstraction</th>
 <td>
 
 ```
-number_of_children.X: #count(children'.X).
+number_of_children.X: count{children'.X}.
 ```
 
 </td><td>
@@ -209,6 +268,20 @@ number_of_children(B,MuX) :-
   B = #count { A : children(MuX,A) }.
 ```
 
+</td><td>
+
+```haskell
+numberOfChildren x =
+  [length (inv children =<< [x])]
+```
+
 </td></tr>
 </tbody>
 </table>
+
+The Haskell code above uses the following definition:
+
+```haskell
+inv :: (Bounded a, Enum a, Eq b) => (a -> [b]) -> b -> [a]
+inv f y = [x | x <- [minBound..], y `elem` f x]
+```
