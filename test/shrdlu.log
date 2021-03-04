@@ -205,13 +205,18 @@ that: apply(pickup(green pyramid),9) | apply(pickup(green pyramid),13) | apply(p
 >>> % WHEN DID YOU PICK IT UP?
 >>> event during'.that?
 --> what(H) :- event(H), start_time(I,A), I = J, I = K .. L, end_time(M,A), M = J .. L, start_time(K,N), N = H, N != A, end_time(L,H), that(A).
-that: history(14,goal(stack(big red block,small red cube,green pyramid))) | history(19,goal(on(small red cube,second green cube))).
+that: history(14,goal(stack(big red block,small red cube,green pyramid)))
+    | history(19,goal(on(small red cube,second green cube))).
 
 >>> 
 >>> % WHY?
 >>> why.that.2?
 --> what(B) :- why(B,A), that(A,2).
-that: apply(pickup(small red cube),11) | apply(pickup(small red cube),17) | apply(put_on(green pyramid,small red cube),14) | apply(put_on(green pyramid,blue block),10) | apply(put_on(green pyramid,blue block),16).
+that: apply(pickup(small red cube),11)
+    | apply(pickup(small red cube),17)
+    | apply(put_on(green pyramid,small red cube),14)
+    | apply(put_on(green pyramid,blue block),10)
+    | apply(put_on(green pyramid,blue block),16).
 
 >>> 
 >>> that pickup.cube?
@@ -222,17 +227,22 @@ that: apply(pickup(small red cube),11) | apply(pickup(small red cube),17).
 >>> % WHY DID YOU DO THAT?
 >>> why.that?
 --> what(B) :- why(B,A), that(A).
-that: apply(put_on(small red cube,second green cube),18) | apply(put_on(small red cube,big red block),12).
+that: apply(put_on(small red cube,second green cube),18)
+    | apply(put_on(small red cube,big red block),12).
 
 >>> why.that?
 --> what(B) :- why(B,A), that(A).
-that: apply(pickup(green pyramid),13) | history(19,goal(on(small red cube,second green cube))).
+that: apply(pickup(green pyramid),13)
+    | history(19,goal(on(small red cube,second green cube))).
 
 >>> 
 >>> % HOW DID YOU DO IT?
 >>> event during.that?
 --> what(H) :- event(H), start_time(I,H), I = J, I = K .. L, end_time(M,H), M = J .. L, start_time(K,N), N = A, N != H, end_time(L,A), that(A).
-that: apply(pickup(green pyramid),15) | apply(pickup(small red cube),17) | apply(put_on(green pyramid,blue block),16) | apply(put_on(small red cube,second green cube),18).
+that: apply(pickup(green pyramid),15)
+    | apply(pickup(small red cube),17)
+    | apply(put_on(green pyramid,blue block),16)
+    | apply(put_on(small red cube,second green cube),18).
 
 >>> 
 >>> % HOW MANY OBJECTS DID YOU TOUCH WHILE YOU WERE DOING IT?

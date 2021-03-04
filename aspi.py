@@ -173,6 +173,8 @@ class ASPI:
             terms = [clingo.parse_term(r) for r in res.shows]
             terms.sort()
             that = ' | '.join(res.replace_names(str(t)) for t in terms)
+            if len(that) / len(terms) > 40:
+                that = that.replace(' | ', '\n    | ')
             print(f'that: {that}.')
         print()
 
