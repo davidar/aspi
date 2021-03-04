@@ -1,0 +1,9 @@
+#include "test/db/call.csv".
+#include "test/db/data.ldcs".
+
+% http://sqlfiddle.com/#!18/d73a9/1
+% SELECT employee.first_name, employee.last_name, call.start_time, call.end_time, call_outcome.outcome_text
+% FROM employee
+% INNER JOIN call ON call.employee_id = employee.id
+% INNER JOIN call_outcome ON call.call_outcome_id = call_outcome.id
+row(first_name[E call_employee.C], last_name.E, start_time.C, end_time.C, outcome_text.call_outcome.C)?

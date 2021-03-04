@@ -1,0 +1,14 @@
+>>> #include "test/db/call.csv".
+>>> #include "test/db/data.ldcs".
+>>> 
+>>> % http://sqlfiddle.com/#!18/d73a9/1
+>>> % SELECT employee.first_name, employee.last_name, call.start_time, call.end_time, call_outcome.outcome_text
+>>> % FROM employee
+>>> % INNER JOIN call ON call.employee_id = employee.id
+>>> % INNER JOIN call_outcome ON call.call_outcome_id = call_outcome.id
+>>> row(first_name[E call_employee.C], last_name.E, start_time.C, end_time.C, outcome_text.call_outcome.C)?
+--> what(H) :- H = row(B,C,D,E,G), first_name(B,A), A = MuE, call_employee(A,MuC), last_name(C,MuE), start_time(D,MuC), end_time(E,MuC), outcome_text(G,F), call_outcome(F,MuC).
+that: row("Agent","Smith","2020/1/11 9:02:20","2020/1/11 9:18:05","finished unsuccessfully") | row("Agent","Smith","2020/1/11 9:41:17","2020/1/11 9:45:21","finished successfully") | row("Agent","Smith","2020/1/11 9:46:00","2020/1/11 9:48:02","finished successfully") | row("Agent","Smith","2020/1/11 9:50:12","2020/1/11 9:55:35","finished successfully") | row("Thomas","Anderson","2020/1/11 9:00:15","2020/1/11 9:12:22","finished successfully") | row("Thomas","Anderson","2020/1/11 9:14:50","2020/1/11 9:20:01","finished successfully") | row("Thomas","Anderson","2020/1/11 9:24:15","2020/1/11 9:25:05","finished unsuccessfully") | row("Thomas","Anderson","2020/1/11 9:26:23","2020/1/11 9:33:45","finished successfully") | row("Thomas","Anderson","2020/1/11 9:40:31","2020/1/11 9:42:32","finished successfully") | row("Thomas","Anderson","2020/1/11 9:42:32","2020/1/11 9:46:53","finished unsuccessfully").
+
+>>> thanks.
+YOU'RE WELCOME!

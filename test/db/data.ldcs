@@ -1,0 +1,18 @@
+#enum employee: neo | smith.
+#enum customer: jewelry | bakery | cafe | restaurant.
+#enum outcome: started | success | failed.
+
+first_name.neo: "Thomas".
+first_name.smith: "Agent".
+last_name.neo: "Anderson".
+last_name.smith: "Smith".
+
+call_employee.C: employee(csv[C,1]).
+call_customer.C: customer(csv[C,2]).
+start_time.C: csv[C,3].
+end_time.C: csv[C,4].
+call_outcome.C: outcome(csv[C,5]).
+
+outcome_text.started: "call started".
+outcome_text.success: "finished successfully".
+outcome_text.failed: "finished unsuccessfully".
