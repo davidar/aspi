@@ -5,7 +5,7 @@ prime: >1 ~composite n4.
 
 prime_generator(0, p(i2 A, prime i2 B)).
 prime_generator(N-1, p(A,B)), prime(((N + A) * N) + B) -: prime_generator(N, p(A,B)).
-prime_generator_max.p(A,B): max{prime_generator.p(A,B)}: prime_generator(0, p(A,B)).
+prime_generator_max.p(A,B): max{prime_generator.p(A,B)} :- prime_generator(0, p(A,B)).
 
 prime_generator_max.p(1,41)?
 prime_generator_max'.max{prime_generator_max.p(i2,i2)}?

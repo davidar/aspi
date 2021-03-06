@@ -7,4 +7,4 @@
 % INNER JOIN call ON call.employee_id = employee.id
 % INNER JOIN call_outcome ON call.call_outcome_id = call_outcome.id
 % ORDER BY call.start_time ASC;
-row(start_time.C, end_time.C, first_name[E call_employee.C], last_name.E, outcome_text.call_outcome.C)?
+row(start_time.C, end_time.C, first_name.E, last_name.E, outcome_text.call_outcome.C) :- E = call_employee.C?

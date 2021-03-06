@@ -86,7 +86,7 @@ that: result("BOS",0) | result("DFW",1578) | result("JFK",187) | result("LAX",28
 --> init(at(A)) :- start(A).
 understood.
 
->>> go(A,B): edge(A,B) :: action demands.at(A) deletes.at(A) adds.at(B) costs.edge[A,B].
+>>> go(A,B) :: action demands.at(A) deletes.at(A) adds.at(B) costs.edge[A,B] :- edge(A,B).
 --> action(go(MuA,MuB)) :- edge(MuA,MuB).
     demands(go(MuA,MuB),at(MuA)) :- edge(MuA,MuB).
     deletes(go(MuA,MuB),at(MuA)) :- edge(MuA,MuB).

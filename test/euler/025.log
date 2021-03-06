@@ -23,7 +23,7 @@ understood.
 --> digit(K,MuN) :- K = @decimal(F), F = @substring(A,G,H), G = I, G = 1 .. J, H = 0 .. ((J - I) + 1), J = @length(A), 1 = @length(F), A = @show(MuN).
 understood.
 
->>> fib N: count{{digit.N}} = 10?
+>>> fib N :- count{{digit.N}} = 10?
 --> what(Q) :- fib(Q), Q = MuN, P = 10, P = @countof(O), bagof((1,MuN),O).
     aggregation((1,MuN),G) :- G = @decimal(H), H = @substring(I,J,K), J = L, J = 1 .. M, K = 0 .. ((M - L) + 1), M = @length(I), 1 = @length(H), I = @show(MuN), fib(Q), Q = MuN, P = 10.
     gather((1,MuN),(N,P0)) :- proof(P0,aggregation((1,MuN),N)), fib(Q), Q = MuN, P = 10.

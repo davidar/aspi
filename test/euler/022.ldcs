@@ -4,7 +4,7 @@
 #macro letter.C: (codepoint.C - codepoint."A") + 1.
 
 name: csv[1, 1..1000].
-position[name S]: N: S = N'th.{name}.
+position[name S]: N :- S = N'th.{name}.
 value[name S]: sum{{letter.char.S}}.
 score[name S]: position.S * value.S.
 sum{{score.name}}?

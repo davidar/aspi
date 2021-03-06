@@ -34,5 +34,5 @@ days[leap year, february]: 29.
 leap: year multiple.4 ~(century ~multiple.400).
 century: year multiple.100.
 
-date(Y 1901..2000, month, 1) D: sunday = dayof.D?
+date(Y 1901..2000, month, 1) D :- sunday = dayof.D?
 count{that}?

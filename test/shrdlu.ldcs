@@ -21,16 +21,16 @@ supports[that pyramid]?
 block ~in.box?
 
 % IS AT LEAST ONE OF THEM NARROWER THAN THE ONE WHICH I TOLD YOU TO PICK UP?
-that narrow.X: command(pickup(X))?
+that narrow.X :- command(pickup(X))?
 
 % IS IT SUPPORTED?
 supports.that?
 
 % CAN A PYRAMID BE SUPPORTED BY A BLOCK?
-#any _: action(put_on(pyramid, block))?
+#any :- action(put_on(pyramid, block))?
 
 % CAN A PYRAMID SUPPORT A PYRAMID?
-#any _: action(put_on(pyramid, pyramid))?
+#any :- action(put_on(pyramid, pyramid))?
 
 % STACK UP TWO PYRAMIDS.
 stack(pyramid, pyramid)!
@@ -75,7 +75,7 @@ colour.supports.that?
 % HOW MANY THINGS ARE ON TOP OF GREEN CUBES?
 above[green cube]?
 
-pickup.X: apply(pickup(X),T): apply(pickup(X),T).
+pickup.X: apply(pickup(X),T) :- apply(pickup(X),T).
 
 % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
 pickup.pyramid before.goal.on(green pyramid, small cube)?
@@ -131,7 +131,7 @@ steeple: stack(green cube, green cube, pyramid).
 superblock: big'est.{block}.
 
 % HAVE YOU PICKED SUPERBLOCK UP SINCE WE BEGAN?
-#any _: holds(holding(superblock), T)?
+#any :- holds(holding(superblock), T)?
 
 % WHY DID YOU DROP IT?
 why.put_on(superblock, table)?

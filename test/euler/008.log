@@ -11,7 +11,7 @@ that: "0319" | "1998" | "3199" | "8900" | "9000" | "9890" | "9989".
 --> char(E,MuS) :- E = @substring(MuS,F,G), F = H, F = 1 .. I, G = 0 .. ((I - H) + 1), I = @length(MuS), 1 = @length(E).
 understood.
 
->>> product{{decimal.char.S}}: four_digits(S)?
+>>> product{{decimal.char.S}} :- four_digits(S)?
 --> what(M) :- M = @productof(L), bagof((1,MuS),L), four_digits(MuS).
     aggregation((1,MuS),J) :- J = @decimal(E), E = @substring(MuS,F,G), F = H, F = 1 .. I, G = 0 .. ((I - H) + 1), I = @length(MuS), 1 = @length(E), four_digits(MuS).
     gather((1,MuS),(K,P0)) :- proof(P0,aggregation((1,MuS),K)), four_digits(MuS).

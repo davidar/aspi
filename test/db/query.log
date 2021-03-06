@@ -7,8 +7,8 @@
 >>> % INNER JOIN call ON call.employee_id = employee.id
 >>> % INNER JOIN call_outcome ON call.call_outcome_id = call_outcome.id
 >>> % ORDER BY call.start_time ASC;
->>> row(start_time.C, end_time.C, first_name[E call_employee.C], last_name.E, outcome_text.call_outcome.C)?
---> what(H) :- H = row(A,B,D,E,G), start_time(A,MuC), end_time(B,MuC), first_name(D,C), C = MuE, call_employee(C,MuC), last_name(E,MuE), outcome_text(G,F), call_outcome(F,MuC).
+>>> row(start_time.C, end_time.C, first_name.E, last_name.E, outcome_text.call_outcome.C) :- E = call_employee.C?
+--> what(H) :- H = row(A,B,C,D,F), start_time(A,MuC), end_time(B,MuC), first_name(C,MuE), last_name(D,MuE), outcome_text(F,E), call_outcome(E,MuC), MuE = G, call_employee(G,MuC).
 that: row("2020-01-11 09:00:15","2020-01-11 09:12:22","Thomas","Anderson","finished successfully")
     | row("2020-01-11 09:02:20","2020-01-11 09:18:05","Agent","Smith","finished unsuccessfully")
     | row("2020-01-11 09:14:50","2020-01-11 09:20:01","Thomas","Anderson","finished successfully")

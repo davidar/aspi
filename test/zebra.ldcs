@@ -74,4 +74,4 @@ drink.water?
 % Who owns the zebra?
 own.zebra?
 
-house(H,C,P,D,S,A): house(H), paint(H,C), in(P,H), drink(P,D), smoke(P,S), own(P,A)?
+house(H,C,P,D,S,A) :- house(H), paint(H,C), in(P,H), drink(P,D), smoke(P,S), own(P,A)?

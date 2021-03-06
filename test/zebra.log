@@ -281,7 +281,7 @@ that: norwegian.
 that: japanese.
 
 >>> 
->>> house(H,C,P,D,S,A): house(H), paint(H,C), in(P,H), drink(P,D), smoke(P,S), own(P,A)?
+>>> house(H,C,P,D,S,A) :- house(H), paint(H,C), in(P,H), drink(P,D), smoke(P,S), own(P,A)?
 --> what(house(MuH,MuC,MuP,MuD,MuS,MuA)) :- house(MuH), paint(MuH,MuC), in(MuP,MuH), drink(MuP,MuD), smoke(MuP,MuS), own(MuP,MuA).
 that: house(1,yellow,norwegian,water,kool,fox)
     | house(2,blue,ukrainian,tea,chesterfield,horse)

@@ -29,10 +29,11 @@ start: cmd
     | "#" "enum" atom ":" lams ("|" lams)* "." -> enum
     | "#" "relation" atom "(" rparam ("," rparam)* ")" "." -> relation
     | "#" "any" (ldcs | cmpop) "." -> constraint_any
-    | "#" "any" ldcs "?" -> query_any
+    | "#" "any" ldcs "?" -> query_any_ldcs
+    | "#" "any" ":-" clause "?" -> query_any
     | "#" "any" [ldcs] "!" -> goal_any
     | ["#" "macro"] define_heads ":" ldcs "." -> define
-    | ldcs "::" define_heads "." -> reverse_define
+    | disj "::" define_heads [":-" clause] "." -> reverse_define
     | term [":-" clause] "." -> claim
     | clause "-:" term "." -> reverse_claim
     | ldcs "?" -> query
@@ -50,7 +51,7 @@ binop: bracketed BIN_OP bracketed
           | arg -> ldcs
 rparam: INT ldcs
 atom: NAME
-ldcs: disj [":" clause]
+ldcs: disj [":-" clause]
 disj: conj ("|" conj)*
     | "_"
 conj: lams
@@ -216,8 +217,8 @@ class LDCS(lark.Transformer[str]):
             lhs = head(var).split(', ')
             self.rules.insert(0, f'{lhs[0]} :- {commas(*lhs[1:], body)}.')
 
-    def reverse_define(self, var_body: CSym, heads: List[Unary]) -> None:
-        return self.define(heads, var_body)
+    def reverse_define(self, lam: Unary, heads: List[Unary], cond: Optional[str] = None) -> None:
+        return self.define(heads, self.ldcs(lam, cond))
 
     def fluent(self, head_body: CSym, *args: CSym) -> str:
         head, body = head_body
@@ -293,8 +294,10 @@ class LDCS(lark.Transformer[str]):
         else:
             return f'what({var})'
 
-    def query_any(self, var_body: CSym) -> None:
-        var, body = var_body
+    def query_any_ldcs(self, var_body: CSym) -> None:
+        return self.query_any(var_body[1])
+
+    def query_any(self, body: Optional[str]) -> None:
         self.rules += [f'yes :- {body}.', 'no :- not yes.']
 
     def clause(self, *args: CSym) -> Optional[str]:

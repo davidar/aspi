@@ -4,7 +4,7 @@
 --> grid(A,MuR,MuC) :- csv(A,MuR,MuC).
 understood.
 
->>> line[R 1..10, C 1..10, I (-1)..1, J (-1)..1]: grid[R + (I*N), C + (J*N)]: N = 0..3.
+>>> line[R 1..10, C 1..10, I (-1)..1, J (-1)..1]: grid[R + (I*N), C + (J*N)] :- N = 0..3.
 --> line(F,A,B,C,D) :- A = MuR, A = 1 .. 10, B = MuC, B = 1 .. 10, C = MuI, C = (-1) .. 1, D = MuJ, D = (-1) .. 1, grid(F,MuR+(MuI*MuN),MuC+(MuJ*MuN)), MuN = E, E = 0 .. 3.
 understood.
 

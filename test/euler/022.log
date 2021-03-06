@@ -13,7 +13,7 @@ understood.
 --> name(B) :- csv(B,1,A), A = 1 .. 1000.
 understood.
 
->>> position[name S]: N: S = N'th.{name}.
+>>> position[name S]: N :- S = N'th.{name}.
 --> position(MuN,A) :- name(A), A = MuS, MuS = E, B = MuN, (B,E) = @enumerateof(D), setof((1),D).
     gather((1),C) :- name(C).
 understood.

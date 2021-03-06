@@ -27,5 +27,5 @@ result(A, path.A)?
 
 % via goal-directed planning
 init: at(start).
-go(A,B): edge(A,B) :: action demands.at(A) deletes.at(A) adds.at(B) costs.edge[A,B].
+go(A,B) :: action demands.at(A) deletes.at(A) adds.at(B) costs.edge[A,B] :- edge(A,B).
 at("ORD")!
