@@ -288,8 +288,8 @@ put_on(blue pyramid, blue block)!
 
 >>> 
 >>> % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
->>> object big'each.{pyramid} X wide'.supports.X?
---> what(E) :- object(E), big(E,A) : A = @memberof(C); setof((1),C), E = MuX, wide(D,E), supports(D,MuX).
+>>> object big'each.{pyramid} X narrow.supports.X?
+--> what(E) :- object(E), big(E,A) : A = @memberof(C); setof((1),C), E = MuX, narrow(E,D), supports(D,MuX).
     gather((1),B) :- pyramid(B).
 that: blue block.
 

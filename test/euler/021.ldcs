@@ -1,5 +1,5 @@
 % 21. Evaluate the sum of all amicable numbers under 1000.
-proper_divisor[N n3]: 1..(N-1) multiple'.N.
+proper_divisor[N n3]: 1..(N-1) multiple=N.
 aliquot[N n3]: sum{proper_divisor.N}.
 perfect(A) :- aliquot(A,A).
 perfect?

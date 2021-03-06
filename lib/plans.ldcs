@@ -3,12 +3,12 @@ nop() :: action costs.0.
 tmax: now + 20.
 #macro time: 1..tmax.
 
-state.T: adds'.apply.T.
-del.T: deletes'.apply.T.
+state.T: adds=apply.T.
+del.T: deletes=apply.T.
 state[time T]: state[T-1] ~del[T].
 holds.T: state.T.
 
-holds.T: adds_temporary'.apply.T.
+holds.T: adds_temporary=apply.T.
 
 holds: holds.now.
 history(F) :- history(C,F).

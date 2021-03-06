@@ -1,3 +1,3 @@
 % 26. Find the value of d < 1000 for which 1/d contains the longest recurring cycle.
 #include "test/oeis/b051626.txt".
-b051626'.max{b051626[1..1000]} 1..1000?
+1..1000 b051626=max{b051626[1..1000]}?

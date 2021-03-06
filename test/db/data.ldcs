@@ -1,4 +1,4 @@
-#enum employee: first_name'."Thomas" last_name'."Anderson" | first_name'."Agent" last_name'."Smith".
+#enum employee: first_name="Thomas" last_name="Anderson" | first_name="Agent" last_name="Smith".
 #enum customer: jewelry | bakery | cafe | restaurant.
 #enum outcome: started | success | failed.
 

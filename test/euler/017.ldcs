@@ -33,5 +33,5 @@ say[N ~multiple.100 101..999]: concatenate[say[(N/100)*100], " and ", say[N\100]
 say[N multiple.1000 1000..9000]: concatenate[say[N/1000], " thousand"].
 say.123?
 say'."seven hundred and forty two"?
-#macro char.S: substring.S length'.1.
+#macro char.S: substring.S length=1.
 count{{char.say[1..100] ~" "}}?

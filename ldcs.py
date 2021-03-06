@@ -18,7 +18,8 @@ ebnf = r'''
 %import common.WS
 %ignore WS
 
-CMP_OP: "=" | "!=" | "<=" | ">=" | "<" | ">"
+INEQ_OP: "!=" | "<=" | ">=" | "<" | ">"
+CMP_OP: "=" | INEQ_OP
 BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
 SUP_SUFFIX: "'est" | "'each" | "'th" | "'"
 VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
@@ -66,7 +67,7 @@ constant: INT
     | constant
     | join
     | "~" bracketed -> neg
-    | CMP_OP bracketed -> ineq
+    | INEQ_OP bracketed -> ineq
     | pred -> unify
     | "(" "-" bracketed ")" -> negative
     | [func] "{{" ldcs "}}" -> bagof
@@ -75,6 +76,7 @@ func: atom
     | (func | constant) SUP_SUFFIX -> superlative
 join: func "." arg
     | func "[" disj ("," disj)* "]"
+    | func "=" arg -> reverse_join
 '''
 
 Sym = str
@@ -421,6 +423,9 @@ class LDCS(lark.Transformer[str]):
     def join(self, rel: Variadic, *lams: Unary) -> Unary:
         ys, bs = unzip(self.ldcs(lam) for lam in lams)
         return lambda x: commas(rel(x, *ys), *bs)
+
+    def reverse_join(self, rel: Binary, lam: Unary) -> Unary:
+        return self.join(lambda x, y: rel(y, x), lam)
 
     def neg(self, var_body: CSym) -> Unary:
         lam = self.lift(var_body, 'negation', ground=True)

@@ -8,5 +8,5 @@ prime_generator(N-1, p(A,B)), prime(((N + A) * N) + B) -: prime_generator(N, p(A
 prime_generator_max.p(A,B): max{prime_generator.p(A,B)} :- prime_generator(0, p(A,B)).
 
 prime_generator_max.p(1,41)?
-prime_generator_max'.max{prime_generator_max.p(i2,i2)}?
+prime_generator_max=max{prime_generator_max.p(i2,i2)}?
 prime_generator_max.that?

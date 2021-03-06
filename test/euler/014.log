@@ -24,9 +24,8 @@ that: 0 | 1 | 2 | 3 | 5 | 6 | 7 | 8 | 16 | 19.
     gather((1),B) :- collatz_steps(B,A), A = 1 .. 10.
 that: 19.
 
->>> collatz_steps'.max{collatz_steps[1..10]} 1..10?
---> what(E) :- collatz_steps(D,E), D = @maxof(C), setof((2),C), E = 1 .. 10.
-    gather((2),B) :- collatz_steps(B,A), A = 1 .. 10.
+>>> 1..10 collatz_steps=that?
+--> what(B) :- B = 1 .. 10, collatz_steps(A,B), that(A).
 that: 9.
 
 >>> thanks.

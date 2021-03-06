@@ -13,8 +13,8 @@ understood.
     gather((1,MuC,MuI,MuJ,MuR),(A,P0)) :- proof(P0,line(A,MuR,MuC,MuI,MuJ)).
 understood.
 
->>> product'.max{product.lines} lines?
---> what(E) :- D = @productof(E), D = @maxof(C), setof((2),C), lines(E).
+>>> lines product=max{product.lines}?
+--> what(E) :- lines(E), D = @productof(E), D = @maxof(C), setof((2),C).
     gather((2),B) :- B = @productof(A), lines(A).
 that: bag(49,71,95,99).
 

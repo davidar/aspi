@@ -116,7 +116,7 @@ on(blue block, box)!
 #any on(blue pyramid, block in.box)!
 
 % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
-object big'each.{pyramid} X wide'.supports.X?
+object big'each.{pyramid} X narrow.supports.X?
 
 % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
 steeple: stack(green cube, green cube, pyramid).

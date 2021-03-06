@@ -1,5 +1,5 @@
 >>> % 23. Find the largest even positive integer which cannot be written as the sum of two abundant numbers.
->>> proper_divisor[N n3]: 1..(N-1) multiple'.N.
+>>> proper_divisor[N n3]: 1..(N-1) multiple=N.
 --> proper_divisor(B,A) :- A = MuN, A = 1 .. 999, B = 1 .. (MuN-1), (MuN \ B) = 0.
 understood.
 

@@ -137,7 +137,7 @@ that: "one hundred and twenty three".
 --> what(A) :- say("seven hundred and forty two",A).
 that: 742.
 
->>> #macro char.S: substring.S length'.1.
+>>> #macro char.S: substring.S length=1.
 --> char(E,MuS) :- E = @substring(MuS,F,G), F = H, F = 1 .. I, G = 0 .. ((I - H) + 1), I = @length(MuS), 1 = @length(E).
 understood.
 

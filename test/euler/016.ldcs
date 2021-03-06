@@ -1,5 +1,5 @@
 % 16. What is the sum of the digits of the number 2^10?
 2**10?
-#macro char.S: substring.S length'.1.
+#macro char.S: substring.S length=1.
 #macro digit.N: decimal.char.show.N.
 sum{{digit[2**10]}}?
