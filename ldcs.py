@@ -253,8 +253,10 @@ class LDCS(lark.Transformer[str]):
             i = self.counter(head)
             name = f'{head}({i})'
             describe = ', '.join(lam('').replace('()', '')
-                                 for lam in lams if ', ' not in lam(''))
-            self.rules.append(f'describe({name}, {describe}).')
+                                 for lam in lams if ', ' not in lam('')
+                                                and ',)' not in lam(''))
+            if describe:
+                self.rules.append(f'describe({name}, {describe}).')
             self.rules.append(f'{head}({name}).')
             self.rules.append(f'{head}({name},{i}).')
             for lam in lams:

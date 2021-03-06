@@ -1,11 +1,6 @@
-#enum employee: neo | smith.
+#enum employee: first_name'."Thomas" last_name'."Anderson" | first_name'."Agent" last_name'."Smith".
 #enum customer: jewelry | bakery | cafe | restaurant.
 #enum outcome: started | success | failed.
-
-first_name.neo: "Thomas".
-first_name.smith: "Agent".
-last_name.neo: "Anderson".
-last_name.smith: "Smith".
 
 call_employee.C: employee(csv[C,1]).
 call_customer.C: customer(csv[C,2]).
