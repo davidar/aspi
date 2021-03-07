@@ -1,0 +1,173 @@
+>>> #enum country: country_name="Deutschland" country_name_en="Germany" country_code="DEU"
+...              | country_name="Srbija"      country_name_en="Serbia"  country_code="SRB"
+...              | country_name="Hrvatska"    country_name_en="Croatia" country_code="HRV"
+...              | country_name="United States of America" country_name_en="United States of America" country_code="USA"
+...              | country_name="Polska"      country_name_en="Poland"  country_code="POL"
+...              .
+--> country(country(1)).
+    country(country(1),1).
+    country_name("Deutschland",country(1)).
+    country_name_en("Germany",country(1)).
+    country_code("DEU",country(1)).
+    country(country(2)).
+    country(country(2),2).
+    country_name("Srbija",country(2)).
+    country_name_en("Serbia",country(2)).
+    country_code("SRB",country(2)).
+    country(country(3)).
+    country(country(3),3).
+    country_name("Hrvatska",country(3)).
+    country_name_en("Croatia",country(3)).
+    country_code("HRV",country(3)).
+    country(country(4)).
+    country(country(4),4).
+    country_name("United States of America",country(4)).
+    country_name_en("United States of America",country(4)).
+    country_code("USA",country(4)).
+    country(country(5)).
+    country(country(5),5).
+    country_name("Polska",country(5)).
+    country_name_en("Poland",country(5)).
+    country_code("POL",country(5)).
+understood.
+
+>>> 
+>>> #enum city: city_name="Berlin"      city_country=country(1)
+...           | city_name="Belgrade"    city_country=country(2)
+...           | city_name="Zagreb"      city_country=country(3)
+...           | city_name="New York"    city_country=country(4)
+...           | city_name="Los Angeles" city_country=country(4)
+...           | city_name="Warsaw"      city_country=country(5)
+...           .
+--> city(city(1)).
+    city(city(1),1).
+    city_name("Berlin",city(1)).
+    city_country(country(1),city(1)).
+    city(city(2)).
+    city(city(2),2).
+    city_name("Belgrade",city(2)).
+    city_country(country(2),city(2)).
+    city(city(3)).
+    city(city(3),3).
+    city_name("Zagreb",city(3)).
+    city_country(country(3),city(3)).
+    city(city(4)).
+    city(city(4),4).
+    city_name("New York",city(4)).
+    city_country(country(4),city(4)).
+    city(city(5)).
+    city(city(5),5).
+    city_name("Los Angeles",city(5)).
+    city_country(country(4),city(5)).
+    city(city(6)).
+    city(city(6),6).
+    city_name("Warsaw",city(6)).
+    city_country(country(5),city(6)).
+understood.
+
+>>> 
+>>> #enum customer: customer_name="Jewelry Store" customer_city=city(4)
+...               | customer_name="Bakery"        customer_city=city(1)
+...               | customer_name="Café"          customer_city=city(1)
+...               | customer_name="Restaurant"    customer_city=city(3)
+...               .
+--> customer(customer(1)).
+    customer(customer(1),1).
+    customer_name("Jewelry Store",customer(1)).
+    customer_city(city(4),customer(1)).
+    customer(customer(2)).
+    customer(customer(2),2).
+    customer_name("Bakery",customer(2)).
+    customer_city(city(1),customer(2)).
+    customer(customer(3)).
+    customer(customer(3),3).
+    customer_name("Café",customer(3)).
+    customer_city(city(1),customer(3)).
+    customer(customer(4)).
+    customer(customer(4),4).
+    customer_name("Restaurant",customer(4)).
+    customer_city(city(3),customer(4)).
+understood.
+
+>>> 
+>>> #enum employee: first_name="Thomas" last_name="Anderson"
+...               | first_name="Agent"  last_name="Smith".
+--> employee(employee(1)).
+    employee(employee(1),1).
+    first_name("Thomas",employee(1)).
+    last_name("Anderson",employee(1)).
+    employee(employee(2)).
+    employee(employee(2),2).
+    first_name("Agent",employee(2)).
+    last_name("Smith",employee(2)).
+understood.
+
+>>> 
+>>> #enum outcome: outcome_text="call started"
+...              | outcome_text="finished successfully"
+...              | outcome_text="finished unsuccessfully".
+--> outcome(outcome(1)).
+    outcome(outcome(1),1).
+    outcome_text("call started",outcome(1)).
+    outcome(outcome(2)).
+    outcome(outcome(2),2).
+    outcome_text("finished successfully",outcome(2)).
+    outcome(outcome(3)).
+    outcome(outcome(3),3).
+    outcome_text("finished unsuccessfully",outcome(3)).
+understood.
+
+>>> 
+>>> call_employee.C: employee(csv[C,1]).
+--> call_employee(employee(A),MuC) :- csv(A,MuC,1).
+understood.
+
+>>> call_customer.C: customer(csv[C,2]).
+--> call_customer(customer(A),MuC) :- csv(A,MuC,2).
+understood.
+
+>>> start_time.C: csv[C,3].
+--> start_time(A,MuC) :- csv(A,MuC,3).
+understood.
+
+>>> end_time.C: csv[C,4].
+--> end_time(A,MuC) :- csv(A,MuC,4).
+understood.
+
+>>> call_outcome.C: outcome(csv[C,5]).
+--> call_outcome(outcome(A),MuC) :- csv(A,MuC,5).
+understood.
+
+>>> 
+>>> % SELECT employee.first_name, employee.last_name, call.start_time, call.end_time, call_outcome.outcome_text
+>>> % FROM employee
+>>> % INNER JOIN call ON call.employee_id = employee.id
+>>> % INNER JOIN call_outcome ON call.call_outcome_id = call_outcome.id
+>>> % ORDER BY call.start_time ASC;
+>>> row(start_time.C, end_time.C, first_name.E, last_name.E, outcome_text.call_outcome.C) :- E = call_employee.C?
+--> what(H) :- H = row(A,B,C,D,F), start_time(A,MuC), end_time(B,MuC), first_name(C,MuE), last_name(D,MuE), outcome_text(F,E), call_outcome(E,MuC), MuE = G, call_employee(G,MuC).
+that: row("2020-01-11 09:00:15","2020-01-11 09:12:22","Thomas","Anderson","finished successfully")
+    | row("2020-01-11 09:02:20","2020-01-11 09:18:05","Agent","Smith","finished unsuccessfully")
+    | row("2020-01-11 09:14:50","2020-01-11 09:20:01","Thomas","Anderson","finished successfully")
+    | row("2020-01-11 09:24:15","2020-01-11 09:25:05","Thomas","Anderson","finished unsuccessfully")
+    | row("2020-01-11 09:26:23","2020-01-11 09:33:45","Thomas","Anderson","finished successfully")
+    | row("2020-01-11 09:40:31","2020-01-11 09:42:32","Thomas","Anderson","finished successfully")
+    | row("2020-01-11 09:41:17","2020-01-11 09:45:21","Agent","Smith","finished successfully")
+    | row("2020-01-11 09:42:32","2020-01-11 09:46:53","Thomas","Anderson","finished unsuccessfully")
+    | row("2020-01-11 09:46:00","2020-01-11 09:48:02","Agent","Smith","finished successfully")
+    | row("2020-01-11 09:50:12","2020-01-11 09:55:35","Agent","Smith","finished successfully").
+
+>>> 
+>>> % SELECT country.country_name_eng, city.city_name, customer.customer_name
+>>> % FROM country
+>>> % INNER JOIN city ON city.country_id = country.id
+>>> % INNER JOIN customer ON customer.city_id = city.id;
+>>> row(country_name_en.city_country.X, city_name.X, customer_name.customer_city=X)?
+--> what(F) :- F = row(B,C,E), country_name_en(B,A), city_country(A,MuX), city_name(C,MuX), customer_name(E,D), customer_city(MuX,D).
+that: row("Croatia","Zagreb","Restaurant")
+    | row("Germany","Berlin","Bakery")
+    | row("Germany","Berlin","Café")
+    | row("United States of America","New York","Jewelry Store").
+
+>>> thanks.
+YOU'RE WELCOME!

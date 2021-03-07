@@ -1,0 +1,46 @@
+#enum country: country_name="Deutschland" country_name_en="Germany" country_code="DEU"
+             | country_name="Srbija"      country_name_en="Serbia"  country_code="SRB"
+             | country_name="Hrvatska"    country_name_en="Croatia" country_code="HRV"
+             | country_name="United States of America" country_name_en="United States of America" country_code="USA"
+             | country_name="Polska"      country_name_en="Poland"  country_code="POL"
+             .
+
+#enum city: city_name="Berlin"      city_country=country(1)
+          | city_name="Belgrade"    city_country=country(2)
+          | city_name="Zagreb"      city_country=country(3)
+          | city_name="New York"    city_country=country(4)
+          | city_name="Los Angeles" city_country=country(4)
+          | city_name="Warsaw"      city_country=country(5)
+          .
+
+#enum customer: customer_name="Jewelry Store" customer_city=city(4)
+              | customer_name="Bakery"        customer_city=city(1)
+              | customer_name="Café"          customer_city=city(1)
+              | customer_name="Restaurant"    customer_city=city(3)
+              .
+
+#enum employee: first_name="Thomas" last_name="Anderson"
+              | first_name="Agent"  last_name="Smith".
+
+#enum outcome: outcome_text="call started"
+             | outcome_text="finished successfully"
+             | outcome_text="finished unsuccessfully".
+
+call_employee.C: employee(csv[C,1]).
+call_customer.C: customer(csv[C,2]).
+start_time.C: csv[C,3].
+end_time.C: csv[C,4].
+call_outcome.C: outcome(csv[C,5]).
+
+% SELECT employee.first_name, employee.last_name, call.start_time, call.end_time, call_outcome.outcome_text
+% FROM employee
+% INNER JOIN call ON call.employee_id = employee.id
+% INNER JOIN call_outcome ON call.call_outcome_id = call_outcome.id
+% ORDER BY call.start_time ASC;
+row(start_time.C, end_time.C, first_name.E, last_name.E, outcome_text.call_outcome.C) :- E = call_employee.C?
+
+% SELECT country.country_name_eng, city.city_name, customer.customer_name
+% FROM country
+% INNER JOIN city ON city.country_id = country.id
+% INNER JOIN customer ON customer.city_id = city.id;
+row(country_name_en.city_country.X, city_name.X, customer_name.customer_city=X)?

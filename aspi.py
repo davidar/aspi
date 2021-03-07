@@ -71,13 +71,20 @@ class ASPI:
             self.program += f'#include "{arg}".\n'
         elif arg.endswith('.ldcs'):
             with open(arg, 'r') as f:
-                for line in f:
-                    if line.strip() and line[0] != '%':
+                while True:
+                    try:
+                        line = next(f).strip()
+                        if len(line) == 0 or line[0] == '%':
+                            continue
+                        while line[-1] not in '.?!':
+                            line += next(f).strip()
                         lp = self.ldcs.toASP(line)
                         if 'macros' in arg:
                             self.ldcs.add_macro(lp.split('\n')[0])
                         else:
                             self.program += lp + '\n'
+                    except StopIteration:
+                        break
         elif arg.endswith('.csv'):
             with open(arg, 'r') as f:
                 rows = 0
@@ -244,6 +251,12 @@ if __name__ == '__main__':
             print('^C')
             continue
         print(cmd)
+        if len(cmd) == 0 or cmd[0] == '%':
+            continue
+        while cmd[-1] not in '.?!':
+            cont = input('... ')
+            print(cont)
+            cmd += cont
         if cmd == '#reset.':
             aspi = ASPI(sys.argv[1:])
         else:

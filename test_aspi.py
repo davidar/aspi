@@ -1,7 +1,7 @@
 import pytest
 import os.path
 
-scripts = ['db/query', 'dcg', 'golf', 'hanoi', 'shortest-path', 'shrdlu', 'zebra']
+scripts = ['db', 'dcg', 'golf', 'hanoi', 'shortest-path', 'shrdlu', 'zebra']
 
 for i in range(1000):
     name = f'euler/{i:03}'
