@@ -44,3 +44,9 @@ row(start_time.C, end_time.C, first_name.E, last_name.E, outcome_text.call_outco
 % INNER JOIN city ON city.country_id = country.id
 % INNER JOIN customer ON customer.city_id = city.id;
 row(country_name_en.city_country.X, city_name.X, customer_name.customer_city=X)?
+
+% SELECT country.country_name_eng, city.city_name, customer.customer_name
+% FROM country
+% INNER JOIN city ON city.country_id = country.id
+% LEFT JOIN customer ON customer.city_id = city.id;
+row(country_name_en.city_country.X, city_name.X, customer_name.customer_city=X || null)?

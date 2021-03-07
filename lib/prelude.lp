@@ -10,6 +10,7 @@
 
 true(true).
 false(false).
+null(null).
 now(now).
 infinity(#sup).
 

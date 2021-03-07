@@ -55,6 +55,7 @@ atom: NAME
 ldcs: disj [":-" clause]
 disj: conj ("|" conj)*
     | "_"
+    | conj "||" conj -> short_disj
 conj: lams
 lams: lam+
 ?lam: arg
@@ -174,7 +175,7 @@ class LDCS(lark.Transformer[str]):
                 if pred[1] == ',':
                     groundvar = pred[0]
                     pred = pred[2:]
-                template = re.escape(pred).replace('_', '([A-Z])')
+                template = re.escape(pred).replace('_', '([A-Z0])')
                 for rule2 in self.rules:
                     if ' :- ' in rule2:
                         body = rule2[:-1].split(' :- ')[1].split(', ')
@@ -386,6 +387,12 @@ class LDCS(lark.Transformer[str]):
         if len(lams) == 1:
             return lams[0]
         return self.lifts([self.ldcs(lam) for lam in lams], 'disjunction')
+
+    def short_disj(self, a: Unary, b: Unary) -> Unary:
+        x, b1 = self.ldcs(a)
+        y, b2 = self.ldcs(b)
+        guard = 'not ' + self.lift(('0', b1), 'shortcircuit')('0')
+        return self.lifts([(x, b1), (y, commas(guard, b2))], 'disjunction')
 
     def lams(self, *lams: Unary) -> List[Unary]:
         return list(lams)

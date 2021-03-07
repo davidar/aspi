@@ -194,12 +194,16 @@ understood.
 >>> % HAD YOU TOUCHED ANY PYRAMID BEFORE YOU PUT THE GREEN ONE ON THE LITTLE CUBE?
 >>> pickup.pyramid before.goal.on(green pyramid, small cube)?
 --> what(G) :- pickup(G,A), pyramid(A), end_time(H,G), H = 0 .. (I - 1), start_time(I,D), goal(D,on(B,C)), green(B), pyramid(B), small(C), cube(C).
-that: apply(pickup(green pyramid),9) | apply(pickup(green pyramid),13) | apply(pickup(green pyramid),15).
+that: apply(pickup(green pyramid),9)
+    | apply(pickup(green pyramid),13)
+    | apply(pickup(green pyramid),15).
 
 >>> 
 >>> that pickup.green?
 --> what(B) :- that(B), pickup(B,A), green(A).
-that: apply(pickup(green pyramid),9) | apply(pickup(green pyramid),13) | apply(pickup(green pyramid),15).
+that: apply(pickup(green pyramid),9)
+    | apply(pickup(green pyramid),13)
+    | apply(pickup(green pyramid),15).
 
 >>> 
 >>> % WHEN DID YOU PICK IT UP?
@@ -221,7 +225,8 @@ that: apply(pickup(small red cube),11)
 >>> 
 >>> that pickup.cube?
 --> what(B) :- that(B), pickup(B,A), cube(A).
-that: apply(pickup(small red cube),11) | apply(pickup(small red cube),17).
+that: apply(pickup(small red cube),11)
+    | apply(pickup(small red cube),17).
 
 >>> 
 >>> % WHY DID YOU DO THAT?
