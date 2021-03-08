@@ -3,6 +3,8 @@
 ...              | country_name="Hrvatska"    country_name_en="Croatia" country_code="HRV"
 ...              | country_name="United States of America" country_name_en="United States of America" country_code="USA"
 ...              | country_name="Polska"      country_name_en="Poland"  country_code="POL"
+...              | country_name="Россия"      country_name_en="Russia"  country_code="RUS"
+...              | country_name="España"      country_name_en="Spain"   country_code="ESP"
 ...              .
 --> country(country(1)).
     country(country(1),1).
@@ -29,6 +31,16 @@
     country_name("Polska",country(5)).
     country_name_en("Poland",country(5)).
     country_code("POL",country(5)).
+    country(country(6)).
+    country(country(6),6).
+    country_name("Россия",country(6)).
+    country_name_en("Russia",country(6)).
+    country_code("RUS",country(6)).
+    country(country(7)).
+    country(country(7),7).
+    country_name("España",country(7)).
+    country_name_en("Spain",country(7)).
+    country_code("ESP",country(7)).
 understood.
 
 >>> 
@@ -185,6 +197,29 @@ that: row("Croatia","Zagreb","Restaurant")
     | row("Poland","Warsaw",null)
     | row("Serbia","Belgrade",null)
     | row("United States of America","Los Angeles",null)
+    | row("United States of America","New York","Jewelry Store").
+
+>>> 
+>>> % SELECT country.country_name_eng, city.city_name, customer.customer_name
+>>> % FROM country
+>>> % LEFT JOIN city ON city.country_id = country.id
+>>> % LEFT JOIN customer ON customer.city_id = city.id;
+>>> row(country_name_en.C, city_name.city_country=C || null, customer_name.customer_city=city_country=C || null)?
+--> what(K) :- K = row(A,E,J), country_name_en(A,MuC), disjunction((2,MuC),E), disjunction((3,MuC),J).
+    shortcircuit((2,MuC),0) :- city_name(C,B), city_country(MuC,B), null(D), country_name_en(A,MuC).
+    disjunction((2,MuC),C) :- city_name(C,B), city_country(MuC,B), country_name_en(A,MuC).
+    disjunction((2,MuC),D) :- not shortcircuit((2,MuC),0), null(D), country_name_en(A,MuC).
+    shortcircuit((3,MuC),0) :- customer_name(H,G), customer_city(F,G), city_country(MuC,F), null(I), country_name_en(A,MuC).
+    disjunction((3,MuC),H) :- customer_name(H,G), customer_city(F,G), city_country(MuC,F), country_name_en(A,MuC).
+    disjunction((3,MuC),I) :- not shortcircuit((3,MuC),0), null(I), country_name_en(A,MuC).
+that: row("Croatia","Zagreb","Restaurant")
+    | row("Germany","Berlin","Bakery")
+    | row("Germany","Berlin","Café")
+    | row("Poland","Warsaw",null)
+    | row("Russia",null,null)
+    | row("Serbia","Belgrade",null)
+    | row("Spain",null,null)
+    | row("United States of America","Los Angeles","Jewelry Store")
     | row("United States of America","New York","Jewelry Store").
 
 >>> thanks.

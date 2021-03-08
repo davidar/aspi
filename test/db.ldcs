@@ -3,6 +3,8 @@
              | country_name="Hrvatska"    country_name_en="Croatia" country_code="HRV"
              | country_name="United States of America" country_name_en="United States of America" country_code="USA"
              | country_name="Polska"      country_name_en="Poland"  country_code="POL"
+             | country_name="Россия"      country_name_en="Russia"  country_code="RUS"
+             | country_name="España"      country_name_en="Spain"   country_code="ESP"
              .
 
 #enum city: city_name="Berlin"      city_country=country(1)
@@ -50,3 +52,9 @@ row(country_name_en.city_country.X, city_name.X, customer_name.customer_city=X)?
 % INNER JOIN city ON city.country_id = country.id
 % LEFT JOIN customer ON customer.city_id = city.id;
 row(country_name_en.city_country.X, city_name.X, customer_name.customer_city=X || null)?
+
+% SELECT country.country_name_eng, city.city_name, customer.customer_name
+% FROM country
+% LEFT JOIN city ON city.country_id = country.id
+% LEFT JOIN customer ON customer.city_id = city.id;
+row(country_name_en.C, city_name.city_country=C || null, customer_name.customer_city=city_country=C || null)?
