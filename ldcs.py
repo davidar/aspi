@@ -17,6 +17,7 @@ ebnf = r'''
 %import common.LETTER
 %import common.WS
 %ignore WS
+_WS: WS
 
 INEQ_OP: "!=" | "<=" | ">=" | "<" | ">"
 CMP_OP: "=" | INEQ_OP
@@ -57,7 +58,7 @@ disj: conj ("|" conj)*
     | "_"
     | conj "||" conj -> short_disj
 conj: lams
-lams: lam+
+lams: lam (_WS lam)*
 ?lam: arg
     | binop -> unify
     | bracketed "@" bracketed -> adverb
