@@ -157,7 +157,7 @@ understood.
 >>> % INNER JOIN call_outcome ON call.call_outcome_id = call_outcome.id
 >>> % ORDER BY call.start_time ASC;
 >>> row(start_time.C, end_time.C, first_name.E, last_name.E, outcome_text.call_outcome.C) :- E = call_employee.C?
---> what(H) :- H = row(A,B,C,D,F), start_time(A,MuC), end_time(B,MuC), first_name(C,MuE), last_name(D,MuE), outcome_text(F,E), call_outcome(E,MuC), MuE = G, call_employee(G,MuC).
+--> what(row(A,B,C,D,F)) :- start_time(A,MuC), end_time(B,MuC), first_name(C,MuE), last_name(D,MuE), outcome_text(F,E), call_outcome(E,MuC), MuE = G, call_employee(G,MuC).
 that: row("2020-01-11 09:00:15","2020-01-11 09:12:22","Thomas","Anderson","finished successfully")
     | row("2020-01-11 09:02:20","2020-01-11 09:18:05","Agent","Smith","finished unsuccessfully")
     | row("2020-01-11 09:14:50","2020-01-11 09:20:01","Thomas","Anderson","finished successfully")
@@ -175,7 +175,7 @@ that: row("2020-01-11 09:00:15","2020-01-11 09:12:22","Thomas","Anderson","finis
 >>> % INNER JOIN city ON city.country_id = country.id
 >>> % INNER JOIN customer ON customer.city_id = city.id;
 >>> row(country_name_en.city_country.X, city_name.X, customer_name.customer_city=X)?
---> what(F) :- F = row(B,C,E), country_name_en(B,A), city_country(A,MuX), city_name(C,MuX), customer_name(E,D), customer_city(MuX,D).
+--> what(row(B,C,E)) :- country_name_en(B,A), city_country(A,MuX), city_name(C,MuX), customer_name(E,D), customer_city(MuX,D).
 that: row("Croatia","Zagreb","Restaurant")
     | row("Germany","Berlin","Bakery")
     | row("Germany","Berlin","Café")
@@ -187,7 +187,7 @@ that: row("Croatia","Zagreb","Restaurant")
 >>> % INNER JOIN city ON city.country_id = country.id
 >>> % LEFT JOIN customer ON customer.city_id = city.id;
 >>> row(country_name_en.city_country.X, city_name.X, customer_name.customer_city=X || null)?
---> what(H) :- H = row(B,C,G), country_name_en(B,A), city_country(A,MuX), city_name(C,MuX), disjunction((1,MuX),G).
+--> what(row(B,C,G)) :- country_name_en(B,A), city_country(A,MuX), city_name(C,MuX), disjunction((1,MuX),G).
     shortcircuit((1,MuX),0) :- customer_name(E,D), customer_city(MuX,D), null(F), country_name_en(B,A), city_country(A,MuX), city_name(C,MuX).
     disjunction((1,MuX),E) :- customer_name(E,D), customer_city(MuX,D), country_name_en(B,A), city_country(A,MuX), city_name(C,MuX).
     disjunction((1,MuX),F) :- not shortcircuit((1,MuX),0), null(F), country_name_en(B,A), city_country(A,MuX), city_name(C,MuX).
@@ -205,7 +205,7 @@ that: row("Croatia","Zagreb","Restaurant")
 >>> % LEFT JOIN city ON city.country_id = country.id
 >>> % LEFT JOIN customer ON customer.city_id = city.id;
 >>> row(country_name_en.C, city_name.city_country=C || null, customer_name.customer_city=city_country=C || null)?
---> what(K) :- K = row(A,E,J), country_name_en(A,MuC), disjunction((2,MuC),E), disjunction((3,MuC),J).
+--> what(row(A,E,J)) :- country_name_en(A,MuC), disjunction((2,MuC),E), disjunction((3,MuC),J).
     shortcircuit((2,MuC),0) :- city_name(C,B), city_country(MuC,B), null(D), country_name_en(A,MuC).
     disjunction((2,MuC),C) :- city_name(C,B), city_country(MuC,B), country_name_en(A,MuC).
     disjunction((2,MuC),D) :- not shortcircuit((2,MuC),0), null(D), country_name_en(A,MuC).
@@ -221,6 +221,16 @@ that: row("Croatia","Zagreb","Restaurant")
     | row("Spain",null,null)
     | row("United States of America","Los Angeles","Jewelry Store")
     | row("United States of America","New York","Jewelry Store").
+
+>>> 
+>>> % SELECT country.country_name_eng, COUNT(city.city_name) AS city_count
+>>> % FROM country
+>>> % INNER JOIN city ON city.country_id = country.id
+>>> % GROUP BY country.id, country.country_name_eng;
+>>> row(country_name_en.C, count{city_name.city_country=C})?
+--> what(row(A,E)) :- country_name_en(A,MuC), E = @countof(D), setof((1,MuC),D).
+    gather((1,MuC),C) :- city_name(C,B), city_country(MuC,B), country_name_en(A,MuC).
+that: row("Croatia",1) | row("Germany",1) | row("Poland",1) | row("Serbia",1) | row("United States of America",2).
 
 >>> thanks.
 YOU'RE WELCOME!

@@ -373,7 +373,7 @@ class LDCS(lark.Transformer[str]):
         head = head_body[0]
         body = head_body[1] if len(head_body) > 1 else ''
         if head.startswith('_ = ') and \
-                '_' not in body and \
+                not re.search(r'\b_\b', body) and \
                 '..' not in head:
             x = head[len('_ = '):]
             if x[0] != '"':

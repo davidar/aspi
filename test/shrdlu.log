@@ -259,7 +259,7 @@ that: 2.
 >>> 
 >>> % WHAT DID THE RED CUBE SUPPORT BEFORE YOU STARTED TO CLEAN IT OFF?
 >>> supports'[red cube] @ just_before.cleanoff[red cube]?
---> what(H) :- H = B, event(F,supports(A,B)), red(A), cube(A), end_time(G - 1,F), start_time(G,D), cleanoff(D,C), red(C), cube(C).
+--> what(B) :- event(F,supports(A,B)), red(A), cube(A), end_time(G - 1,F), start_time(G,D), cleanoff(D,C), red(C), cube(C).
 that: green pyramid.
 
 >>> 

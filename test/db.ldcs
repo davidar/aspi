@@ -58,3 +58,9 @@ row(country_name_en.city_country.X, city_name.X, customer_name.customer_city=X |
 % LEFT JOIN city ON city.country_id = country.id
 % LEFT JOIN customer ON customer.city_id = city.id;
 row(country_name_en.C, city_name.city_country=C || null, customer_name.customer_city=city_country=C || null)?
+
+% SELECT country.country_name_eng, COUNT(city.city_name) AS city_count
+% FROM country
+% INNER JOIN city ON city.country_id = country.id
+% GROUP BY country.id, country.country_name_eng;
+row(country_name_en.C, count{city_name.city_country=C})?

@@ -12,7 +12,7 @@ understood.
 understood.
 
 >>> collatz_steps[N >1 n3]: 1 + collatz_steps[collatz.N].
---> collatz_steps(D,A) :- A = MuN, A > 1, A = 1 .. 999, D = 1 + C, collatz_steps(C,B), collatz(B,MuN).
+--> collatz_steps(1+C,A) :- A = MuN, A > 1, A = 1 .. 999, collatz_steps(C,B), collatz(B,MuN).
 understood.
 
 >>> collatz_steps[1..10]?
