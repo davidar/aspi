@@ -27,25 +27,24 @@ VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
 NAME: ["@"] LCASE_LETTER ("_"|LETTER|DIGIT)*
 
 start: cmd
-?cmd: "#" "fluent" pred [":-" term ("," term)*] "." -> fluent
+?cmd: "#" "fluent" pred [":-" pred ("," pred)*] "." -> fluent
     | "#" "enum" atom ":" lams ("|" lams)* "." -> enum
     | "#" "relation" atom "(" rparam ("," rparam)* ")" "." -> relation
     | "#" "any" (ldcs | cmpop) "." -> constraint_any
     | "#" "any" ldcs "?" -> query_any_ldcs
     | "#" "any" ":-" clause "?" -> query_any
     | "#" "any" [ldcs] "!" -> goal_any
-    | ["#" "macro"] define_heads ":" ldcs "." -> define
+    | define_heads ":" ldcs "." -> define
     | disj "::" define_heads [":-" clause] "." -> reverse_define
-    | term [":-" clause] "." -> claim
-    | clause "-:" term "." -> reverse_claim
+    | pred [":-" clause] "." -> claim
+    | clause "-:" pred "." -> reverse_claim
     | ldcs "?" -> query
     | ldcs "!" -> goal
 define_heads: (func | join)+
 clause: term ("," term)*
-?term: pred
-     | cmpop
-     | "#" "each" "(" term "," term ")" -> foreach
-     | "not" term -> not_term
+term: atom "(" [ldcs ("," ldcs)*] ")"
+    | ldcs CMP_OP ldcs -> binop_term
+    | "not" term -> not_term
 pred: atom "(" [ldcs ("," ldcs)*] ")"
 cmpop: ldcs CMP_OP ldcs -> binop
 binop: bracketed BIN_OP bracketed
@@ -163,9 +162,14 @@ class LDCS(lark.Transformer[str]):
         return f
 
     def expand_macro(self, name: str, *args: Sym) -> str:
-        params, tree = self.macros[f'{name}/{len(args)}']
-        subst = dict(zip(params, args))
-        return RuleBody(subst, self.gensym, params).transform(tree)
+        if f'{name}/{len(args)}' in self.macros:
+            params, tree = self.macros[f'{name}/{len(args)}']
+            subst = dict(zip(params, args))
+            return RuleBody(subst, self.gensym, params).transform(tree)
+        elif len(args) == 0:
+            return name
+        else:
+            return f"{name}({','.join(args)})"
 
     def expand_contexts(self) -> None:
         updated = False
@@ -308,11 +312,8 @@ class LDCS(lark.Transformer[str]):
     def query_any(self, body: Optional[str]) -> None:
         self.rules += [f'yes :- {body}.', 'no :- not yes.']
 
-    def clause(self, *args: CSym) -> Optional[str]:
-        body = None
-        for v, b in args:
-            body = commas(body, v, b)
-        return body
+    def clause(self, *args: str) -> str:
+        return commas(*args)
 
     def goal_any(self, var_body: Optional[CSym] = None) -> Optional[str]:
         if var_body is None:
@@ -337,6 +338,10 @@ class LDCS(lark.Transformer[str]):
     def define_heads(self, *args: Unary) -> List[Unary]:
         return list(args)
 
+    def term(self, name: str, *args: CSym) -> str:
+        vals, bodies = unzip(args)
+        return commas(self.expand_macro(name, *vals), *bodies)
+
     def pred(self, name: str, *args: CSym) -> CSym:
         vals, bodies = unzip(args)
         if not vals:
@@ -355,12 +360,11 @@ class LDCS(lark.Transformer[str]):
             arg2 = f'({arg2})'
         return f'{arg1} {op} {arg2}', commas(body1, body2)
 
-    def foreach(self, lit: CSym, cond: CSym) -> CSym:
-        return f'{commas(*lit)} : {commas(*cond)};', None
+    def binop_term(self, a: CSym, op: str, b: CSym) -> str:
+        return commas(*self.binop(a, op, b))
 
-    def not_term(self, term: CSym) -> CSym:
-        assert not term[1]
-        return f'not {term[0]}', None
+    def not_term(self, term: str) -> str:
+        return f'not {term}'
 
     def negative(self, var_body: CSym) -> Unary:
         var, body = var_body
@@ -409,12 +413,7 @@ class LDCS(lark.Transformer[str]):
         return lambda x: f'{x} = {c}'
 
     def func(self, name: str) -> Variadic:
-        def f(*args: Sym) -> str:
-            if f'{name}/{len(args)}' in self.macros:
-                return self.expand_macro(name, *args)
-            else:
-                return f"{name}({','.join(args)})"
-        return f
+        return lambda *args: self.expand_macro(name, *args)
 
     def superlative(self, rel: Variadic, op: str) -> Variadic:
         if op == "'":

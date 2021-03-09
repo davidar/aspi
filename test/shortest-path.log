@@ -42,8 +42,8 @@ understood.
 >>> % TODO: handle cycles:
 >>> % edge["ORD","DFW"]:  802.
 >>> 
->>> edge(A,B) :- edge(X,A,B).
---> edge(MuA,MuB) :- edge(MuX,MuA,MuB).
+>>> edge(A,B) :- exists(edge[A,B]).
+--> edge(MuA,MuB) :- edge(A,MuA,MuB).
 understood.
 
 >>> 

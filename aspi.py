@@ -130,7 +130,7 @@ class ASPI:
             self.counter += 1
 
     def eval(self, cmd: str) -> Optional['Results']:
-        lp = self.ldcs.toASP(cmd)
+        lp = self.ldcs.toASP(cmd.replace('#macro ', ''))
         if lp is None:
             return None
         print('-->', '\n    '.join(

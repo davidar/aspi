@@ -12,7 +12,7 @@ edge["LAX","ORD"]: 1749.
 % TODO: handle cycles:
 % edge["ORD","DFW"]:  802.
 
-edge(A,B) :- edge(X,A,B).
+edge(A,B) :- exists(edge[A,B]).
 
 node(A) :- edge(A,B).
 node(A) :- edge(B,A).

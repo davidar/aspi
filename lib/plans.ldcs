@@ -1,7 +1,7 @@
 state.0: init.
 nop() :: action costs.0.
 tmax: now + 20.
-#macro time: 1..tmax.
+time: 1..tmax.
 
 state.T: adds=apply.T.
 del.T: deletes=apply.T.

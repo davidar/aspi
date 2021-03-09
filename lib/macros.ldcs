@@ -13,6 +13,8 @@ i2: (-99)..99.
 i3: (-999)..999.
 i4: (-9999)..9999.
 
+exists(X).
+
 before(E,F) :- end_time(0..(T-1), E), start_time(T, F).
 during(E,F) :- start_time(S T1..T2, E), end_time(S..T2, E), start_time(T1, F !=E), end_time(T2, F).
 just_before(E,F) :- end_time(T-1, E), start_time(T, F).
