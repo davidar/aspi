@@ -364,6 +364,8 @@ class LDCS(lark.Transformer[str]):
         return commas(*self.binop(a, op, b))
 
     def not_term(self, term: str) -> str:
+        if ', ' in term:
+            term = self.lift(('0', term), 'negation')('0')
         return f'not {term}'
 
     def negative(self, var_body: CSym) -> Unary:
@@ -398,7 +400,7 @@ class LDCS(lark.Transformer[str]):
     def short_disj(self, a: Unary, b: Unary) -> Unary:
         x, b1 = self.ldcs(a)
         y, b2 = self.ldcs(b)
-        guard = 'not ' + self.lift(('0', b1), 'shortcircuit')('0')
+        guard = self.not_term(b1)
         return self.lifts([(x, b1), (y, commas(guard, b2))], 'disjunction')
 
     def lams(self, *lams: Unary) -> List[Unary]:

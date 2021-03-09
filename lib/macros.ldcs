@@ -40,3 +40,5 @@ sum(X,L) :- X = @sumof(L).
 product(X,L) :- X = @productof(L).
 min(X,L) :- X = @minof(L).
 max(X,L) :- X = @maxof(L).
+
+mean.L: sum.L / count.L.

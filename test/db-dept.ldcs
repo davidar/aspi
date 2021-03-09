@@ -1,0 +1,69 @@
+lookup[employee(csv[R,1]), C]: csv[R,C].
+employee(employee(csv[R,1])).
+first_name.E:            lookup[E,2].
+last_name.E:             lookup[E,3].
+email.E:                 lookup[E,4].
+phone_number.E:          lookup[E,5].
+hire_date.E:             lookup[E,6].
+job.E:               job(lookup[E,7]).
+salary.E:                lookup[E,8].
+manager.E:      employee(lookup[E,9]).
+department.E: department(lookup[E,10]).
+
+#enum department: department_name="Administration"   location=location(1700)
+                | department_name="Marketing"        location=location(1800)
+                | department_name="Purchasing"       location=location(1700)
+                | department_name="Human Resources"  location=location(2400)
+                | department_name="Shipping"         location=location(1500)
+                | department_name="IT"               location=location(1400)
+                | department_name="Public Relations" location=location(2700)
+                | department_name="Sales"            location=location(2500)
+                | department_name="Executive"        location=location(1700)
+                | department_name="Finance"          location=location(1700)
+                | department_name="Accounting"       location=location(1700)
+                .
+
+% SELECT department_name
+% FROM departments
+% WHERE location_id = 1700;
+department_name.location=location(1700)?
+
+% SELECT employee_id, first_name, last_name
+% FROM employees
+% WHERE department_id IN (
+%     SELECT department_id
+%     FROM departments
+%     WHERE location_id = 1700)
+% ORDER BY first_name , last_name;
+row(first_name.E, last_name.E, E employee department=location=location(1700))?
+
+% ... NOT IN ...
+row(first_name.E, last_name.E, E employee department=~location=location(1700))?
+
+% SELECT employee_id, first_name, last_name, salary
+% FROM employees
+% WHERE salary = (
+%     SELECT MAX(salary)
+%     FROM employees);
+row(E employee salary=max{salary.employee}, first_name.E, last_name.E, salary.E)?
+
+% SELECT employee_id, first_name, last_name, salary
+% FROM employees
+% WHERE salary > (
+%     SELECT AVG(salary)
+%     FROM employees);
+row(E employee salary=>mean{{salary.employee}}, first_name.E, last_name.E, salary.E)?
+
+% SELECT department_name
+% FROM departments AS d
+% WHERE EXISTS(
+%     SELECT 1
+%     FROM employees AS e
+%     WHERE salary > 10000 AND e.department_id = d.department_id)
+% ORDER BY department_name;
+department_name.department[employee salary=>10000]?
+department_name.D :- exists(employee salary=>10000 department=D)?
+
+% ... NOT EXISTS ...
+department_name.~department[employee salary=>10000]?
+department_name.D :- not exists(employee salary=>10000 department=D)?

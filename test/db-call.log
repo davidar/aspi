@@ -193,9 +193,9 @@ that: row("Croatia","Zagreb","Restaurant")
 >>> % LEFT JOIN customer ON customer.city_id = city.id;
 >>> row(country_name_en.city_country.X, city_name.X, customer_name.customer_city=X || null)?
 --> what(row(B,C,G)) :- country_name_en(B,A), city_country(A,MuX), city_name(C,MuX), disjunction((1,MuX),G).
-    shortcircuit((1,MuX),0) :- customer_name(E,D), customer_city(MuX,D), null(F), country_name_en(B,A), city_country(A,MuX), city_name(C,MuX).
+    negation((2,MuX),0) :- customer_name(E,D), customer_city(MuX,D), null(F), country_name_en(B,A), city_country(A,MuX), city_name(C,MuX).
     disjunction((1,MuX),E) :- customer_name(E,D), customer_city(MuX,D), country_name_en(B,A), city_country(A,MuX), city_name(C,MuX).
-    disjunction((1,MuX),F) :- not shortcircuit((1,MuX),0), null(F), country_name_en(B,A), city_country(A,MuX), city_name(C,MuX).
+    disjunction((1,MuX),F) :- not negation((2,MuX),0), null(F), country_name_en(B,A), city_country(A,MuX), city_name(C,MuX).
 that: row("Croatia","Zagreb","Restaurant")
     | row("Germany","Berlin","Bakery")
     | row("Germany","Berlin","Café")
@@ -211,12 +211,12 @@ that: row("Croatia","Zagreb","Restaurant")
 >>> % LEFT JOIN customer ON customer.city_id = city.id;
 >>> row(country_name_en.C, city_name.city_country=C || null, customer_name.customer_city=city_country=C || null)?
 --> what(row(A,E,J)) :- country_name_en(A,MuC), disjunction((2,MuC),E), disjunction((3,MuC),J).
-    shortcircuit((2,MuC),0) :- city_name(C,B), city_country(MuC,B), null(D), country_name_en(A,MuC).
+    negation((3,MuC),0) :- city_name(C,B), city_country(MuC,B), null(D), country_name_en(A,MuC).
     disjunction((2,MuC),C) :- city_name(C,B), city_country(MuC,B), country_name_en(A,MuC).
-    disjunction((2,MuC),D) :- not shortcircuit((2,MuC),0), null(D), country_name_en(A,MuC).
-    shortcircuit((3,MuC),0) :- customer_name(H,G), customer_city(F,G), city_country(MuC,F), null(I), country_name_en(A,MuC).
+    disjunction((2,MuC),D) :- not negation((3,MuC),0), null(D), country_name_en(A,MuC).
+    negation((4,MuC),0) :- customer_name(H,G), customer_city(F,G), city_country(MuC,F), null(I), country_name_en(A,MuC).
     disjunction((3,MuC),H) :- customer_name(H,G), customer_city(F,G), city_country(MuC,F), country_name_en(A,MuC).
-    disjunction((3,MuC),I) :- not shortcircuit((3,MuC),0), null(I), country_name_en(A,MuC).
+    disjunction((3,MuC),I) :- not negation((4,MuC),0), null(I), country_name_en(A,MuC).
 that: row("Croatia","Zagreb","Restaurant")
     | row("Germany","Berlin","Bakery")
     | row("Germany","Berlin","Café")
@@ -266,9 +266,9 @@ understood.
 >>> row(count{country_calls.C} || 0, C, country_name_en.C, total_duration_country.C >(total_duration/4))?
 --> what(row(D,MuC,E,G)) :- disjunction((4,MuC),D), country_name_en(E,MuC), total_duration_country(G,MuC), G > F/4, total_duration(F).
     gather((4,MuC),A) :- country_calls(A,MuC), country_name_en(E,MuC), total_duration_country(G,MuC), G > F/4, total_duration(F).
-    shortcircuit((4,MuC),0) :- C = @countof(B), setof((4,MuC),B), country_name_en(E,MuC), total_duration_country(G,MuC), G > F/4, total_duration(F).
+    negation((5,MuC),0) :- C = @countof(B), setof((4,MuC),B), country_name_en(E,MuC), total_duration_country(G,MuC), G > F/4, total_duration(F).
     disjunction((4,MuC),C) :- C = @countof(B), setof((4,MuC),B), country_name_en(E,MuC), total_duration_country(G,MuC), G > F/4, total_duration(F).
-    disjunction((4,MuC),0) :- not shortcircuit((4,MuC),0), country_name_en(E,MuC), total_duration_country(G,MuC), G > F/4, total_duration(F).
+    disjunction((4,MuC),0) :- not negation((5,MuC),0), country_name_en(E,MuC), total_duration_country(G,MuC), G > F/4, total_duration(F).
 that: row(2,country(3),"Croatia",1611)
     | row(5,country(1),"Germany",3582).
 

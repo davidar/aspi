@@ -1,0 +1,237 @@
+>>> lookup[employee(csv[R,1]), C]: csv[R,C].
+--> lookup(B,employee(A),MuC) :- csv(A,MuR,1), csv(B,MuR,MuC).
+understood.
+
+>>> employee(employee(csv[R,1])).
+--> employee(employee(A)) :- csv(A,MuR,1).
+understood.
+
+>>> first_name.E:            lookup[E,2].
+--> first_name(A,MuE) :- lookup(A,MuE,2).
+understood.
+
+>>> last_name.E:             lookup[E,3].
+--> last_name(A,MuE) :- lookup(A,MuE,3).
+understood.
+
+>>> email.E:                 lookup[E,4].
+--> email(A,MuE) :- lookup(A,MuE,4).
+understood.
+
+>>> phone_number.E:          lookup[E,5].
+--> phone_number(A,MuE) :- lookup(A,MuE,5).
+understood.
+
+>>> hire_date.E:             lookup[E,6].
+--> hire_date(A,MuE) :- lookup(A,MuE,6).
+understood.
+
+>>> job.E:               job(lookup[E,7]).
+--> job(job(A),MuE) :- lookup(A,MuE,7).
+understood.
+
+>>> salary.E:                lookup[E,8].
+--> salary(A,MuE) :- lookup(A,MuE,8).
+understood.
+
+>>> manager.E:      employee(lookup[E,9]).
+--> manager(employee(A),MuE) :- lookup(A,MuE,9).
+understood.
+
+>>> department.E: department(lookup[E,10]).
+--> department(department(A),MuE) :- lookup(A,MuE,10).
+understood.
+
+>>> 
+>>> #enum department: department_name="Administration"   location=location(1700)
+...                 | department_name="Marketing"        location=location(1800)
+...                 | department_name="Purchasing"       location=location(1700)
+...                 | department_name="Human Resources"  location=location(2400)
+...                 | department_name="Shipping"         location=location(1500)
+...                 | department_name="IT"               location=location(1400)
+...                 | department_name="Public Relations" location=location(2700)
+...                 | department_name="Sales"            location=location(2500)
+...                 | department_name="Executive"        location=location(1700)
+...                 | department_name="Finance"          location=location(1700)
+...                 | department_name="Accounting"       location=location(1700)
+...                 .
+--> department(department(1)).
+    department(department(1),1).
+    department_name("Administration",department(1)).
+    location(location(1700),department(1)).
+    department(department(2)).
+    department(department(2),2).
+    department_name("Marketing",department(2)).
+    location(location(1800),department(2)).
+    department(department(3)).
+    department(department(3),3).
+    department_name("Purchasing",department(3)).
+    location(location(1700),department(3)).
+    department(department(4)).
+    department(department(4),4).
+    department_name("Human Resources",department(4)).
+    location(location(2400),department(4)).
+    department(department(5)).
+    department(department(5),5).
+    department_name("Shipping",department(5)).
+    location(location(1500),department(5)).
+    department(department(6)).
+    department(department(6),6).
+    department_name("IT",department(6)).
+    location(location(1400),department(6)).
+    department(department(7)).
+    department(department(7),7).
+    department_name("Public Relations",department(7)).
+    location(location(2700),department(7)).
+    department(department(8)).
+    department(department(8),8).
+    department_name("Sales",department(8)).
+    location(location(2500),department(8)).
+    department(department(9)).
+    department(department(9),9).
+    department_name("Executive",department(9)).
+    location(location(1700),department(9)).
+    department(department(10)).
+    department(department(10),10).
+    department_name("Finance",department(10)).
+    location(location(1700),department(10)).
+    department(department(11)).
+    department(department(11),11).
+    department_name("Accounting",department(11)).
+    location(location(1700),department(11)).
+understood.
+
+>>> 
+>>> % SELECT department_name
+>>> % FROM departments
+>>> % WHERE location_id = 1700;
+>>> department_name.location=location(1700)?
+--> what(B) :- department_name(B,A), location(location(1700),A).
+that: "Accounting" | "Administration" | "Executive" | "Finance" | "Purchasing".
+
+>>> 
+>>> % SELECT employee_id, first_name, last_name
+>>> % FROM employees
+>>> % WHERE department_id IN (
+>>> %     SELECT department_id
+>>> %     FROM departments
+>>> %     WHERE location_id = 1700)
+>>> % ORDER BY first_name , last_name;
+>>> row(first_name.E, last_name.E, E employee department=location=location(1700))?
+--> what(row(A,B,D)) :- first_name(A,MuE), last_name(B,MuE), D = MuE, employee(D), department(C,D), location(location(1700),C).
+that: row("Alexander","Khoo",employee(115))
+    | row("Daniel","Faviet",employee(109))
+    | row("Den","Raphaely",employee(114))
+    | row("Guy","Himuro",employee(118))
+    | row("Ismael","Sciarra",employee(111))
+    | row("Jennifer","Whalen",employee(200))
+    | row("John","Chen",employee(110))
+    | row("Jose Manuel","Urman",employee(112))
+    | row("Karen","Colmenares",employee(119))
+    | row("Lex","De Haan",employee(102))
+    | row("Luis","Popp",employee(113))
+    | row("Nancy","Greenberg",employee(108))
+    | row("Neena","Kochhar",employee(101))
+    | row("Shelley","Higgins",employee(205))
+    | row("Shelli","Baida",employee(116))
+    | row("Sigal","Tobias",employee(117))
+    | row("Steven","King",employee(100))
+    | row("William","Gietz",employee(206)).
+
+>>> 
+>>> % ... NOT IN ...
+>>> row(first_name.E, last_name.E, E employee department=~location=location(1700))?
+--> what(row(A,B,E)) :- first_name(A,MuE), last_name(B,MuE), E = MuE, employee(E), department(D,E), not negation((2),D).
+    negation((2),C) :- location(location(1700),C).
+that: row("Adam","Fripp",employee(121))
+    | row("Alexander","Hunold",employee(103))
+    | row("Britney","Everett",employee(193))
+    | row("Bruce","Ernst",employee(104))
+    | row("Charles","Johnson",employee(179))
+    | row("David","Austin",employee(105))
+    | row("Diana","Lorentz",employee(107))
+    | row("Hermann","Baer",employee(204))
+    | row("Irene","Mikkilineni",employee(126))
+    | row("Jack","Livingston",employee(177))
+    | row("John","Russell",employee(145))
+    | row("Jonathon","Taylor",employee(176))
+    | row("Karen","Partners",employee(146))
+    | row("Kimberely","Grant",employee(178))
+    | row("Matthew","Weiss",employee(120))
+    | row("Michael","Hartstein",employee(201))
+    | row("Pat","Fay",employee(202))
+    | row("Payam","Kaufling",employee(122))
+    | row("Sarah","Bell",employee(192))
+    | row("Shanta","Vollman",employee(123))
+    | row("Susan","Mavris",employee(203))
+    | row("Valli","Pataballa",employee(106)).
+
+>>> 
+>>> % SELECT employee_id, first_name, last_name, salary
+>>> % FROM employees
+>>> % WHERE salary = (
+>>> %     SELECT MAX(salary)
+>>> %     FROM employees);
+>>> row(E employee salary=max{salary.employee}, first_name.E, last_name.E, salary.E)?
+--> what(row(E,F,G,H)) :- E = MuE, employee(E), salary(D,E), D = @maxof(C), setof((1),C), first_name(F,MuE), last_name(G,MuE), salary(H,MuE).
+    gather((1),B) :- salary(B,A), employee(A).
+that: row(employee(100),"Steven","King",24000).
+
+>>> 
+>>> % SELECT employee_id, first_name, last_name, salary
+>>> % FROM employees
+>>> % WHERE salary > (
+>>> %     SELECT AVG(salary)
+>>> %     FROM employees);
+>>> row(E employee salary=>mean{{salary.employee}}, first_name.E, last_name.E, salary.E)?
+--> what(row(K,L,M,N)) :- K = MuE, employee(K), salary(J,K), J > G, G = H / I, H = @sumof(D), I = @countof(D), bagof((2),D), first_name(L,MuE), last_name(M,MuE), salary(N,MuE).
+    aggregation((1),B) :- salary(B,A), employee(A).
+    gather((2),(C,P0)) :- proof(P0,aggregation((1),C)).
+that: row(employee(100),"Steven","King",24000)
+    | row(employee(101),"Neena","Kochhar",17000)
+    | row(employee(102),"Lex","De Haan",17000)
+    | row(employee(103),"Alexander","Hunold",9000)
+    | row(employee(108),"Nancy","Greenberg",12000)
+    | row(employee(109),"Daniel","Faviet",9000)
+    | row(employee(110),"John","Chen",8200)
+    | row(employee(114),"Den","Raphaely",11000)
+    | row(employee(121),"Adam","Fripp",8200)
+    | row(employee(145),"John","Russell",14000)
+    | row(employee(146),"Karen","Partners",13500)
+    | row(employee(176),"Jonathon","Taylor",8600)
+    | row(employee(177),"Jack","Livingston",8400)
+    | row(employee(201),"Michael","Hartstein",13000)
+    | row(employee(204),"Hermann","Baer",10000)
+    | row(employee(205),"Shelley","Higgins",12000)
+    | row(employee(206),"William","Gietz",8300).
+
+>>> 
+>>> % SELECT department_name
+>>> % FROM departments AS d
+>>> % WHERE EXISTS(
+>>> %     SELECT 1
+>>> %     FROM employees AS e
+>>> %     WHERE salary > 10000 AND e.department_id = d.department_id)
+>>> % ORDER BY department_name;
+>>> department_name.department[employee salary=>10000]?
+--> what(D) :- department_name(D,C), department(C,B), employee(B), salary(A,B), A > 10000.
+that: "Accounting" | "Executive" | "Finance" | "Marketing" | "Purchasing" | "Sales".
+
+>>> department_name.D :- exists(employee salary=>10000 department=D)?
+--> what(C) :- department_name(C,MuD), employee(B), salary(A,B), A > 10000, department(MuD,B).
+that: "Accounting" | "Executive" | "Finance" | "Marketing" | "Purchasing" | "Sales".
+
+>>> 
+>>> % ... NOT EXISTS ...
+>>> department_name.~department[employee salary=>10000]?
+--> what(E) :- department_name(E,D), not negation((3),D).
+    negation((3),C) :- department(C,B), employee(B), salary(A,B), A > 10000.
+that: "Administration" | "Human Resources" | "IT" | "Public Relations" | "Shipping".
+
+>>> department_name.D :- not exists(employee salary=>10000 department=D)?
+--> what(C) :- department_name(C,MuD), not negation((4,MuD),0).
+    negation((4,MuD),0) :- employee(B), salary(A,B), A > 10000, department(MuD,B), department_name(C,MuD).
+that: "Administration" | "Human Resources" | "IT" | "Public Relations" | "Shipping".
+
+>>> thanks.
+YOU'RE WELCOME!
