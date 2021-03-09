@@ -183,7 +183,7 @@ that: row(employee(100),"Steven","King",24000).
 >>> % WHERE salary > (
 >>> %     SELECT AVG(salary)
 >>> %     FROM employees);
->>> row(E employee salary=>mean{{salary.employee}}, first_name.E, last_name.E, salary.E)?
+>>> row(E employee salary=(> mean{{salary.employee}}), first_name.E, last_name.E, salary.E)?
 --> what(row(K,L,M,N)) :- K = MuE, employee(K), salary(J,K), J > G, G = H / I, H = @sumof(D), I = @countof(D), bagof((2),D), first_name(L,MuE), last_name(M,MuE), salary(N,MuE).
     aggregation((1),B) :- salary(B,A), employee(A).
     gather((2),(C,P0)) :- proof(P0,aggregation((1),C)).
@@ -213,22 +213,22 @@ that: row(employee(100),"Steven","King",24000)
 >>> %     FROM employees AS e
 >>> %     WHERE salary > 10000 AND e.department_id = d.department_id)
 >>> % ORDER BY department_name;
->>> department_name.department[employee salary=>10000]?
+>>> department_name.department[employee salary=(> 10000)]?
 --> what(D) :- department_name(D,C), department(C,B), employee(B), salary(A,B), A > 10000.
 that: "Accounting" | "Executive" | "Finance" | "Marketing" | "Purchasing" | "Sales".
 
->>> department_name.D :- exists(employee salary=>10000 department=D)?
+>>> department_name.D :- exists(employee salary=(> 10000) department=D)?
 --> what(C) :- department_name(C,MuD), employee(B), salary(A,B), A > 10000, department(MuD,B).
 that: "Accounting" | "Executive" | "Finance" | "Marketing" | "Purchasing" | "Sales".
 
 >>> 
 >>> % ... NOT EXISTS ...
->>> department_name.~department[employee salary=>10000]?
+>>> department_name.~department[employee salary=(> 10000)]?
 --> what(E) :- department_name(E,D), not negation((3),D).
     negation((3),C) :- department(C,B), employee(B), salary(A,B), A > 10000.
 that: "Administration" | "Human Resources" | "IT" | "Public Relations" | "Shipping".
 
->>> department_name.D :- not exists(employee salary=>10000 department=D)?
+>>> department_name.D :- not exists(employee salary=(> 10000) department=D)?
 --> what(C) :- department_name(C,MuD), not negation((4,MuD),0).
     negation((4,MuD),0) :- employee(B), salary(A,B), A > 10000, department(MuD,B), department_name(C,MuD).
 that: "Administration" | "Human Resources" | "IT" | "Public Relations" | "Shipping".

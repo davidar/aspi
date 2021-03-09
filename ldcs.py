@@ -68,9 +68,9 @@ constant: INT
     | constant
     | join
     | "~" bracketed -> neg
-    | INEQ_OP bracketed -> ineq
     | pred -> unify
     | "(" "-" bracketed ")" -> negative
+    | "(" INEQ_OP ldcs ")" -> ineq
     | [func] "{{" ldcs "}}" -> bagof
     | [func] "{" ldcs "}" -> setof
 func: atom

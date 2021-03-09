@@ -3,7 +3,7 @@
 #fluent on(A,B).
 #fluent on_same(D,E) :- on(D,P), on(E,P).
 
-small(disk.I, disk.>I).
+small(disk.I, disk.(>I)).
 
 init: on(disk, left peg).
 

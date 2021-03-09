@@ -42,7 +42,7 @@ understood.
 understood.
 
 >>> 
->>> small(disk.I, disk.>I).
+>>> small(disk.I, disk.(>I)).
 --> small(A,C) :- disk(A,MuI), disk(C,B), B > MuI.
 understood.
 

@@ -263,7 +263,7 @@ understood.
     gather((3),C) :- duration(C,B), country_calls(B,A), country(A).
 understood.
 
->>> row(count{country_calls.C} || 0, C, country_name_en.C, total_duration_country.C >(total_duration/4))?
+>>> row(count{country_calls.C} || 0, C, country_name_en.C, total_duration_country.C (> total_duration/4))?
 --> what(row(D,MuC,E,G)) :- disjunction((4,MuC),D), country_name_en(E,MuC), total_duration_country(G,MuC), G > F/4, total_duration(F).
     gather((4,MuC),A) :- country_calls(A,MuC), country_name_en(E,MuC), total_duration_country(G,MuC), G > F/4, total_duration(F).
     negation((5,MuC),0) :- C = @countof(B), setof((4,MuC),B), country_name_en(E,MuC), total_duration_country(G,MuC), G > F/4, total_duration(F).

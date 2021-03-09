@@ -52,7 +52,7 @@ row(E employee salary=max{salary.employee}, first_name.E, last_name.E, salary.E)
 % WHERE salary > (
 %     SELECT AVG(salary)
 %     FROM employees);
-row(E employee salary=>mean{{salary.employee}}, first_name.E, last_name.E, salary.E)?
+row(E employee salary=(> mean{{salary.employee}}), first_name.E, last_name.E, salary.E)?
 
 % SELECT department_name
 % FROM departments AS d
@@ -61,9 +61,9 @@ row(E employee salary=>mean{{salary.employee}}, first_name.E, last_name.E, salar
 %     FROM employees AS e
 %     WHERE salary > 10000 AND e.department_id = d.department_id)
 % ORDER BY department_name;
-department_name.department[employee salary=>10000]?
-department_name.D :- exists(employee salary=>10000 department=D)?
+department_name.department[employee salary=(> 10000)]?
+department_name.D :- exists(employee salary=(> 10000) department=D)?
 
 % ... NOT EXISTS ...
-department_name.~department[employee salary=>10000]?
-department_name.D :- not exists(employee salary=>10000 department=D)?
+department_name.~department[employee salary=(> 10000)]?
+department_name.D :- not exists(employee salary=(> 10000) department=D)?

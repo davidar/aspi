@@ -4,7 +4,7 @@
     gather((1,MuN),A) :- A = 1 .. MuN, MuN = C, C = 1 .. 99.
 understood.
 
->>> triangle <100?
+>>> triangle (< 100)?
 --> what(A) :- triangle(A), A < 100.
 that: 1 | 3 | 6 | 10 | 15 | 21 | 28 | 36 | 45 | 55 | 66 | 78 | 91.
 

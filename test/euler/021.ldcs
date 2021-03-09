@@ -6,4 +6,4 @@ perfect?
 amicable(A,B) :- aliquot(A,B), aliquot(B,A), A != B.
 amicable: amicable.n3.
 amicable?
-sum{amicable <1000}?
+sum{amicable (< 1000)}?

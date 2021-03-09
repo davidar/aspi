@@ -1,5 +1,5 @@
 >>> % https://codegolf.stackexchange.com/questions/216269/factorise-a-quadratic
->>> factor[P+Q, P*Q]: pair(P i2, Q >P i2).
+>>> factor[P+Q, P*Q]: pair(P i2, Q (> P) i2).
 --> factor(pair(A,B),MuP+MuQ,MuP*MuQ) :- A = MuP, A = (- 99) .. 99, B = MuQ, B > MuP, B = (- 99) .. 99.
 understood.
 
