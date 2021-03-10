@@ -4,6 +4,7 @@ import os.path
 scripts = [
     'db-call',
     'db-dept',
+    'db-wiz',
     'dcg',
     'golf',
     'hanoi',

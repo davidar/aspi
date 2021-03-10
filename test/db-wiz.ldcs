@@ -1,0 +1,14 @@
+#enum customer: mailing_state="Bihar"   billing_state="Bihar"  ip_address_state="Bihar"
+              |                         billing_state="Kerala" ip_address_state="Kerala"
+              |                                                ip_address_state="Punjab"
+              | mailing_state="Gujarat" billing_state="Punjab" ip_address_state="Gujarat"
+              .
+
+% SELECT customer
+%        , COALESCE(
+%           mailing_state,
+%           billing_state,
+%           ip_address_state
+%        ) AS state
+% FROM addresses
+row(customer C, mailing_state.C || billing_state.C || ip_address_state.C)?

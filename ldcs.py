@@ -55,7 +55,7 @@ atom: NAME
 ldcs: disj [":-" clause]
 disj: conj ("|" conj)*
     | "_"
-    | conj "||" conj -> short_disj
+    | conj ("||" conj)+ -> short_disj
 conj: lams
 lams: lam (_WS lam)*
 ?lam: arg
@@ -363,8 +363,8 @@ class LDCS(lark.Transformer[str]):
     def binop_term(self, a: CSym, op: str, b: CSym) -> str:
         return commas(*self.binop(a, op, b))
 
-    def not_term(self, term: str) -> str:
-        if ', ' in term:
+    def not_term(self, term: str, lift: bool = False) -> str:
+        if ', ' in term or lift:
             term = self.lift(('0', term), 'negation')('0')
         return f'not {term}'
 
@@ -397,11 +397,11 @@ class LDCS(lark.Transformer[str]):
             return lams[0]
         return self.lifts([self.ldcs(lam) for lam in lams], 'disjunction')
 
-    def short_disj(self, a: Unary, b: Unary) -> Unary:
-        x, b1 = self.ldcs(a)
-        y, b2 = self.ldcs(b)
-        guard = self.not_term(b1)
-        return self.lifts([(x, b1), (y, commas(guard, b2))], 'disjunction')
+    def short_disj(self, *args: Unary) -> Unary:
+        vars, bodies = unzip(self.ldcs(arg) for arg in args)
+        guards = [self.not_term(body, lift=True) for body in bodies[:-1]]
+        return self.lifts([(vars[i], commas(*guards[:i], bodies[i]))
+                           for i in range(len(bodies))], 'disjunction')
 
     def lams(self, *lams: Unary) -> List[Unary]:
         return list(lams)

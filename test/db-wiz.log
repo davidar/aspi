@@ -1,0 +1,43 @@
+>>> #enum customer: mailing_state="Bihar"   billing_state="Bihar"  ip_address_state="Bihar"
+...               |                         billing_state="Kerala" ip_address_state="Kerala"
+...               |                                                ip_address_state="Punjab"
+...               | mailing_state="Gujarat" billing_state="Punjab" ip_address_state="Gujarat"
+...               .
+--> customer(customer(1)).
+    customer(customer(1),1).
+    mailing_state("Bihar",customer(1)).
+    billing_state("Bihar",customer(1)).
+    ip_address_state("Bihar",customer(1)).
+    customer(customer(2)).
+    customer(customer(2),2).
+    billing_state("Kerala",customer(2)).
+    ip_address_state("Kerala",customer(2)).
+    customer(customer(3)).
+    customer(customer(3),3).
+    ip_address_state("Punjab",customer(3)).
+    customer(customer(4)).
+    customer(customer(4),4).
+    mailing_state("Gujarat",customer(4)).
+    billing_state("Punjab",customer(4)).
+    ip_address_state("Gujarat",customer(4)).
+understood.
+
+>>> 
+>>> % SELECT customer
+>>> %        , COALESCE(
+>>> %           mailing_state,
+>>> %           billing_state,
+>>> %           ip_address_state
+>>> %        ) AS state
+>>> % FROM addresses
+>>> row(customer C, mailing_state.C || billing_state.C || ip_address_state.C)?
+--> what(row(A,E)) :- customer(A), A = MuC, disjunction((1,MuC),E).
+    negation((2,MuC),0) :- mailing_state(B,MuC), billing_state(C,MuC), customer(A), A = MuC.
+    negation((3,MuC),0) :- billing_state(C,MuC), ip_address_state(D,MuC), customer(A), A = MuC.
+    disjunction((1,MuC),B) :- mailing_state(B,MuC), customer(A), A = MuC.
+    disjunction((1,MuC),C) :- not negation((2,MuC),0), billing_state(C,MuC), customer(A), A = MuC.
+    disjunction((1,MuC),D) :- not negation((2,MuC),0), not negation((3,MuC),0), ip_address_state(D,MuC), customer(A), A = MuC.
+that: row(customer(1),"Bihar") | row(customer(2),"Kerala") | row(customer(3),"Punjab") | row(customer(4),"Gujarat").
+
+>>> thanks.
+YOU'RE WELCOME!
