@@ -1,4 +1,5 @@
 % 20. Find the sum of digits in 10!
-factorial[N 1..12]: product{1..N}.
+factorial[N 0..12]: product{1..N}.
+factorial.0?
 factorial.10?
 sum{{decimal[substring.show.factorial.10 length=1]}}?

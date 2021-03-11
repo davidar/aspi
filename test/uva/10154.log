@@ -41,8 +41,8 @@ understood.
 >>> #any!
 --> 
 reward: 3.
-select(3, 200, 600)!
 select(1, 300, 1000)!
+select(3, 200, 600)!
 select(4, 100, 101)!
 
 >>> thanks.

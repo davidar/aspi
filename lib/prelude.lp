@@ -23,10 +23,10 @@ proof(@proof(csv(V,R,C)),csv(V,R,C)) :- csv(V,R,C).
 proof(@proof(csv_cols(C,R)),csv_cols(C,R)) :- csv_cols(C,R).
 proof(@proof(csv_rows(R)),csv_rows(R)) :- csv_rows(R).
 
+gather(I, gather_sentinel) :- gather_index(I).
 gather(@gather(I,X)) :- gather(I,X).
 setof_(I,X) :- gather(I), gather(I,Y), X = @setof(I).
 setof(I,S) :- setof_(I,S), @countof(S) = #max { @countof(X) : setof_(I,X) }.
-setof(I, empty) :- gather_index(I), not gather(I).
 proof(@proof(setof(I,X)),setof(I,X)) :- setof(I,X).
 bagof_(I,X) :- gather(I), gather(I,Y), X = @bagof(I).
 bagof(I,S) :- bagof_(I,S), @countof(S) = #max { @countof(X) : bagof_(I,X) }.
@@ -65,7 +65,8 @@ gathered = {}
 def gather(i, a):
     if i not in gathered:
         gathered[i] = []
-    gathered[i].append(a)
+    if a.name != 'gather_sentinel':
+        gathered[i].append(a)
     return i
 def setof(i):
     if i not in gathered:

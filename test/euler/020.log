@@ -1,8 +1,13 @@
 >>> % 20. Find the sum of digits in 10!
->>> factorial[N 1..12]: product{1..N}.
---> factorial(D,A) :- A = MuN, A = 1 .. 12, D = @productof(C), setof((1,MuN),C).
-    gather((1,MuN),B) :- B = 1 .. MuN, A = MuN, A = 1 .. 12.
+>>> factorial[N 0..12]: product{1..N}.
+--> factorial(D,A) :- A = MuN, A = 0 .. 12, D = @productof(C), setof((1,MuN),C).
+    gather_index((1,MuN)) :- A = MuN, A = 0 .. 12.
+    gather((1,MuN),B) :- B = 1 .. MuN, A = MuN, A = 0 .. 12.
 understood.
+
+>>> factorial.0?
+--> what(A) :- factorial(A,0).
+that: 1.
 
 >>> factorial.10?
 --> what(A) :- factorial(A,10).
