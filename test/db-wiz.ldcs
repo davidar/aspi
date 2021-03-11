@@ -65,9 +65,9 @@ row(count{species.genus=G}, G genus.plant)?
 %     ELSE 0 END) AS num_other
 % FROM pets
 % GROUP BY owner
-row(O owner.pet, count{owner=O type="dog"} || 0)?
-row(O owner.pet, count{owner=O type="cat"} || 0)?
-row(O owner.pet, count{owner=O type=(~"dog" ~"cat")} || 0)?
+row(O owner.pet, count{owner=O type="dog"})?
+row(O owner.pet, count{owner=O type="cat"})?
+row(O owner.pet, count{owner=O type=(~"dog" ~"cat")})?
 
 % SELECT owner
 % FROM dogs

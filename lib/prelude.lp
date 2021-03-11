@@ -26,6 +26,7 @@ proof(@proof(csv_rows(R)),csv_rows(R)) :- csv_rows(R).
 gather(@gather(I,X)) :- gather(I,X).
 setof_(I,X) :- gather(I), gather(I,Y), X = @setof(I).
 setof(I,S) :- setof_(I,S), @countof(S) = #max { @countof(X) : setof_(I,X) }.
+setof(I, empty) :- gather_index(I), not gather(I).
 proof(@proof(setof(I,X)),setof(I,X)) :- setof(I,X).
 bagof_(I,X) :- gather(I), gather(I,Y), X = @bagof(I).
 bagof(I,S) :- bagof_(I,S), @countof(S) = #max { @countof(X) : bagof_(I,X) }.
@@ -83,9 +84,13 @@ def sumof(a):
 def productof(a):
     return math.prod(x.number for x in a.arguments) % sys.maxsize
 def minof(a):
-    return min(x.number for x in a.arguments)
+    if len(a.arguments) == 0 or all(x == clingo.Supremum for x in a.arguments):
+        return clingo.Supremum
+    return min(x.number for x in a.arguments if x != clingo.Supremum)
 def maxof(a):
-    return max(x.number for x in a.arguments)
+    if len(a.arguments) == 0 or all(x == clingo.Infimum for x in a.arguments):
+        return clingo.Infimum
+    return max(x.number for x in a.arguments if x != clingo.Infimum)
 def memberof(a):
     return a.arguments
 def enumerateof(a):

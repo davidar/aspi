@@ -234,8 +234,9 @@ that: row("Croatia","Zagreb","Restaurant")
 >>> % GROUP BY country.id, country.country_name_eng;
 >>> row(country_name_en.C, count{city_name.city_country=C})?
 --> what(row(A,E)) :- country_name_en(A,MuC), E = @countof(D), setof((1,MuC),D).
+    gather_index((1,MuC)) :- country_name_en(A,MuC).
     gather((1,MuC),C) :- city_name(C,B), city_country(MuC,B), country_name_en(A,MuC).
-that: row("Croatia",1) | row("Germany",1) | row("Poland",1) | row("Serbia",1) | row("United States of America",2).
+that: row("Croatia",1) | row("Germany",1) | row("Poland",1) | row("Russia",0) | row("Serbia",1) | row("Spain",0) | row("United States of America",2).
 
 >>> 
 >>> % SELECT country.country_name_eng,
@@ -253,9 +254,10 @@ that: row("Croatia",1) | row("Germany",1) | row("Poland",1) | row("Serbia",1) | 
 --> country_calls(C,MuC) :- call_customer(B,C), customer_city(A,B), city_country(MuC,A).
 understood.
 
->>> total_duration_country.C: sum{duration.country_calls.C}.
---> total_duration_country(D,MuC) :- D = @sumof(C), setof((2,MuC),C).
-    gather((2,MuC),B) :- duration(B,A), country_calls(A,MuC).
+>>> total_duration_country[country C]: sum{duration.country_calls.C}.
+--> total_duration_country(E,A) :- country(A), A = MuC, E = @sumof(D), setof((2,MuC),D).
+    gather_index((2,MuC)) :- country(A), A = MuC.
+    gather((2,MuC),C) :- duration(C,B), country_calls(B,MuC), country(A), A = MuC.
 understood.
 
 >>> total_duration: sum{duration.country_calls.country}.
@@ -265,6 +267,7 @@ understood.
 
 >>> row(count{country_calls.C} || 0, C, country_name_en.C, total_duration_country.C (> total_duration/4))?
 --> what(row(D,MuC,E,G)) :- disjunction((4,MuC),D), country_name_en(E,MuC), total_duration_country(G,MuC), G > F/4, total_duration(F).
+    gather_index((4,MuC)) :- country_name_en(E,MuC), total_duration_country(G,MuC), total_duration(F).
     gather((4,MuC),A) :- country_calls(A,MuC), country_name_en(E,MuC), total_duration_country(G,MuC), total_duration(F).
     negation((5,MuC),0) :- C = @countof(B), setof((4,MuC),B), country_name_en(E,MuC), total_duration_country(G,MuC), total_duration(F).
     disjunction((4,MuC),C) :- C = @countof(B), setof((4,MuC),B), country_name_en(E,MuC), total_duration_country(G,MuC), total_duration(F).

@@ -5,6 +5,7 @@ understood.
 
 >>> aliquot[N n3]: sum{proper_divisor.N}.
 --> aliquot(D,A) :- A = MuN, A = 1 .. 999, D = @sumof(C), setof((1,MuN),C).
+    gather_index((1,MuN)) :- A = MuN, A = 1 .. 999.
     gather((1,MuN),B) :- proper_divisor(B,MuN), A = MuN, A = 1 .. 999.
 understood.
 

@@ -79,6 +79,6 @@ row(country_name_en.C, count{city_name.city_country=C})?
 %        (SELECT SUM(DATEDIFF(SECOND, call.start_time, call.end_time)) / 4 FROM call)
 % ORDER BY calls ASC, country.id ASC;
 country_calls.C: call_customer=customer_city=city_country=C.
-total_duration_country.C: sum{duration.country_calls.C}.
+total_duration_country[country C]: sum{duration.country_calls.C}.
 total_duration: sum{duration.country_calls.country}.
 row(count{country_calls.C} || 0, C, country_name_en.C, total_duration_country.C (> total_duration/4))?

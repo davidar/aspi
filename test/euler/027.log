@@ -20,6 +20,7 @@ understood.
 
 >>> prime_generator_max.p(A,B): max{prime_generator.p(A,B)} :- prime_generator(0, p(A,B)).
 --> prime_generator_max(C,p(MuA,MuB)) :- C = @maxof(B), setof((1,MuA,MuB),B), prime_generator(0,p(MuA,MuB)).
+    gather_index((1,MuA,MuB)) :- prime_generator(0,p(MuA,MuB)).
     gather((1,MuA,MuB),A) :- prime_generator(A,p(MuA,MuB)), prime_generator(0,p(MuA,MuB)).
 understood.
 

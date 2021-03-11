@@ -145,9 +145,9 @@ class LDCS(lark.Transformer[str]):
             muvars = sorted(set(re.findall('Mu[A-Z]', commas(*vars, *bodies))))
         if vars[0][0] not in string.ascii_uppercase:
             ground = False
+        closure = ','.join([str(i)] + muvars)
 
         def f(x: str, name: str = prefix) -> str:
-            closure = ','.join([str(i)] + muvars)
             return f'{name}(({closure}),{x})'
         for var, body in var_bodies:
             if len(muvars) > 0 or ground:
@@ -155,6 +155,8 @@ class LDCS(lark.Transformer[str]):
                 if ground:
                     args = f'{var},{args}'
                 body = commas(body, f'@context({args})')
+                if prefix == 'setof':
+                    self.rules.append(f'gather_index(({closure})) :- @context({args}).')
             if body:
                 self.rules.append(f'{f(var, prefix_gather)} :- {body}.')
             else:

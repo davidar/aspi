@@ -1,6 +1,7 @@
 >>> % 12. What is the first triangle number to have over twenty divisors?
 >>> triangle: sum{1..N} :- N = 1..99.
 --> triangle(D) :- D = @sumof(B), setof((1,MuN),B), MuN = C, C = 1 .. 99.
+    gather_index((1,MuN)) :- MuN = C, C = 1 .. 99.
     gather((1,MuN),A) :- A = 1 .. MuN, MuN = C, C = 1 .. 99.
 understood.
 
@@ -14,6 +15,7 @@ understood.
 
 >>> divisors[X n3]: count{divisor.X}.
 --> divisors(D,A) :- A = MuX, A = 1 .. 999, D = @countof(C), setof((2,MuX),C).
+    gather_index((2,MuX)) :- A = MuX, A = 1 .. 999.
     gather((2,MuX),B) :- divisor(B,MuX), A = MuX, A = 1 .. 999.
 understood.
 

@@ -38,6 +38,7 @@ class ClingoExitCode(enum.IntFlag):
 def run_clingo(lp: str) -> List[str]:
     result = json.loads(sh.clingo(
         outf=2, time_limit=5, _in=lp,
+        _err=sys.stderr if 'DEBUG' in os.environ else None,
         _ok_code=[
             ClingoExitCode.SAT,
             ClingoExitCode.SAT | ClingoExitCode.EXHAUST

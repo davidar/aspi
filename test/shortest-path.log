@@ -69,6 +69,7 @@ understood.
 >>> path[node B ~start]: min{paths.B}.
 --> path(E,B) :- node(B), B = MuB, not negation((2),B), E = @minof(D), setof((1,MuB),D).
     negation((2),A) :- start(A), node(A).
+    gather_index((1,MuB)) :- node(B), B = MuB.
     gather((1,MuB),C) :- paths(C,MuB), node(B), B = MuB.
 understood.
 

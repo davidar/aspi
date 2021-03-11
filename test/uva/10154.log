@@ -25,6 +25,7 @@ understood.
 --> holds(capacity(E),MuT+1) :- E = @minof(D), setof((1,MuM,MuS,MuW),D), holds(capacity(MuM),MuT), apply(select(MuI,A,B),MuT+1), A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
     disjunction((1,MuM,MuS,MuW),MuM-MuW) :- holds(capacity(MuM),MuT), apply(select(MuI,A,B),MuT+1), A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
     disjunction((1,MuM,MuS,MuW),MuS-MuW) :- holds(capacity(MuM),MuT), apply(select(MuI,A,B),MuT+1), A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
+    gather_index((1,MuM,MuS,MuW)) :- holds(capacity(MuM),MuT), apply(select(MuI,A,B),MuT+1), A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
     gather((1,MuM,MuS,MuW),C) :- disjunction((1,MuM,MuS,MuW),C), holds(capacity(MuM),MuT), apply(select(MuI,A,B),MuT+1), A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
 understood.
 
@@ -40,8 +41,8 @@ understood.
 >>> #any!
 --> 
 reward: 3.
-select(1, 300, 1000)!
 select(3, 200, 600)!
+select(1, 300, 1000)!
 select(4, 100, 101)!
 
 >>> thanks.
