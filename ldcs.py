@@ -75,9 +75,9 @@ constant: INT
     | [func] "{" ldcs "}" -> setof
 func: atom
     | (func | constant) SUP_SUFFIX -> superlative
-join: func "." arg
-    | func "[" disj ("," disj)* "]"
-    | func "=" arg -> reverse_join
+join: func "." bracketed
+    | func "[" ldcs ("," ldcs)* "]"
+    | func "=" bracketed -> reverse_join
 '''
 
 Sym = str
@@ -192,6 +192,7 @@ class LDCS(lark.Transformer[str]):
                                     if '((' in t and not t.startswith('@context'):
                                         continue
                                     elif not re.search(fr'\b{headvar}\b', t) \
+                                            and t[2] not in '<>' \
                                             and 'Mu' in pred:
                                         context.append(t)
                                     elif groundvar and '..' in t and \
@@ -214,7 +215,7 @@ class LDCS(lark.Transformer[str]):
             self.rules.insert(0, rule + '.')
         self.expand_contexts()
         for rule in self.rules[:]:
-            if ' :- ' in rule and '{' not in rule:
+            if '{' not in rule and not rule.startswith(':-'):
                 self.rules.append(self.proof(rule))
         return '\n'.join(self.rules) \
                    .replace(';,', ';') \
@@ -239,7 +240,11 @@ class LDCS(lark.Transformer[str]):
         return f'{head} :- holds({head})'
 
     def proof(self, rule: str) -> str:
-        head, body = rule[:-1].split(' :- ')
+        if ' :- ' in rule:
+            head, body = rule[:-1].split(' :- ')
+        else:
+            head = rule[:-1]
+            body = ''
         terms = []
         pvars = []
         for term in body.split(', '):
@@ -431,12 +436,12 @@ class LDCS(lark.Transformer[str]):
             return lambda x, z: f'{rel(y)}, ({y},{x}) = @enumerateof({z})'
         assert False
 
-    def join(self, rel: Variadic, *lams: Unary) -> Unary:
-        ys, bs = unzip(self.ldcs(lam) for lam in lams)
+    def join(self, rel: Variadic, *var_bodies: CSym) -> Unary:
+        ys, bs = unzip(var_bodies)
         return lambda x: commas(rel(x, *ys), *bs)
 
-    def reverse_join(self, rel: Binary, lam: Unary) -> Unary:
-        return self.join(lambda x, y: rel(y, x), lam)
+    def reverse_join(self, rel: Binary, var_body: CSym) -> Unary:
+        return self.join(lambda x, y: rel(y, x), var_body)
 
     def neg(self, var_body: CSym) -> Unary:
         lam = self.lift(var_body, 'negation', ground=True)
@@ -448,12 +453,12 @@ class LDCS(lark.Transformer[str]):
 
     def setof(self, a, b=None) -> Unary:
         if b is not None:
-            return self.join(a, self.setof(b))
+            return self.join(a, self.ldcs(self.setof(b)))
         return self.lift(a, 'setof', gather=True)
 
     def bagof(self, a, b=None) -> Unary:
         if b is not None:
-            return self.join(a, self.bagof(b))
+            return self.join(a, self.ldcs(self.bagof(b)))
         var, body = a
         if body is not None and ' ' in body:
             var, body = self.ldcs(self.lift((var, body), 'aggregation'))

@@ -1,5 +1,7 @@
 >>> % 19. How many Sundays fell on the first of the month during the twentieth century (1 Jan 1901 to 31 Dec 2000)?
 >>> 
+>>> #proof off.
+>>> 
 >>> year: 1900..2000.
 --> year(A) :- A = 1900 .. 2000.
 understood.
@@ -131,23 +133,23 @@ understood.
 >>> 
 >>> % Thirty days has September, April, June and November.
 >>> days[year, september | april | june | november]: 30.
---> days(30,E,F) :- year(E), disjunction((1),F).
-    disjunction((1),A) :- september(A).
-    disjunction((1),B) :- april(B).
-    disjunction((1),C) :- june(C).
-    disjunction((1),D) :- november(D).
+--> days(30,A,F) :- year(A), disjunction((1),F).
+    disjunction((1),B) :- september(B).
+    disjunction((1),C) :- april(C).
+    disjunction((1),D) :- june(D).
+    disjunction((1),E) :- november(E).
 understood.
 
 >>> 
 >>> % All the rest have thirty-one.
 >>> days[year, month ~(september | april | june | november | february)]: 31.
---> days(31,G,H) :- year(G), month(H), not negation((3),H).
-    disjunction((2),A) :- september(A).
-    disjunction((2),B) :- april(B).
-    disjunction((2),C) :- june(C).
-    disjunction((2),D) :- november(D).
-    disjunction((2),E) :- february(E).
-    negation((3),F) :- disjunction((2),F), month(F).
+--> days(31,A,H) :- year(A), month(H), not negation((3),H).
+    disjunction((2),B) :- september(B).
+    disjunction((2),C) :- april(C).
+    disjunction((2),D) :- june(D).
+    disjunction((2),E) :- november(E).
+    disjunction((2),F) :- february(F).
+    negation((3),G) :- disjunction((2),G), month(G).
 understood.
 
 >>> 

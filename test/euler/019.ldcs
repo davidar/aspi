@@ -1,5 +1,7 @@
 % 19. How many Sundays fell on the first of the month during the twentieth century (1 Jan 1901 to 31 Dec 2000)?
 
+#proof off.
+
 year: 1900..2000.
 
 #enum month: january | february | march | april | may | june | july | august | september | october | november | december.

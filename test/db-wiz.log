@@ -23,6 +23,115 @@
 understood.
 
 >>> 
+>>> #enum user: email="asdf@fake.com"
+...           | email="bob@builder.com"
+...           | email="asdf@fake.com"
+...           .
+--> user(user(1)).
+    user(user(1),1).
+    email("asdf@fake.com",user(1)).
+    user(user(2)).
+    user(user(2),2).
+    email("bob@builder.com",user(2)).
+    user(user(3)).
+    user(user(3),3).
+    email("asdf@fake.com",user(3)).
+understood.
+
+>>> 
+>>> #enum plant: genus="Astragalus" species="annularis"
+...            | genus="Astragalus" species="anisus"
+...            | genus="Astragalus" species="annularis"
+...            | genus="Eugenia" species="fulva"
+...            | genus="Eugenia" species="foetida"
+...            | genus="Eugenia" species="lamprophylla"
+...            .
+--> plant(plant(1)).
+    plant(plant(1),1).
+    genus("Astragalus",plant(1)).
+    species("annularis",plant(1)).
+    plant(plant(2)).
+    plant(plant(2),2).
+    genus("Astragalus",plant(2)).
+    species("anisus",plant(2)).
+    plant(plant(3)).
+    plant(plant(3),3).
+    genus("Astragalus",plant(3)).
+    species("annularis",plant(3)).
+    plant(plant(4)).
+    plant(plant(4),4).
+    genus("Eugenia",plant(4)).
+    species("fulva",plant(4)).
+    plant(plant(5)).
+    plant(plant(5),5).
+    genus("Eugenia",plant(5)).
+    species("foetida",plant(5)).
+    plant(plant(6)).
+    plant(plant(6),6).
+    genus("Eugenia",plant(6)).
+    species("lamprophylla",plant(6)).
+understood.
+
+>>> 
+>>> #enum pet: owner=owner(1) type="dog"
+...          | owner=owner(1) type="cat"
+...          | owner=owner(2) type="dog"
+...          | owner=owner(2) type="parakeet"
+...          .
+--> pet(pet(1)).
+    pet(pet(1),1).
+    owner(owner(1),pet(1)).
+    type("dog",pet(1)).
+    pet(pet(2)).
+    pet(pet(2),2).
+    owner(owner(1),pet(2)).
+    type("cat",pet(2)).
+    pet(pet(3)).
+    pet(pet(3),3).
+    owner(owner(2),pet(3)).
+    type("dog",pet(3)).
+    pet(pet(4)).
+    pet(pet(4),4).
+    owner(owner(2),pet(4)).
+    type("parakeet",pet(4)).
+understood.
+
+>>> 
+>>> #enum dog: owner="ken"   name="darcy"
+...          | owner="bob"   name="darcy"
+...          | owner="bob"   name="lassie"
+...          | owner="ahmed" name="darcy"
+...          | owner="sara"  name="floof"
+...          | owner="sara"  name="lassie"
+...          .
+--> dog(dog(1)).
+    dog(dog(1),1).
+    owner("ken",dog(1)).
+    name("darcy",dog(1)).
+    dog(dog(2)).
+    dog(dog(2),2).
+    owner("bob",dog(2)).
+    name("darcy",dog(2)).
+    dog(dog(3)).
+    dog(dog(3),3).
+    owner("bob",dog(3)).
+    name("lassie",dog(3)).
+    dog(dog(4)).
+    dog(dog(4),4).
+    owner("ahmed",dog(4)).
+    name("darcy",dog(4)).
+    dog(dog(5)).
+    dog(dog(5),5).
+    owner("sara",dog(5)).
+    name("floof",dog(5)).
+    dog(dog(6)).
+    dog(dog(6),6).
+    owner("sara",dog(6)).
+    name("lassie",dog(6)).
+understood.
+
+>>> 
+>>> 
 >>> % SELECT customer
 >>> %        , COALESCE(
 >>> %           mailing_state,
@@ -38,6 +147,78 @@ understood.
     disjunction((1,MuC),C) :- not negation((2,MuC),0), billing_state(C,MuC), customer(A), A = MuC.
     disjunction((1,MuC),D) :- not negation((2,MuC),0), not negation((3,MuC),0), ip_address_state(D,MuC), customer(A), A = MuC.
 that: row(customer(1),"Bihar") | row(customer(2),"Kerala") | row(customer(3),"Punjab") | row(customer(4),"Gujarat").
+
+>>> 
+>>> % SELECT email, COUNT(*)
+>>> % FROM users
+>>> % GROUP BY email
+>>> % HAVING COUNT(*) > 1
+>>> row(E email.user, count{{email=E}} (> 1))?
+--> what(row(B,E)) :- B = MuE, email(B,A), user(A), E = @countof(D), bagof((1,MuE),D), E > 1.
+    gather((1,MuE),(C,P0)) :- proof(P0,email(MuE,C)), B = MuE, email(B,A), user(A).
+that: row("asdf@fake.com",2).
+
+>>> 
+>>> % SELECT COUNT(DISTINCT species), genus
+>>> % FROM plants
+>>> % GROUP BY 2
+>>> % ORDER BY 1 ASC
+>>> row(count{species.genus=G}, G genus.plant)?
+--> what(row(D,F)) :- D = @countof(C), setof((2,MuG),C), F = MuG, genus(F,E), plant(E).
+    gather((2,MuG),B) :- species(B,A), genus(MuG,A), F = MuG, genus(F,E), plant(E).
+that: row(2,"Astragalus") | row(3,"Eugenia").
+
+>>> 
+>>> % SELECT owner
+>>> % , SUM(CASE 
+>>> %     WHEN type = 'dog' THEN 1 
+>>> %     ELSE 0 END) AS num_dogs
+>>> % , SUM(CASE 
+>>> %     WHEN type = 'cat' THEN 1
+>>> %     ELSE 0 END) AS num_cats
+>>> % , SUM(CASE
+>>> %     WHEN type NOT IN ('dog', 'cat') THEN 1
+>>> %     ELSE 0 END) AS num_other
+>>> % FROM pets
+>>> % GROUP BY owner
+>>> row(O owner.pet, count{owner=O type="dog"} || 0)?
+--> what(row(B,F)) :- B = MuO, owner(B,A), pet(A), disjunction((2,MuO),F).
+    gather((3,MuO),C) :- owner(MuO,C), type("dog",C), B = MuO, owner(B,A), pet(A).
+    negation((4,MuO),0) :- E = @countof(D), setof((3,MuO),D), B = MuO, owner(B,A), pet(A).
+    disjunction((2,MuO),E) :- E = @countof(D), setof((3,MuO),D), B = MuO, owner(B,A), pet(A).
+    disjunction((2,MuO),0) :- not negation((4,MuO),0), B = MuO, owner(B,A), pet(A).
+that: row(owner(1),1) | row(owner(2),1).
+
+>>> row(O owner.pet, count{owner=O type="cat"} || 0)?
+--> what(row(B,F)) :- B = MuO, owner(B,A), pet(A), disjunction((3,MuO),F).
+    gather((4,MuO),C) :- owner(MuO,C), type("cat",C), B = MuO, owner(B,A), pet(A).
+    negation((5,MuO),0) :- E = @countof(D), setof((4,MuO),D), B = MuO, owner(B,A), pet(A).
+    disjunction((3,MuO),E) :- E = @countof(D), setof((4,MuO),D), B = MuO, owner(B,A), pet(A).
+    disjunction((3,MuO),0) :- not negation((5,MuO),0), B = MuO, owner(B,A), pet(A).
+that: row(owner(1),1) | row(owner(2),0).
+
+>>> row(O owner.pet, count{owner=O type=(~"dog" ~"cat")} || 0)?
+--> what(row(B,G)) :- B = MuO, owner(B,A), pet(A), disjunction((4,MuO),G).
+    negation((6),"dog").
+    negation((7),"cat").
+    gather((5,MuO),D) :- owner(MuO,D), type(C,D), not negation((6),C), not negation((7),C), B = MuO, owner(B,A), pet(A).
+    negation((8,MuO),0) :- F = @countof(E), setof((5,MuO),E), B = MuO, owner(B,A), pet(A).
+    disjunction((4,MuO),F) :- F = @countof(E), setof((5,MuO),E), B = MuO, owner(B,A), pet(A).
+    disjunction((4,MuO),0) :- not negation((8,MuO),0), B = MuO, owner(B,A), pet(A).
+that: row(owner(1),0) | row(owner(2),1).
+
+>>> 
+>>> % SELECT owner
+>>> % FROM dogs
+>>> % WHERE name in (
+>>> %   SELECT name
+>>> %   FROM dogs
+>>> %   GROUP BY name
+>>> %   HAVING count(*) > 2)
+>>> owner.name=N :- count{name=N} > 2?
+--> what(E) :- owner(E,A), name(MuN,A), D > 2, D = @countof(C), setof((6,MuN),C).
+    gather((6,MuN),B) :- name(MuN,B), owner(E,A), name(MuN,A).
+that: "ahmed" | "bob" | "ken".
 
 >>> thanks.
 YOU'RE WELCOME!

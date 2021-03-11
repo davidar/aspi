@@ -62,6 +62,7 @@ class ASPI:
         self.ldcs = ldcs.LDCS()
         self.now = 0
         self.program = ''
+        self.proofs = True
 
         for arg in ['lib/prelude.lp', 'lib/macros.ldcs', 'lib/plans.ldcs'] + args:
             self.include(arg)
@@ -121,6 +122,9 @@ class ASPI:
         if cmd == 'thanks.':
             print("YOU'RE WELCOME!")
             sys.exit(0)
+        if cmd == '#proof off.':
+            self.proofs = False
+            return
         res = self.eval(cmd)
         if res is not None:
             self.print(res)
@@ -134,15 +138,17 @@ class ASPI:
         if lp is None:
             return None
         print('-->', '\n    '.join(
-            line for line in lp.split('\n') if '@proof' not in line))
+            line for line in lp.split('\n')
+            if '@proof' not in line or 'DEBUG' in os.environ))
         lp += '\n'
         if cmd.endswith('.'):
-            if cmd.startswith('#macro'):
-                for line in lp.split('\n'):
+            for line in lp.split('\n'):
+                if cmd.startswith('#macro'):
                     if line.strip() and '@proof' not in line:
                         self.ldcs.add_macro(line)
-            else:
-                self.program += lp
+                else:
+                    if self.proofs or '@proof' not in line:
+                        self.program += line + '\n'
             print('understood.\n')
             return None
 

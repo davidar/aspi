@@ -4,6 +4,34 @@
               | mailing_state="Gujarat" billing_state="Punjab" ip_address_state="Gujarat"
               .
 
+#enum user: email="asdf@fake.com"
+          | email="bob@builder.com"
+          | email="asdf@fake.com"
+          .
+
+#enum plant: genus="Astragalus" species="annularis"
+           | genus="Astragalus" species="anisus"
+           | genus="Astragalus" species="annularis"
+           | genus="Eugenia" species="fulva"
+           | genus="Eugenia" species="foetida"
+           | genus="Eugenia" species="lamprophylla"
+           .
+
+#enum pet: owner=owner(1) type="dog"
+         | owner=owner(1) type="cat"
+         | owner=owner(2) type="dog"
+         | owner=owner(2) type="parakeet"
+         .
+
+#enum dog: owner="ken"   name="darcy"
+         | owner="bob"   name="darcy"
+         | owner="bob"   name="lassie"
+         | owner="ahmed" name="darcy"
+         | owner="sara"  name="floof"
+         | owner="sara"  name="lassie"
+         .
+
+
 % SELECT customer
 %        , COALESCE(
 %           mailing_state,
@@ -12,3 +40,40 @@
 %        ) AS state
 % FROM addresses
 row(customer C, mailing_state.C || billing_state.C || ip_address_state.C)?
+
+% SELECT email, COUNT(*)
+% FROM users
+% GROUP BY email
+% HAVING COUNT(*) > 1
+row(E email.user, count{{email=E}} (> 1))?
+
+% SELECT COUNT(DISTINCT species), genus
+% FROM plants
+% GROUP BY 2
+% ORDER BY 1 ASC
+row(count{species.genus=G}, G genus.plant)?
+
+% SELECT owner
+% , SUM(CASE 
+%     WHEN type = 'dog' THEN 1 
+%     ELSE 0 END) AS num_dogs
+% , SUM(CASE 
+%     WHEN type = 'cat' THEN 1
+%     ELSE 0 END) AS num_cats
+% , SUM(CASE
+%     WHEN type NOT IN ('dog', 'cat') THEN 1
+%     ELSE 0 END) AS num_other
+% FROM pets
+% GROUP BY owner
+row(O owner.pet, count{owner=O type="dog"} || 0)?
+row(O owner.pet, count{owner=O type="cat"} || 0)?
+row(O owner.pet, count{owner=O type=(~"dog" ~"cat")} || 0)?
+
+% SELECT owner
+% FROM dogs
+% WHERE name in (
+%   SELECT name
+%   FROM dogs
+%   GROUP BY name
+%   HAVING count(*) > 2)
+owner.name=N :- count{name=N} > 2?
