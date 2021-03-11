@@ -30,8 +30,8 @@ understood.
 --> init(at(0,1)).
 understood.
 
->>> #any at(end, 1..end)!
---> { goal(at(A,C)) : end(A), C = 1 .. B, end(B) } = 1.
+>>> !
+--> 
 reward: 390.
 left(1, 1, 75)!
 right(2, 2, 64)!

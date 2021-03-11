@@ -38,7 +38,7 @@ understood.
     rewards(select(MuI,A,B),1) :- A = MuW, weight(A,MuI), B = MuS, strength(B,MuI).
 understood.
 
->>> #any!
+>>> !
 --> 
 reward: 3.
 select(1, 300, 1000)!

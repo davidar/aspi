@@ -10,7 +10,7 @@ scripts = [
     'hanoi',
     'shortest-path',
     'shrdlu',
-    'zebra',
+#    'zebra',
 ]
 
 for i in range(1000):

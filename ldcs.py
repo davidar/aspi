@@ -29,17 +29,14 @@ NAME: ["@"] LCASE_LETTER ("_"|LETTER|DIGIT)*
 start: cmd
 ?cmd: "#" "fluent" pred [":-" pred ("," pred)*] "." -> fluent
     | "#" "enum" atom ":" lams ("|" lams)* "." -> enum
-    | "#" "relation" atom "(" rparam ("," rparam)* ")" "." -> relation
-    | "#" "any" (ldcs | cmpop) "." -> constraint_any
-    | "#" "any" ldcs "?" -> query_any_ldcs
-    | "#" "any" ":-" clause "?" -> query_any
-    | "#" "any" [ldcs] "!" -> goal_any
     | define_heads ":" ldcs "." -> define
     | disj "::" define_heads [":-" clause] "." -> reverse_define
     | pred [":-" clause] "." -> claim
     | clause "-:" pred "." -> reverse_claim
     | ldcs "?" -> query
+    | ":-" clause "?" -> query_any
     | ldcs "!" -> goal
+    | [":-" pred ("," pred)*] "!" -> goal_any
 define_heads: (func | join)+
 clause: term ("," term)*
 term: atom "(" [ldcs ("," ldcs)*] ")"
@@ -237,8 +234,8 @@ class LDCS(lark.Transformer[str]):
         head, body = head_body
         if len(args) > 0:
             for v, b in args:
-                body = commas(body, f'holds({v}, Time)', b)
-            self.rules.append(f'holds({head}, Time) :- {body}.')
+                body = commas(body, f'holds({v},Time)', b)
+            self.rules.append(f'holds({head},Time) :- {body}.')
         return f'{head} :- holds({head})'
 
     def proof(self, rule: str) -> str:
@@ -279,18 +276,6 @@ class LDCS(lark.Transformer[str]):
             for lam in lams:
                 self.rules.append(lam(name).replace(', ', ' :- ', 1) + '.')
 
-    def relation(self, name: str, *params: Tuple[str, CSym]) -> None:
-        bounds = [x for x, _ in params]
-        symbol = [x for _, (x, _) in params]
-        bodies = [x for _, (_, x) in params]
-        for i in range(len(params)):
-            bound = bounds[i]
-            body = bodies[i]
-            args = commas(*symbol)
-            cond = commas(*bodies[:i], *bodies[i+1:])
-            self.rules.append(
-                f'{{ {name}({args}) : {cond} }} = {bound} :- {body}.')
-
     def claim(self, head_body: CSym, cond: Optional[str] = None) -> str:
         head, body = head_body
         return f'{head} :- {commas(body, cond)}'
@@ -299,13 +284,6 @@ class LDCS(lark.Transformer[str]):
         head, body = head_body
         return f'{head} :- {commas(body, cond)}'
 
-    def constraint_any(self, var_body: CSym) -> None:
-        var, body = var_body
-        if len(var) > 1:
-            body = commas(var, body)
-        name = 'constraint' + str(self.counter('constraint'))
-        self.rules += [f'{name} :- {body}.', f':- not {name}.']
-
     def query(self, var_body: CSym) -> str:
         var, body = var_body
         if body:
@@ -313,27 +291,18 @@ class LDCS(lark.Transformer[str]):
         else:
             return f'what({var})'
 
-    def query_any_ldcs(self, var_body: CSym) -> None:
-        return self.query_any(var_body[1])
-
     def query_any(self, body: Optional[str]) -> None:
         self.rules += [f'yes :- {body}.', 'no :- not yes.']
 
     def clause(self, *args: str) -> str:
         return commas(*args)
 
-    def goal_any(self, var_body: Optional[CSym] = None) -> Optional[str]:
-        if var_body is None:
-            return None
-        var, body = var_body
-        if body is None:
-            return f'{{ goal({var}) }} = 1'
-        if ';' in body:
-            i = self.counter('goal')
-            self.rules.append(f'goal{i}({var}) :- {body}.')
-            var = self.gensym()
-            body = f'goal{i}({var})'
-        return f'{{ goal({var}) : {body} }} = 1'
+    def goal_any(self, *args: CSym) -> Optional[str]:
+        if args:
+            self.fluent(('done', None), *args)
+            return 'goal(done)'
+        else:
+            return ''
 
     def goal(self, var_body: CSym) -> str:
         var, body = var_body

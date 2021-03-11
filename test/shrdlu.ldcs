@@ -27,10 +27,10 @@ that narrow.X :- command(pickup(X))?
 supports.that?
 
 % CAN A PYRAMID BE SUPPORTED BY A BLOCK?
-#any :- action(put_on(pyramid, block))?
+:- action(put_on(pyramid, block))?
 
 % CAN A PYRAMID SUPPORT A PYRAMID?
-#any :- action(put_on(pyramid, pyramid))?
+:- action(put_on(pyramid, pyramid))?
 
 % STACK UP TWO PYRAMIDS.
 stack(pyramid, pyramid)!
@@ -42,26 +42,26 @@ mine(blue pyramid).
 mine(block ~red ~supports.pyramid).
 
 % DO I OWN THE BOX?
-#any box mine?
+:- exists(box mine)?
 
 % DO I OWN ANYTHING IN THE BOX?
 in.box mine?
 
 % WILL YOU PLEASE STACK UP BOTH OF THE RED BLOCKS AND EITHER A GREEN CUBE OR A PYRAMID?
-#any stack(red block, red block, green cube | pyramid)!
+:- stack(red block, red block, green cube | pyramid)!
 
 % WHICH CUBE IS SITTING ON THE TABLE?
 cube on.table?
 
-#any in(big block, back)!
+:- in(big block, back)!
 
 % IS THERE A LARGE BLOCK BEHIND A PYRAMID?
 big block behind.pyramid?
 
-#any on(red pyramid, green cube)!
+:- on(red pyramid, green cube)!
 
 % PUT A SMALL ONE ONTO THE GREEN CUBE WHICH SUPPORTS A PYRAMID.
-#any on(small block, green cube supports.pyramid)!
+:- on(small block, green cube supports.pyramid)!
 
 % PUT THE LITTLEST PYRAMID ON TOP OF IT.
 on(small'est.{pyramid}, small block)!
@@ -113,25 +113,25 @@ count{that}?
 on(blue block, box)!
 
 % PUT THE BLUE PYRAMID ON THE BLOCK IN THE BOX.
-#any on(blue pyramid, block in.box)!
+:- on(blue pyramid, block in.box)!
 
 % IS THERE ANYTHING WHICH IS BIGGER THAN EVERY PYRAMID BUT IS NOT AS WIDE AS THE THING THAT SUPPORTS IT?
 object big'each.{pyramid} X narrow.supports.X?
 
 % A "STEEPLE" IS A STACK WHICH CONTAINS TWO GREEN CUBES AND A PYRAMID.
-steeple: stack(green cube, green cube, pyramid).
+#fluent steeple() :- stack(green cube, green cube, pyramid).
 
 % ARE THERE ANY STEEPLES NOW?
-#any steeple holds.now?
+:- steeple()?
 
 % BUILD ONE.
-#any steeple!
+:- steeple()!
 
 % CALL THE BIGGEST BLOCK "SUPERBLOCK".
 superblock: big'est.{block}.
 
 % HAVE YOU PICKED SUPERBLOCK UP SINCE WE BEGAN?
-#any :- holds(holding(superblock), T)?
+:- holds(holding(superblock), T)?
 
 % WHY DID YOU DROP IT?
 why.put_on(superblock, table)?

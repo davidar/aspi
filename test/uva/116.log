@@ -36,10 +36,11 @@ understood.
 --> init(start).
 understood.
 
->>> holds(at(R,C), T) -: holds(allowed(R | adjacent.R, C+1), T).
---> holds(allowed(B,MuC+1),MuT) :- disjunction((4,MuR),B), holds(at(MuR,MuC),MuT).
-    disjunction((4,MuR),MuR) :- holds(at(MuR,MuC),MuT).
-    disjunction((4,MuR),A) :- adjacent(A,MuR), holds(at(MuR,MuC),MuT).
+>>> #fluent allowed(R | adjacent.R, C+1) :- at(R,C).
+--> allowed(B,MuC+1) :- holds(allowed(B,MuC+1)).
+    disjunction((4,MuR),MuR) :- holds(at(MuR,MuC),Time).
+    disjunction((4,MuR),A) :- adjacent(A,MuR), holds(at(MuR,MuC),Time).
+    holds(allowed(B,MuC+1),Time) :- disjunction((4,MuR),B), holds(at(MuR,MuC),Time).
 understood.
 
 >>> begin(R,1, V cell[R,1]) :: action demands.start() deletes.start() adds_temporary.at(R,1) costs.V.
@@ -58,8 +59,12 @@ understood.
     costs(go(MuR,MuC,A),MuV) :- A = MuV, cell(A,MuR,MuC).
 understood.
 
->>> #any at(1..rows, cols)!
---> { goal(at(B,C)) : B = 1 .. A, rows(A), cols(C) } = 1.
+>>> 
+>>> % #fluent done() :- at(_,cols).
+>>> % done()!
+>>> :- at(_,cols)!
+--> goal(done).
+    holds(done,Time) :- holds(at(A,B),Time), cols(B).
 cost: 11.
 begin(1, 1, 3)!
 go(2, 2, 1)!

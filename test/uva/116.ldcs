@@ -9,7 +9,10 @@ adjacent[R 2..(rows-1)]: R-1 | R+1.
 adjacent.rows: rows-1 | 1.
 
 init: start().
-holds(at(R,C), T) -: holds(allowed(R | adjacent.R, C+1), T).
+#fluent allowed(R | adjacent.R, C+1) :- at(R,C).
 begin(R,1, V cell[R,1]) :: action demands.start() deletes.start() adds_temporary.at(R,1) costs.V.
 go(R,C, V cell[R,C]) :: action demands_not.start() demands.allowed(R,C) adds_temporary.at(R,C) costs.V.
-#any at(1..rows, cols)!
+
+% #fluent done() :- at(_,cols).
+% done()!
+:- at(_,cols)!

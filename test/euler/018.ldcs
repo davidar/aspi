@@ -7,4 +7,4 @@ left (R+1, C,   node[R+1, C])   :: action demands.at(R,C) deletes.at(R,C) adds.a
 right(R+1, C+1, node[R+1, C+1]) :: action demands.at(R,C) deletes.at(R,C) adds.at(R+1, C+1) rewards.node[R+1, C+1].
 
 init: at(0,1).
-#any at(end, 1..end)!
+!

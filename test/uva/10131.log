@@ -34,7 +34,7 @@ understood.
     rewards(select(MuI,A,B),1) :- weight(A,MuI), smarts(B,MuI).
 understood.
 
->>> #any!
+>>> !
 --> 
 reward: 4.
 select(4, 1000, 4000)!
