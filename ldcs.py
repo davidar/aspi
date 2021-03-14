@@ -145,12 +145,18 @@ class LDCS(lark.Transformer[str]):
         closure = ','.join(muvars)
 
         def f(x: str, name: str = prefix) -> str:
+            solutions = f'solutions(gather{i}'
+            if closure:
+                solutions += f'({closure})'
             if name == 'setof':
-                return f'solutions(gather{i},{x})'
+                return f'{solutions},{x})'
             if name == 'bagof':
-                return f'sorted_solutions(gather{i},{x})'
-            return f'{name}{i}({closure}{x})'
-        self.rules.append(f':- mode {f("out", prefix_gather)} is nondet.')
+                return f'sorted_{solutions},{x})'
+            if closure:
+                x = f'{closure},{x}'
+            return f'{name}{i}({x})'
+        mode = ','.join(['in' for _ in muvars] + ['out'])
+        self.rules.append(f':- mode {prefix_gather}{i}({mode}) is nondet.')
         for var, body in var_bodies:
             if len(muvars) > 0 or ground:
                 args = f('_')
@@ -182,7 +188,7 @@ class LDCS(lark.Transformer[str]):
                 if pred[1] == ',':
                     groundvar = pred[0]
                     pred = pred[2:]
-                template = re.escape(pred).replace('_', '([A-Z0])')
+                template = re.sub(r'\b_\b', '([A-Z0])', re.escape(pred))
                 for rule2 in self.rules:
                     if ' :- ' in rule2:
                         body = rule2[:-1].split(' :- ')[1].split(', ')

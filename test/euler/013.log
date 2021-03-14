@@ -1,12 +1,12 @@
 >>> % 13. Find the first three digits of the sum of ten numbers.
 >>> sum{csv[_,1]}?
---> what(D) :- D = @sumof(C), setof((1),C).
-    gather((1),B) :- csv(B,A,1).
+--> gather1(B) :- csv(A,1,B).
+    what(D) :- sum(C,D), solutions(gather1,C).
 that: 552300.
 
 >>> substring[show.sum{csv[_,1]},1,3]?
---> what(F) :- F = @substring(E,1,3), E = @show(D), D = @sumof(C), setof((2),C).
-    gather((2),B) :- csv(B,A,1).
+--> gather2(B) :- csv(A,1,B).
+    what(F) :- between(E,1 - 1,(1 + 3) - 1,F), show(D,E), sum(C,D), solutions(gather2,C).
 that: "552".
 
 >>> thanks.

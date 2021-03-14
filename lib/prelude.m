@@ -8,6 +8,9 @@
 sum([X|L], X+S) :- sum(L,S).
 sum([], 0).
 
+product([X|L], X*S) :- product(L,S).
+product([], 1).
+
 max([X|L], int.max(X,S)) :- max(L,S).
 max([X], X).
 
@@ -16,6 +19,8 @@ min([X], X).
 
 :- pred show(int, string).
 show(X,S) :- format("%d", [i(X)], S).
+
+decimal(S,X) :- to_int(S,X).
 
 :- pred reverse(string, string).
 reverse(S, from_char_list(to_rev_char_list(S))).

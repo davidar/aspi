@@ -21,4 +21,7 @@ just_before(E,F) :- end_time(T-1, E), start_time(T, F).
 
 multiple(Y,X) :- mod(X,Y) = 0.
 
+substring(A,S,L,X) :- between(A,S-1,(S+L)-1,X).
+substring(A,X) :- substring(A, 1..N, 1..(N+1), X), length(A,N).
+
 mean.L: sum.L / count.L.

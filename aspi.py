@@ -32,9 +32,14 @@ def run_mercury(lp: str) -> List[str]:
         sh.mmc('main.m', infer_all=True, _cwd=tempdir,
                 _err=sys.stderr if 'DEBUG' in os.environ else None)
         result = sh.Command(os.path.join(tempdir, 'main'))().stdout
+    if 'DEBUG' in os.environ:
+        print(result, file=sys.stderr)
     for x in json.loads(result):
         if type(x) is list:
             x = f'list{tuple(x)}'
+        else:
+            x = repr(x)
+        x = x.replace("'", '"')
         yield f'what({x})'
 
 
@@ -151,10 +156,10 @@ class ASPI:
         try:
             return Results(self, run_mercury(lp))
         except sh.ErrorReturnCode as e:
-            print(e.stderr.decode('utf-8'), file=sys.stderr)
             for i, line in enumerate(lp.split('\n')):
                 if not line.startswith('csv('):
                     print(f'{i+1:3}|', line, file=sys.stderr)
+            print(e.stderr.decode('utf-8'), file=sys.stderr)
             sys.exit(1)
 
     def print(self, res: 'Results') -> None:
@@ -165,10 +170,8 @@ class ASPI:
         if res.status:
             print(res.status + '.')
         if res.shows:
-            terms = [clingo.parse_term(r) for r in res.shows]
-            terms.sort()
-            that = ' | '.join(res.replace_names(str(t)) for t in terms)
-            if len(that) / len(terms) > 30:
+            that = ' | '.join(res.replace_names(t) for t in res.shows)
+            if len(that) / len(res.shows) > 30:
                 that = that.replace(' | ', '\n    | ')
             print(f'that: {that}.')
         print()

@@ -1,22 +1,20 @@
 >>> % 20. Find the sum of digits in 10!
 >>> factorial[N 0..12]: product{1..N}.
---> factorial(D,A) :- A = MuN, A = 0 .. 12, D = @productof(C), setof((1,MuN),C).
-    gather_index((1,MuN)) :- A = MuN, A = 0 .. 12.
-    gather((1,MuN),B) :- B = 1 .. MuN, A = MuN, A = 0 .. 12.
+--> factorial(B,E) :- B = MuN, B = A, nondet_int_in_range(0,12,A), product(D,E), solutions(gather1(MuN),D).
+    gather1(MuN,C) :- nondet_int_in_range(1,MuN,C), B = MuN, B = A, nondet_int_in_range(0,12,A).
 understood.
 
 >>> factorial.0?
---> what(A) :- factorial(A,0).
+--> what(A) :- factorial(0,A).
 that: 1.
 
 >>> factorial.10?
---> what(A) :- factorial(A,10).
+--> what(A) :- factorial(10,A).
 that: 3628800.
 
 >>> sum{{decimal[substring.show.factorial.10 length=1]}}?
---> what(O) :- O = @sumof(N), bagof((2),N).
-    aggregation((1),L) :- L = @decimal(G), G = @substring(B,H,I), H = J, H = 1 .. K, I = 0 .. ((K - J) + 1), K = @length(B), B = @show(A), factorial(A,10), 1 = @length(G).
-    gather((2),(M,P0)) :- proof(P0,aggregation((1),M)).
+--> gather2(J) :- decimal(F,J), between(B,G - 1,(G + H) - 1,F), nondet_int_in_range(1,I,G), nondet_int_in_range(1,I + 1,H), length(B,I), show(A,B), factorial(10,A), length(F,1).
+    what(L) :- sum(K,L), sorted_solutions(gather2,K).
 that: 27.
 
 >>> thanks.
