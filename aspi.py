@@ -8,6 +8,7 @@ import re
 import readline
 import sh  # type: ignore
 import sys
+import tempfile
 from typing import cast, Dict, List, Optional
 
 import ldcs
@@ -35,10 +36,14 @@ class ClingoExitCode(enum.IntFlag):
     NO_RUN = 128  # Search not started because of syntax or command line error.
 
 
-def run_clingo(lp: str) -> List[str]:
-    print(lp)
-    print('main(!IO) :- solutions(what,X), print(X,!IO), nl(!IO).')
-    return []
+def run_mercury(lp: str) -> List[str]:
+    with tempfile.TemporaryDirectory() as tempdir:
+        with open(os.path.join(tempdir, 'main.m'), 'w') as f:
+            print(lp, file=f)
+            print('main(!IO) :- solutions(what,X), print(X,!IO), nl(!IO).', file=f)
+        sh.mmc('main.m', _cwd=tempdir)
+        result = sh.Command(os.path.join(tempdir, 'main'))().stdout
+    return [f'what({x})' for x in json.loads(result)]
 
 
 class ASPI:
@@ -134,6 +139,7 @@ sum(0, []).
         lp = self.ldcs.toASP(cmd.replace('#macro ', ''))
         if lp is None:
             return None
+        print('-->', '\n    '.join(line for line in lp.split('\n')))
         lp += '\n'
         if cmd.endswith('.'):
             for line in lp.split('\n'):
@@ -149,7 +155,7 @@ sum(0, []).
         lp = self.program + lp
 
         try:
-            return Results(self, run_clingo(lp))
+            return Results(self, run_mercury(lp))
         except sh.ErrorReturnCode as e:
             if e.exit_code == ClingoExitCode.INTERRUPT:
                 print('timeout.\n')
@@ -240,16 +246,17 @@ if __name__ == '__main__':
     aspi = ASPI(sys.argv[1:])
     while True:
         try:
-            cmd = input()
+            cmd = input('>>> ')
         except EOFError:
-            break
+            cmd = 'thanks.'
         except KeyboardInterrupt:
             print('^C')
             continue
+        print(cmd)
         if len(cmd) == 0 or cmd[0] == '%':
             continue
         while cmd[-1] not in '.?!':
-            cont = input()
+            cont = input('... ')
             print(cont)
             cmd += cont
         if cmd == '#reset.':
