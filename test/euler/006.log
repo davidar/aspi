@@ -1,12 +1,16 @@
 >>> % 6. What is the difference between the sum of the squares and the square of the sums?
 >>> sum{(1..100) ** 2}?
---> what(C) :- C = @sumof(B), setof((1),B).
-    gather((1),A**2) :- A = 1 .. 100.
+--> :- mode gather1(out) is nondet.
+    gather1(B) :- pow(A,2,B), nondet_int_in_range(1,100,A).
+    :- mode what(out) is nondet.
+    what(D) :- sum(D,C), solutions(gather1,C).
 that: 338350.
 
 >>> sum{1..100} ** 2?
---> what(C**2) :- C = @sumof(B), setof((2),B).
-    gather((2),A) :- A = 1 .. 100.
+--> :- mode gather2(out) is nondet.
+    gather2(A) :- nondet_int_in_range(1,100,A).
+    :- mode what(out) is nondet.
+    what(D) :- pow(C,2,D), sum(C,B), solutions(gather2,B).
 that: 25502500.
 
 >>> thanks.

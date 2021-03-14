@@ -331,14 +331,18 @@ class LDCS(lark.Transformer[str]):
     def binop(self, a: CSym, op: str, b: CSym) -> CSym:
         arg1, body1 = a
         arg2, body2 = b
+        body = commas(body1, body2)
         if op == '..':
             x = self.gensym()
-            return x, commas(f'nondet_int_in_range({arg1},{arg2},{x})', body1, body2)
+            return x, commas(f'nondet_int_in_range({arg1},{arg2},{x})', body)
+        if op == '**':
+            x = self.gensym()
+            return x, commas(f'pow({arg1},{arg2},{x})', body)
         if not arg1.isalnum() and arg1[0] != '@':
             arg1 = f'({arg1})'
         if not arg2.isalnum() and arg2[0] != '@':
             arg2 = f'({arg2})'
-        return f'{arg1} {op} {arg2}', commas(body1, body2)
+        return f'{arg1} {op} {arg2}', body
 
     def binop_term(self, a: CSym, op: str, b: CSym) -> str:
         return commas(*self.binop(a, op, b))
