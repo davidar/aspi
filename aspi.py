@@ -29,7 +29,6 @@ def run_mercury(lp: str) -> List[str]:
     with tempfile.TemporaryDirectory() as tempdir:
         with open(os.path.join(tempdir, 'main.m'), 'w') as f:
             print(lp, file=f)
-            print('main(!IO) :- solutions(what,X), print(X,!IO), nl(!IO).', file=f)
         sh.mmc('main.m', infer_all=True, _cwd=tempdir,
                 _err=sys.stderr if 'DEBUG' in os.environ else None)
         result = sh.Command(os.path.join(tempdir, 'main'))().stdout
@@ -45,33 +44,18 @@ class ASPI:
         self.facts = set(['moves(0)'])
         self.ldcs = ldcs.LDCS()
         self.now = 0
-        self.program = '''
-:- module main.
-:- interface.
-:- import_module io.
-:- pred main(io::di, io::uo) is det.
-:- implementation.
-:- import_module int, list, solutions.
-
-sum(X + S, [X|L]) :- sum(S,L).
-sum(0, []).
-
-max(int.max(X,S), [X|L]) :- max(S,L).
-max(X, [X]).
-
-:- pred sorted_solutions(pred(T), list(T)).
-:- mode sorted_solutions(pred(out) is nondet, out) is det.
-sorted_solutions(P, sort(S)) :-
-    promise_equivalent_solutions[S] unsorted_solutions(P,S).
-'''
+        self.program = ''
         self.proofs = True
+        self.that = []
 
-        for arg in ['lib/macros.ldcs'] + args:
+        for arg in ['lib/prelude.m', 'lib/macros.ldcs'] + args:
             self.include(arg)
 
     def include(self, arg: str) -> None:
         if arg.endswith('.lp'):
             self.program += f'#include "{arg}".\n'
+        elif arg.endswith('.m'):
+            self.program += open(arg, 'r').read()
         elif arg.endswith('.ldcs'):
             with open(arg, 'r') as f:
                 while True:
@@ -137,6 +121,7 @@ sorted_solutions(P, sort(S)) :-
                 if fact.startswith('moves('):
                     self.now = int(fact[len('moves('):-1])
             self.counter += 1
+            self.that = res.shows
 
     def eval(self, cmd: str) -> Optional['Results']:
         lp = self.ldcs.toASP(cmd.replace('#macro ', ''))
@@ -156,6 +141,10 @@ sorted_solutions(P, sort(S)) :-
             return None
 
         lp = self.program + lp
+        for t in self.that:
+            if not t.startswith('list'):
+                lp += f'that({t}).\n'
+        lp += 'main(!IO) :- solutions(what,X), print(X,!IO), nl(!IO).\n'
 
         try:
             return Results(self, run_mercury(lp))
