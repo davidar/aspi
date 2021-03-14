@@ -19,9 +19,6 @@ before(E,F) :- end_time(0..(T-1), E), start_time(T, F).
 during(E,F) :- start_time(S T1..T2, E), end_time(S..T2, E), start_time(T1, F (!= E)), end_time(T2, F).
 just_before(E,F) :- end_time(T-1, E), start_time(T, F).
 
-negate.Y: (-Y).
-multiple(X,Y) :- mod(X,Y) = 0.
-even(X) :- mod(X,2) = 0.
-odd(X) :- mod(X,2) = 1.
+multiple(Y,X) :- mod(X,Y) = 0.
 
 mean.L: sum.L / count.L.

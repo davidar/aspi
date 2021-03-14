@@ -1,8 +1,10 @@
 >>> % 28. What is the sum of both diagonals in a 499 by 499 spiral?
 >>> #include "test/oeis/b200975.txt".
 >>> sum{b200975[1..((2*499)-1)]}?
---> what(D) :- D = @sumof(C), setof((1),C).
-    gather((1),B) :- b200975(B,A), A = 1 .. ((2*499)-1).
+--> :- mode gather1(out) is nondet.
+    gather1(B) :- b200975(A,B), nondet_int_in_range(1,(2*499)-1,A).
+    :- mode what(out) is nondet.
+    what(D) :- sum(C,D), solutions(gather1,C).
 that: 82959497.
 
 >>> thanks.

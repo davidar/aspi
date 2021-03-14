@@ -6,7 +6,7 @@
     :- mode gather1(out) is nondet.
     gather1(C) :- C = A, nondet_int_in_range(0,999,A), (mod(C,B)) = 0, disjunction1(B).
     :- mode what(out) is nondet.
-    what(E) :- sum(E,D), solutions(gather1,D).
+    what(E) :- sum(D,E), solutions(gather1,D).
 that: 233168.
 
 >>> thanks.

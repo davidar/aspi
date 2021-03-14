@@ -81,15 +81,15 @@ class ASPI:
                     for c, v in enumerate(line.split(',')):
                         cols += 1
                         v = v.strip()
-                        self.program += f'csv({v},{r+1},{c+1}).\n'
-                    self.program += f'csv_cols({cols},{r+1}).\n'
+                        self.program += f'csv({r+1},{c+1},{v}).\n'
+                    self.program += f'csv_cols({r+1},{cols}).\n'
                 self.program += f'csv_rows({rows}).\n'
         elif arg.endswith('.txt'):
             name = os.path.basename(arg)[:-4]
             with open(arg, 'r') as f:
                 for line in f:
                     k, v = line.split()
-                    self.program += f'{name}({v},{k}).\n'
+                    self.program += f'{name}({k},{v}).\n'
 
     def repl(self, cmd: str) -> None:
         if not cmd or cmd.startswith('%'):

@@ -406,18 +406,18 @@ class LDCS(lark.Transformer[str]):
             return lambda *args: rel(*reversed(args))
         elif op == "'each":
             y = self.gensym()
-            return lambda x, z: f'all_true(pred({y}::in) is semidet :- {rel(x, y)}, {z})'
+            return lambda z, x: f'all_true(pred({y}::in) is semidet :- {rel(y, x)}, {z})'
         elif op == "'est":
             y = self.gensym()
-            return lambda x, z: f'{rel(x, y)} : {y} = @memberof({z}), {x} != {y}; {x} = @memberof({z})'
+            return lambda z, x: f'{rel(x, y)} : {y} = @memberof({z}), {x} != {y}; {x} = @memberof({z})'
         elif op == "'th":
             y = self.gensym()
-            return lambda x, z: f'{rel(y)}, index1({z},{y},{x})'
+            return lambda z, x: f'{rel(y)}, index1({z},{y},{x})'
         assert False
 
     def join(self, rel: Variadic, *var_bodies: CSym) -> Unary:
         ys, bs = unzip(var_bodies)
-        return lambda x: commas(rel(x, *ys), *bs)
+        return lambda x: commas(rel(*ys, x), *bs)
 
     def reverse_join(self, rel: Binary, var_body: CSym) -> Unary:
         return self.join(lambda x, y: rel(y, x), var_body)

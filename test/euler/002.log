@@ -1,5 +1,5 @@
 >>> % 2. Find the sum of all the even-valued terms in the Fibonacci sequence which do not exceed one million.
->>> #mode fib(out,in).
+>>> #mode fib(in,out).
 >>> #pragma memo(fib/2).
 >>> fib[0]: 0.
 --> fib(0,0).
@@ -10,11 +10,11 @@ understood.
 understood.
 
 >>> fib[N 2..45]: fib[N-1] + fib[N-2].
---> fib(C+D,B) :- B = MuN, B = A, nondet_int_in_range(2,45,A), fib(C,MuN-1), fib(D,MuN-2).
+--> fib(B,C+D) :- B = MuN, B = A, nondet_int_in_range(2,45,A), fib(MuN-1,C), fib(MuN-2,D).
 understood.
 
 >>> fib: fib[0..45].
---> fib(B) :- fib(B,A), nondet_int_in_range(0,45,A).
+--> fib(B) :- fib(A,B), nondet_int_in_range(0,45,A).
 understood.
 
 >>> {fib}?
@@ -33,9 +33,9 @@ that: list(0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,
 
 >>> sum{even fib (< 1000000)}?
 --> :- mode gather3(out) is nondet.
-    gather3(A) :- (mod(A,2)) = 0, fib(A), A < 1000000.
+    gather3(A) :- even(A), fib(A), A < 1000000.
     :- mode what(out) is nondet.
-    what(C) :- sum(C,B), solutions(gather3,B).
+    what(C) :- sum(B,C), solutions(gather3,B).
 that: 1089154.
 
 >>> thanks.

@@ -1,16 +1,21 @@
 >>> % 10. Calculate the sum of all the primes below one hundred.
+>>> #mode composite(out).
+>>> #pragma memo(composite/1).
 >>> composite: N multiple[2..(N-1)] n3.
---> composite(B) :- B = MuN, (B \ A) = 0, A = 2 .. (MuN-1), B = 1 .. 999.
+--> composite(B) :- B = MuN, (mod(B,A)) = 0, nondet_int_in_range(2,MuN-1,A), nondet_int_in_range(1,999,B).
 understood.
 
 >>> prime: (> 1) ~composite n3.
---> prime(B) :- B > 1, not negation((2),B), B = 1 .. 999.
-    negation((2),A) :- composite(A), A = 1 .. 999.
+--> prime(B) :- B > 1, not negation1(B), nondet_int_in_range(1,999,B).
+    :- mode negation1(out) is nondet.
+    negation1(A) :- composite(A).
 understood.
 
 >>> sum{prime (< 100)}?
---> what(C) :- C = @sumof(B), setof((1),B).
-    gather((1),A) :- prime(A), A < 100.
+--> :- mode gather1(out) is nondet.
+    gather1(A) :- prime(A), A < 100.
+    :- mode what(out) is nondet.
+    what(C) :- sum(B,C), solutions(gather1,B).
 that: 1060.
 
 >>> thanks.

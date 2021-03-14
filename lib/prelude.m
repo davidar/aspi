@@ -5,20 +5,20 @@
 :- implementation.
 :- import_module int, list, solutions, string.
 
-sum(X + S, [X|L]) :- sum(S,L).
-sum(0, []).
+sum([X|L], X+S) :- sum(L,S).
+sum([], 0).
 
-max(int.max(X,S), [X|L]) :- max(S,L).
-max(X, [X]).
+max([X|L], int.max(X,S)) :- max(L,S).
+max([X], X).
 
-min(int.min(X,S), [X|L]) :- min(S,L).
-min(X, [X]).
+min([X|L], int.min(X,S)) :- min(L,S).
+min([X], X).
 
-:- pred show(string, int).
-show(S, X) :- format("%d", [i(X)], S).
+:- pred show(int, string).
+show(X,S) :- format("%d", [i(X)], S).
 
 :- pred reverse(string, string).
-reverse(from_char_list(to_rev_char_list(S)), S).
+reverse(S, from_char_list(to_rev_char_list(S))).
 
 :- pred sorted_solutions(pred(T), list(T)).
 :- mode sorted_solutions(pred(out) is nondet, out) is det.
