@@ -7,14 +7,11 @@ understood.
 
 >>> prime: (> 1) ~composite n3.
 --> prime(B) :- B > 1, not negation1(B), nondet_int_in_range(1,999,B).
-    :- mode negation1(out) is nondet.
     negation1(A) :- composite(A).
 understood.
 
 >>> sum{prime (< 100)}?
---> :- mode gather1(out) is nondet.
-    gather1(A) :- prime(A), A < 100.
-    :- mode what(out) is nondet.
+--> gather1(A) :- prime(A), A < 100.
     what(C) :- sum(B,C), solutions(gather1,B).
 that: 1060.
 

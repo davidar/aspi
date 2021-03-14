@@ -7,14 +7,11 @@ understood.
 
 >>> prime: (> 1) ~composite n3.
 --> prime(B) :- B > 1, not negation1(B), nondet_int_in_range(1,999,B).
-    :- mode negation1(out) is nondet.
     negation1(A) :- composite(A).
 understood.
 
 >>> 101'th.{prime}?
---> :- mode gather1(out) is nondet.
-    gather1(B) :- prime(B).
-    :- mode what(out) is nondet.
+--> gather1(B) :- prime(B).
     what(D) :- A = 101, index1(C,A,D), solutions(gather1,C).
 that: 547.
 

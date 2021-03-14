@@ -127,7 +127,9 @@ class ASPI:
         lp = self.ldcs.toASP(cmd.replace('#macro ', ''))
         if lp is None:
             return None
-        print('-->', '\n    '.join(line for line in lp.split('\n')))
+        print('-->', '\n    '.join(
+            line for line in lp.split('\n')
+            if not line.startswith(':-') or 'DEBUG' in os.environ))
         lp += '\n'
         if cmd.endswith('.'):
             for line in lp.split('\n'):
