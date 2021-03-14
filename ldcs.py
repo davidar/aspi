@@ -402,7 +402,7 @@ class LDCS(lark.Transformer[str]):
             return lambda *args: rel(*reversed(args))
         elif op == "'each":
             y = self.gensym()
-            return lambda x, z: f'{rel(x, y)} : {y} = @memberof({z});'
+            return lambda x, z: f'all_true(pred({y}::in) is semidet :- {rel(x, y)}, {z})'
         elif op == "'est":
             y = self.gensym()
             return lambda x, z: f'{rel(x, y)} : {y} = @memberof({z}), {x} != {y}; {x} = @memberof({z})'

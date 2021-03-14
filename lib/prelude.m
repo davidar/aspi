@@ -11,6 +11,9 @@ sum(0, []).
 max(int.max(X,S), [X|L]) :- max(S,L).
 max(X, [X]).
 
+min(int.min(X,S), [X|L]) :- min(S,L).
+min(X, [X]).
+
 :- pred show(string, int).
 show(S, X) :- format("%d", [i(X)], S).
 

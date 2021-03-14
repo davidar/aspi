@@ -1,8 +1,11 @@
 >>> % 5. What is the smallest number divisible by each of the numbers 1 to 10?
 >>> min{multiple'each.{1..10} n4}?
---> what(F) :- F = @minof(E), setof((2),E).
-    gather((1),B) :- B = 1 .. 10.
-    gather((2),D) :- (D \ A) = 0 : A = @memberof(C); setof((1),C), D = 1 .. 9999.
+--> :- mode gather1(out) is nondet.
+    gather1(B) :- nondet_int_in_range(1,10,B).
+    :- mode gather2(out) is nondet.
+    gather2(D) :- all_true(pred(A::in) is semidet :- (mod(D,A)) = 0, C), solutions(gather1,C), nondet_int_in_range(1,9999,D).
+    :- mode what(out) is nondet.
+    what(F) :- min(F,E), solutions(gather2,E).
 that: 2520.
 
 >>> thanks.
