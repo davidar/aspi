@@ -1,4 +1,6 @@
 % 7. Find the 101st prime.
+#mode composite(out).
+#pragma memo(composite/1).
 composite: N multiple[2..(N-1)] n3.
 prime: (> 1) ~composite n3.
 101'th.{prime}?

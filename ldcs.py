@@ -412,7 +412,7 @@ class LDCS(lark.Transformer[str]):
             return lambda x, z: f'{rel(x, y)} : {y} = @memberof({z}), {x} != {y}; {x} = @memberof({z})'
         elif op == "'th":
             y = self.gensym()
-            return lambda x, z: f'{rel(y)}, ({y},{x}) = @enumerateof({z})'
+            return lambda x, z: f'{rel(y)}, index1({z},{y},{x})'
         assert False
 
     def join(self, rel: Variadic, *var_bodies: CSym) -> Unary:
