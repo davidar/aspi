@@ -36,24 +36,9 @@ class ClingoExitCode(enum.IntFlag):
 
 
 def run_clingo(lp: str) -> List[str]:
-    result = json.loads(sh.clingo(
-        outf=2, time_limit=5, _in=lp,
-        _err=sys.stderr if 'DEBUG' in os.environ else None,
-        _ok_code=[
-            ClingoExitCode.SAT,
-            ClingoExitCode.SAT | ClingoExitCode.EXHAUST
-        ]).stdout)
-    if 'DEBUG' in os.environ:
-        print(json.dumps(result, indent=2), file=sys.stderr)
-    witness = result['Call'][-1]['Witnesses'][-1]
-    if result['Result'] == 'OPTIMUM FOUND':
-        costs = result['Models']['Costs']
-        assert costs == witness['Costs']
-        if costs[0] < 0:
-            print(f"reward: {-costs[0]}.")
-        else:
-            print(f"cost: {costs[0]}.")
-    return cast(List[str], witness['Value'])
+    print(lp)
+    print('main(!IO) :- solutions(what,X), print(X,!IO), nl(!IO).')
+    return []
 
 
 class ASPI:
@@ -62,10 +47,21 @@ class ASPI:
         self.facts = set(['moves(0)'])
         self.ldcs = ldcs.LDCS()
         self.now = 0
-        self.program = ''
+        self.program = '''
+:- module main.
+:- interface.
+:- import_module io.
+:- pred main(io::di, io::uo) is cc_multi.
+:- implementation.
+:- import_module int, list, solutions.
+
+:- pred sum(int::out, list(int)::in) is det.
+sum(X + S, [X|L]) :- sum(S,L).
+sum(0, []).
+'''
         self.proofs = True
 
-        for arg in ['lib/prelude.lp', 'lib/macros.ldcs', 'lib/plans.ldcs'] + args:
+        for arg in ['lib/macros.ldcs'] + args:
             self.include(arg)
 
     def include(self, arg: str) -> None:
@@ -138,9 +134,6 @@ class ASPI:
         lp = self.ldcs.toASP(cmd.replace('#macro ', ''))
         if lp is None:
             return None
-        print('-->', '\n    '.join(
-            line for line in lp.split('\n')
-            if '@proof' not in line or 'DEBUG' in os.environ))
         lp += '\n'
         if cmd.endswith('.'):
             for line in lp.split('\n'):
@@ -153,12 +146,8 @@ class ASPI:
             print('understood.\n')
             return None
 
-        lp += f'#const now = {self.now}.\n'
-        lp += f'#const counter = {self.counter}.\n'
-        lp += ''.join(fact + '.\n' for fact in self.facts)
-        lp += self.program
-        if cmd.endswith('!'):
-            lp += '#include "lib/planner.lp".\n'
+        lp = self.program + lp
+
         try:
             return Results(self, run_clingo(lp))
         except sh.ErrorReturnCode as e:
@@ -251,17 +240,16 @@ if __name__ == '__main__':
     aspi = ASPI(sys.argv[1:])
     while True:
         try:
-            cmd = input('>>> ')
+            cmd = input()
         except EOFError:
-            cmd = 'thanks.'
+            break
         except KeyboardInterrupt:
             print('^C')
             continue
-        print(cmd)
         if len(cmd) == 0 or cmd[0] == '%':
             continue
         while cmd[-1] not in '.?!':
-            cont = input('... ')
+            cont = input()
             print(cont)
             cmd += cont
         if cmd == '#reset.':

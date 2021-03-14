@@ -142,18 +142,19 @@ class LDCS(lark.Transformer[str]):
             muvars = sorted(set(re.findall('Mu[A-Z]', commas(*vars, *bodies))))
         if vars[0][0] not in string.ascii_uppercase:
             ground = False
-        closure = ','.join([str(i)] + muvars)
+        closure = ','.join(muvars)
 
         def f(x: str, name: str = prefix) -> str:
-            return f'{name}(({closure}),{x})'
+            if name == 'setof':
+                return f'solutions(gather{i},{x})'
+            return f'{name}{i}({closure}{x})'
+        self.rules.append(f':- pred {f("int::out", prefix_gather)} is nondet.')
         for var, body in var_bodies:
             if len(muvars) > 0 or ground:
                 args = f('_')
                 if ground:
                     args = f'{var},{args}'
                 body = commas(body, f'@context({args})')
-                if prefix == 'setof':
-                    self.rules.append(f'gather_index(({closure})) :- @context({args}).')
             if body:
                 self.rules.append(f'{f(var, prefix_gather)} :- {body}.')
             else:
@@ -211,11 +212,8 @@ class LDCS(lark.Transformer[str]):
 
     def start(self, rule: Optional[str]) -> str:
         if rule:
-            self.rules.insert(0, rule + '.')
+            self.rules.append(rule + '.')
         self.expand_contexts()
-        for rule in self.rules[:]:
-            if '{' not in rule and not rule.startswith(':-'):
-                self.rules.append(self.proof(rule))
         return '\n'.join(self.rules) \
                    .replace(';,', ';') \
                    .replace(';.', '.') \
@@ -286,6 +284,7 @@ class LDCS(lark.Transformer[str]):
 
     def query(self, var_body: CSym) -> str:
         var, body = var_body
+        self.rules.append(':- pred what(int::out) is nondet.')
         if body:
             return f'what({var}) :- {body}'
         else:
@@ -330,6 +329,9 @@ class LDCS(lark.Transformer[str]):
     def binop(self, a: CSym, op: str, b: CSym) -> CSym:
         arg1, body1 = a
         arg2, body2 = b
+        if op == '..':
+            x = self.gensym()
+            return x, commas(f'nondet_int_in_range({arg1},{arg2},{x})', body1, body2)
         if not arg1.isalnum() and arg1[0] != '@':
             arg1 = f'({arg1})'
         if not arg2.isalnum() and arg2[0] != '@':
