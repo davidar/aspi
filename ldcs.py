@@ -150,7 +150,7 @@ class LDCS(lark.Transformer[str]):
             if name == 'bagof':
                 return f'sorted_solutions(gather{i},{x})'
             return f'{name}{i}({closure}{x})'
-        self.rules.append(f':- pred {f("int::out", prefix_gather)} is nondet.')
+        self.rules.append(f':- mode {f("out", prefix_gather)} is nondet.')
         for var, body in var_bodies:
             if len(muvars) > 0 or ground:
                 args = f('_')

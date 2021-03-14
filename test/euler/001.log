@@ -1,11 +1,11 @@
 >>> % 1. Add all the natural numbers below 1000 that are multiples of 3 or 5.
 >>> sum{0..999 multiple[3|5]}?
---> :- pred disjunction1(int::out) is nondet.
+--> :- mode disjunction1(out) is nondet.
     disjunction1(3).
     disjunction1(5).
-    :- pred gather1(int::out) is nondet.
+    :- mode gather1(out) is nondet.
     gather1(C) :- C = A, nondet_int_in_range(0,999,A), (mod(C,B)) = 0, disjunction1(B).
-    :- pred what(int::out) is nondet.
+    :- mode what(out) is nondet.
     what(E) :- sum(E,D), solutions(gather1,D).
 that: 233168.
 

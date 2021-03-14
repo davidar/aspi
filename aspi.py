@@ -49,13 +49,15 @@ class ASPI:
 :- module main.
 :- interface.
 :- import_module io.
-:- pred main(io::di, io::uo) is cc_multi.
+:- pred main(io::di, io::uo) is det.
 :- implementation.
 :- import_module int, list, solutions.
 
-:- pred sum(int::out, list(int)::in) is det.
 sum(X + S, [X|L]) :- sum(S,L).
 sum(0, []).
+
+max(int.max(X,S), [X|L]) :- max(S,L).
+max(X, [X]).
 
 :- pred sorted_solutions(pred(T), list(T)).
 :- mode sorted_solutions(pred(out) is nondet, out) is det.
