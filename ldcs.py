@@ -147,6 +147,8 @@ class LDCS(lark.Transformer[str]):
         def f(x: str, name: str = prefix) -> str:
             if name == 'setof':
                 return f'solutions(gather{i},{x})'
+            if name == 'bagof':
+                return f'sorted_solutions(gather{i},{x})'
             return f'{name}{i}({closure}{x})'
         self.rules.append(f':- pred {f("int::out", prefix_gather)} is nondet.')
         for var, body in var_bodies:
@@ -284,7 +286,7 @@ class LDCS(lark.Transformer[str]):
 
     def query(self, var_body: CSym) -> str:
         var, body = var_body
-        self.rules.append(':- pred what(int::out) is nondet.')
+        self.rules.append(':- mode what(out) is nondet.')
         if body:
             return f'what({var}) :- {body}'
         else:
@@ -432,12 +434,7 @@ class LDCS(lark.Transformer[str]):
     def bagof(self, a, b=None) -> Unary:
         if b is not None:
             return self.join(a, self.ldcs(self.bagof(b)))
-        var, body = a
-        if body is not None and ' ' in body:
-            var, body = self.ldcs(self.lift((var, body), 'aggregation'))
-        var = f'({var},P0)'
-        body = f'proof(P0,{body})'
-        return self.lift((var, body), 'bagof', gather=True)
+        return self.lift(a, 'bagof', gather=True)
 
     def unify(self, pred_body: CSym) -> Unary:
         pred, body = pred_body

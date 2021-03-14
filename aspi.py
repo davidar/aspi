@@ -25,25 +25,18 @@ except FileNotFoundError:
 atexit.register(readline.write_history_file, 'history.log')
 
 
-class ClingoExitCode(enum.IntFlag):
-    # https://github.com/potassco/clasp/issues/42
-    UNKNOWN = 0  # Satisfiablity of problem not known; search not started.
-    INTERRUPT = 1  # Run was interrupted.
-    SAT = 10  # At least one model was found.
-    EXHAUST = 20  # Search-space was completely examined.
-    MEMORY = 33  # Run was interrupted by out of memory exception.
-    ERROR = 65  # Run was interrupted by internal error.
-    NO_RUN = 128  # Search not started because of syntax or command line error.
-
-
 def run_mercury(lp: str) -> List[str]:
     with tempfile.TemporaryDirectory() as tempdir:
         with open(os.path.join(tempdir, 'main.m'), 'w') as f:
             print(lp, file=f)
             print('main(!IO) :- solutions(what,X), print(X,!IO), nl(!IO).', file=f)
-        sh.mmc('main.m', _cwd=tempdir)
+        sh.mmc('main.m', infer_all=True, _cwd=tempdir,
+                _err=sys.stderr if 'DEBUG' in os.environ else None)
         result = sh.Command(os.path.join(tempdir, 'main'))().stdout
-    return [f'what({x})' for x in json.loads(result)]
+    for x in json.loads(result):
+        if type(x) is list:
+            x = f'list{tuple(x)}'
+        yield f'what({x})'
 
 
 class ASPI:
@@ -63,6 +56,11 @@ class ASPI:
 :- pred sum(int::out, list(int)::in) is det.
 sum(X + S, [X|L]) :- sum(S,L).
 sum(0, []).
+
+:- pred sorted_solutions(pred(T), list(T)).
+:- mode sorted_solutions(pred(out) is nondet, out) is det.
+sorted_solutions(P, sort(S)) :-
+    promise_equivalent_solutions[S] unsorted_solutions(P,S).
 '''
         self.proofs = True
 
@@ -121,6 +119,9 @@ sum(0, []).
             return
         if cmd.startswith('#include "'):
             return self.include(cmd[len('#include "'):-2])
+        if cmd.startswith('#pragma ') or cmd.startswith('#mode '):
+            self.program += f':- {cmd[1:]}\n'
+            return
         if cmd == 'thanks.':
             print("YOU'RE WELCOME!")
             sys.exit(0)
@@ -157,19 +158,11 @@ sum(0, []).
         try:
             return Results(self, run_mercury(lp))
         except sh.ErrorReturnCode as e:
-            if e.exit_code == ClingoExitCode.INTERRUPT:
-                print('timeout.\n')
-                return None
-            elif e.exit_code == ClingoExitCode.EXHAUST:
-                print('impossible.\n')
-                return None
-            else:
-                print(e.stderr.decode('utf-8'), file=sys.stderr)
-                print(ClingoExitCode(e.exit_code), file=sys.stderr)
-                for i, line in enumerate(lp.split('\n')):
-                    if not line.startswith('csv('):
-                        print(f'{i+1:3}|', line, file=sys.stderr)
-                sys.exit(1)
+            print(e.stderr.decode('utf-8'), file=sys.stderr)
+            for i, line in enumerate(lp.split('\n')):
+                if not line.startswith('csv('):
+                    print(f'{i+1:3}|', line, file=sys.stderr)
+            sys.exit(1)
 
     def print(self, res: 'Results') -> None:
         for fact in res.already:

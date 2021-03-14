@@ -1,4 +1,6 @@
 >>> % 2. Find the sum of all the even-valued terms in the Fibonacci sequence which do not exceed one million.
+>>> #mode fib(out,in).
+>>> #pragma memo(fib/2).
 >>> fib[0]: 0.
 --> fib(0,0).
 understood.
@@ -8,30 +10,32 @@ understood.
 understood.
 
 >>> fib[N 2..45]: fib[N-1] + fib[N-2].
---> fib(B+C,A) :- A = MuN, A = 2 .. 45, fib(B,MuN-1), fib(C,MuN-2).
+--> fib(C+D,B) :- B = MuN, B = A, nondet_int_in_range(2,45,A), fib(C,MuN-1), fib(D,MuN-2).
 understood.
 
 >>> fib: fib[0..45].
---> fib(B) :- fib(B,A), A = 0 .. 45.
+--> fib(B) :- fib(B,A), nondet_int_in_range(0,45,A).
 understood.
 
 >>> {fib}?
---> what(B) :- setof((1),B).
-    gather((1),A) :- fib(A).
-that: set(0,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368,75025,121393,196418,317811,514229,832040,1346269,2178309,3524578,5702887,9227465,14930352,24157817,39088169,63245986,102334155,165580141,267914296,433494437,701408733,1134903170).
+--> :- pred gather1(int::out) is nondet.
+    gather1(A) :- fib(A).
+    :- mode what(out) is nondet.
+    what(B) :- solutions(gather1,B).
+that: list(0,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368,75025,121393,196418,317811,514229,832040,1346269,2178309,3524578,5702887,9227465,14930352,24157817,39088169,63245986,102334155,165580141,267914296,433494437,701408733,1134903170).
 
 >>> {{fib}}?
---> what(B) :- bagof((2),B).
-    gather((2),(A,P0)) :- proof(P0,fib(A)).
-that: bag(0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368,75025,121393,196418,317811,514229,832040,1346269,2178309,3524578,5702887,9227465,14930352,24157817,39088169,63245986,102334155,165580141,267914296,433494437,701408733,1134903170).
-
->>> proof.fib(13)?
---> what(A) :- proof(A,fib(13)).
-that: proof((fib(1,2),fib(0,0),fib(1,1)),(fib(2,3),fib(1,1),fib(1,2)),(fib(3,4),fib(1,2),fib(2,3)),(fib(5,5),fib(1,2),fib(2,3),fib(3,4)),(fib(8,6),fib(1,2),fib(2,3),fib(3,4),fib(5,5)),(fib(13,7),fib(1,2),fib(2,3),fib(3,4),fib(5,5),fib(8,6)),(fib(13),fib(1,2),fib(2,3),fib(3,4),fib(5,5),fib(8,6),fib(13,7))).
+--> :- pred gather2(int::out) is nondet.
+    gather2(A) :- fib(A).
+    :- mode what(out) is nondet.
+    what(B) :- sorted_solutions(gather2,B).
+that: list(0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368,75025,121393,196418,317811,514229,832040,1346269,2178309,3524578,5702887,9227465,14930352,24157817,39088169,63245986,102334155,165580141,267914296,433494437,701408733,1134903170).
 
 >>> sum{even fib (< 1000000)}?
---> what(C) :- C = @sumof(B), setof((3),B).
-    gather((3),A) :- (A \ 2) = 0, fib(A), A < 1000000.
+--> :- pred gather3(int::out) is nondet.
+    gather3(A) :- (mod(A,2)) = 0, fib(A), A < 1000000.
+    :- mode what(out) is nondet.
+    what(C) :- sum(C,B), solutions(gather3,B).
 that: 1089154.
 
 >>> thanks.
