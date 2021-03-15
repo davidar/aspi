@@ -17,6 +17,8 @@ max([X], X).
 min([X|L], int.min(X,S)) :- min(L,S).
 min([X], X).
 
+count(L,N) :- list.length(L,N).
+
 :- pred show(int, string).
 show(X,S) :- format("%d", [i(X)], S).
 
