@@ -1,6 +1,8 @@
 % 14. Find the longest Collatz sequence using a starting number under ten.
 collatz[N even n3]: N / 2.
 collatz[N odd n3]: (3*N) + 1.
+#mode collatz_steps(in,out).
+#pragma memo(collatz_steps/2).
 collatz_steps.1: 0.
 collatz_steps[N (> 1) n3]: 1 + collatz_steps[collatz.N].
 collatz_steps[1..10]?
