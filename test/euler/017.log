@@ -1,151 +1,151 @@
 >>> % 17. How many letters would be needed to write all the numbers in words from 1 to 1000?
+>>> #mode say(in,out).
+>>> #mode say(out,in).
+>>> #pragma memo(say/2).
 >>> say.0: "".
---> say("",0).
+--> say(0,"").
 understood.
 
 >>> say.1: "one".
---> say("one",1).
+--> say(1,"one").
 understood.
 
 >>> say.2: "two".
---> say("two",2).
+--> say(2,"two").
 understood.
 
 >>> say.3: "three".
---> say("three",3).
+--> say(3,"three").
 understood.
 
 >>> say.4: "four".
---> say("four",4).
+--> say(4,"four").
 understood.
 
 >>> say.5: "five".
---> say("five",5).
+--> say(5,"five").
 understood.
 
 >>> say.6: "six".
---> say("six",6).
+--> say(6,"six").
 understood.
 
 >>> say.7: "seven".
---> say("seven",7).
+--> say(7,"seven").
 understood.
 
 >>> say.8: "eight".
---> say("eight",8).
+--> say(8,"eight").
 understood.
 
 >>> say.9: "nine".
---> say("nine",9).
+--> say(9,"nine").
 understood.
 
 >>> say.10: "ten".
---> say("ten",10).
+--> say(10,"ten").
 understood.
 
 >>> say.11: "eleven".
---> say("eleven",11).
+--> say(11,"eleven").
 understood.
 
 >>> say.12: "twelve".
---> say("twelve",12).
+--> say(12,"twelve").
 understood.
 
 >>> say.13: "thirteen".
---> say("thirteen",13).
+--> say(13,"thirteen").
 understood.
 
 >>> say.14: "fourteen".
---> say("fourteen",14).
+--> say(14,"fourteen").
 understood.
 
 >>> say.15: "fifteen".
---> say("fifteen",15).
+--> say(15,"fifteen").
 understood.
 
 >>> say.16: "sixteen".
---> say("sixteen",16).
+--> say(16,"sixteen").
 understood.
 
 >>> say.17: "seventeen".
---> say("seventeen",17).
+--> say(17,"seventeen").
 understood.
 
 >>> say.18: "eighteen".
---> say("eighteen",18).
+--> say(18,"eighteen").
 understood.
 
 >>> say.19: "nineteen".
---> say("nineteen",19).
+--> say(19,"nineteen").
 understood.
 
 >>> say.20: "twenty".
---> say("twenty",20).
+--> say(20,"twenty").
 understood.
 
 >>> say.30: "thirty".
---> say("thirty",30).
+--> say(30,"thirty").
 understood.
 
 >>> say.40: "forty".
---> say("forty",40).
+--> say(40,"forty").
 understood.
 
 >>> say.50: "fifty".
---> say("fifty",50).
+--> say(50,"fifty").
 understood.
 
 >>> say.60: "sixty".
---> say("sixty",60).
+--> say(60,"sixty").
 understood.
 
 >>> say.70: "seventy".
---> say("seventy",70).
+--> say(70,"seventy").
 understood.
 
 >>> say.80: "eighty".
---> say("eighty",80).
+--> say(80,"eighty").
 understood.
 
 >>> say.90: "ninety".
---> say("ninety",90).
+--> say(90,"ninety").
 understood.
 
->>> say[N ~multiple.10 20..99]: concatenate[say[(N/10)*10], " ", say[N\10]].
---> say(F,B) :- B = MuN, not negation((2),B), B = 20 .. 99, F = @concatenate(C,G), G = @concatenate(" ",D), say(C,(MuN/10)*10), say(D,MuN\10).
-    negation((2),A) :- (A \ 10) = 0, A = 20 .. 99.
+>>> say[N ~multiple.10 20..99]: (say[(N/10)*10] ++ " ") ++ say[mod(N,10)].
+--> say(C,(D ++ (" ")) ++ E) :- C = MuN, C = A, (mod(A,10)) \= 0, C = B, nondet_int_in_range(20,99,B), say((MuN/10)*10,D), say(mod(MuN,10),E).
 understood.
 
->>> say[N multiple.100 100..900]: concatenate[say[N/100], " hundred"].
---> say(C,A) :- A = MuN, (A \ 100) = 0, A = 100 .. 900, C = @concatenate(B," hundred"), say(B,MuN/100).
+>>> say[N multiple.100 100..900]: say[N/100] ++ " hundred".
+--> say(B,C ++ (" hundred")) :- B = MuN, (mod(B,100)) = 0, B = A, nondet_int_in_range(100,900,A), say(MuN/100,C).
 understood.
 
->>> say[N ~multiple.100 101..999]: concatenate[say[(N/100)*100], " and ", say[N\100]].
---> say(F,B) :- B = MuN, not negation((3),B), B = 101 .. 999, F = @concatenate(C,G), G = @concatenate(" and ",D), say(C,(MuN/100)*100), say(D,MuN\100).
-    negation((3),A) :- (A \ 100) = 0, A = 101 .. 999.
+>>> say[N ~multiple.100 101..999]: (say[(N/100)*100] ++ " and ") ++ say[mod(N,100)].
+--> say(C,(D ++ (" and ")) ++ E) :- C = MuN, C = A, (mod(A,100)) \= 0, C = B, nondet_int_in_range(101,999,B), say((MuN/100)*100,D), say(mod(MuN,100),E).
 understood.
 
->>> say[N multiple.1000 1000..9000]: concatenate[say[N/1000], " thousand"].
---> say(C,A) :- A = MuN, (A \ 1000) = 0, A = 1000 .. 9000, C = @concatenate(B," thousand"), say(B,MuN/1000).
+>>> say[N multiple.1000 1000..9000]: say[N/1000] ++ " thousand".
+--> say(B,C ++ (" thousand")) :- B = MuN, (mod(B,1000)) = 0, B = A, nondet_int_in_range(1000,9000,A), say(MuN/1000,C).
 understood.
 
 >>> say.123?
---> what(A) :- say(A,123).
+--> what(A) :- say(123,A).
 that: "one hundred and twenty three".
 
 >>> say'."seven hundred and forty two"?
---> what(A) :- say("seven hundred and forty two",A).
+--> what(A) :- say(A,"seven hundred and forty two").
 that: 742.
 
->>> #macro char.S: substring.S length=1.
---> char(E,MuS) :- E = @substring(MuS,F,G), F = H, F = 1 .. I, G = 0 .. ((I - H) + 1), I = @length(MuS), 1 = @length(E).
+>>> #macro char.S: substring[S, 1..length.S, 1].
+--> char(MuS,C) :- between(MuS,B - 1,(B + 1) - 1,C), nondet_int_in_range(1,A,B), length(MuS,A).
 understood.
 
 >>> count{{char.say[1..100] ~" "}}?
---> what(N) :- N = @countof(M), bagof((1),M).
-    negation((4)," ").
-    aggregation((1),G) :- G = @substring(B,H,I), H = J, H = 1 .. K, I = 0 .. ((K - J) + 1), K = @length(B), 1 = @length(G), say(B,A), A = 1 .. 100, not negation((4),G).
-    gather((1),(L,P0)) :- proof(P0,aggregation((1),L)).
+--> negation1(" ").
+    gather1(E) :- between(B,F - 1,(F + 1) - 1,E), nondet_int_in_range(1,G,F), length(B,G), say(A,B), nondet_int_in_range(1,100,A), not negation1(E).
+    what(I) :- count(H,I), sorted_solutions(gather1,H).
 that: 864.
 
 >>> thanks.

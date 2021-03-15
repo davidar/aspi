@@ -21,7 +21,7 @@ _WS: WS
 
 INEQ_OP: "!=" | "<=" | ">=" | "<" | ">"
 CMP_OP: "=" | INEQ_OP
-BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
+BIN_OP: ".." | "**" | "++" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
 SUP_SUFFIX: "'est" | "'each" | "'th" | "'"
 VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
 NAME: ["@"] LCASE_LETTER ("_"|LETTER|DIGIT)*
@@ -203,9 +203,9 @@ class LDCS(lark.Transformer[str]):
                                             and t[2] not in '<>' \
                                             and 'Mu' in pred:
                                         context.append(t)
-                                    elif groundvar and '..' in t and \
-                                            t.startswith(f'{headvar} = '):
-                                        context.append(groundvar + t[1:])
+                                    elif groundvar and 'nondet_int_in_range' in t and \
+                                            t.endswith(f'{headvar})'):
+                                        context.append(f'{t[:-2]}{groundvar})')
                                     elif groundvar and \
                                             t.endswith(f'({headvar})'):
                                         context.append(
@@ -375,7 +375,7 @@ class LDCS(lark.Transformer[str]):
                 not re.search(r'\b_\b', body) and \
                 '..' not in head:
             x = head[len('_ = '):]
-            if x[0] != '"':
+            if '"' not in x:
                 x = x.replace(' ', '')
             return x, commas(body, cond)
         else:
@@ -431,6 +431,9 @@ class LDCS(lark.Transformer[str]):
         return self.join(lambda x, y: rel(y, x), var_body)
 
     def neg(self, var_body: CSym) -> Unary:
+        var, body = var_body
+        if ', ' not in body and ' = ' in body:
+            return lambda x: commas(f'{x} = {var}', body.replace('=', '\='))
         lam = self.lift(var_body, 'negation', ground=True)
         return lambda x: 'not ' + lam(x)
 

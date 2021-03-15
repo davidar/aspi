@@ -6,13 +6,13 @@
 >>> % permutation."": "".
 >>> % permutation.A: insert[head.A, permutation.tail.A, 1..length.A].
 >>> 
->>> permutation."DDDDRRRR"?
---> what(A) :- A = @permutation("DDDDRRRR").
+>>> from_char_list.perm.to_char_list."DDDDRRRR"?
+--> what(C) :- from_char_list(B,C), perm(A,B), to_char_list("DDDDRRRR",A).
 that: "DDDDRRRR" | "DDDRDRRR" | "DDDRRDRR" | "DDDRRRDR" | "DDDRRRRD" | "DDRDDRRR" | "DDRDRDRR" | "DDRDRRDR" | "DDRDRRRD" | "DDRRDDRR" | "DDRRDRDR" | "DDRRDRRD" | "DDRRRDDR" | "DDRRRDRD" | "DDRRRRDD" | "DRDDDRRR" | "DRDDRDRR" | "DRDDRRDR" | "DRDDRRRD" | "DRDRDDRR" | "DRDRDRDR" | "DRDRDRRD" | "DRDRRDDR" | "DRDRRDRD" | "DRDRRRDD" | "DRRDDDRR" | "DRRDDRDR" | "DRRDDRRD" | "DRRDRDDR" | "DRRDRDRD" | "DRRDRRDD" | "DRRRDDDR" | "DRRRDDRD" | "DRRRDRDD" | "DRRRRDDD" | "RDDDDRRR" | "RDDDRDRR" | "RDDDRRDR" | "RDDDRRRD" | "RDDRDDRR" | "RDDRDRDR" | "RDDRDRRD" | "RDDRRDDR" | "RDDRRDRD" | "RDDRRRDD" | "RDRDDDRR" | "RDRDDRDR" | "RDRDDRRD" | "RDRDRDDR" | "RDRDRDRD" | "RDRDRRDD" | "RDRRDDDR" | "RDRRDDRD" | "RDRRDRDD" | "RDRRRDDD" | "RRDDDDRR" | "RRDDDRDR" | "RRDDDRRD" | "RRDDRDDR" | "RRDDRDRD" | "RRDDRRDD" | "RRDRDDDR" | "RRDRDDRD" | "RRDRDRDD" | "RRDRRDDD" | "RRRDDDDR" | "RRRDDDRD" | "RRRDDRDD" | "RRRDRDDD" | "RRRRDDDD".
 
 >>> count{that}?
---> what(C) :- C = @countof(B), setof((1),B).
-    gather((1),A) :- that(A).
+--> gather1(A) :- that(A).
+    what(C) :- count(B,C), solutions(gather1,B).
 that: 70.
 
 >>> thanks.

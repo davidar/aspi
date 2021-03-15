@@ -1,4 +1,7 @@
 % 17. How many letters would be needed to write all the numbers in words from 1 to 1000?
+#mode say(in,out).
+#mode say(out,in).
+#pragma memo(say/2).
 say.0: "".
 say.1: "one".
 say.2: "two".
@@ -27,11 +30,11 @@ say.60: "sixty".
 say.70: "seventy".
 say.80: "eighty".
 say.90: "ninety".
-say[N ~multiple.10 20..99]: concatenate[say[(N/10)*10], " ", say[N\10]].
-say[N multiple.100 100..900]: concatenate[say[N/100], " hundred"].
-say[N ~multiple.100 101..999]: concatenate[say[(N/100)*100], " and ", say[N\100]].
-say[N multiple.1000 1000..9000]: concatenate[say[N/1000], " thousand"].
+say[N ~multiple.10 20..99]: (say[(N/10)*10] ++ " ") ++ say[mod(N,10)].
+say[N multiple.100 100..900]: say[N/100] ++ " hundred".
+say[N ~multiple.100 101..999]: (say[(N/100)*100] ++ " and ") ++ say[mod(N,100)].
+say[N multiple.1000 1000..9000]: say[N/1000] ++ " thousand".
 say.123?
 say'."seven hundred and forty two"?
-#macro char.S: substring.S length=1.
+#macro char.S: substring[S, 1..length.S, 1].
 count{{char.say[1..100] ~" "}}?

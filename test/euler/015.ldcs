@@ -6,5 +6,5 @@
 % permutation."": "".
 % permutation.A: insert[head.A, permutation.tail.A, 1..length.A].
 
-permutation."DDDDRRRR"?
+from_char_list.perm.to_char_list."DDDDRRRR"?
 count{that}?
