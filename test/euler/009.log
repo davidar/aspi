@@ -1,19 +1,19 @@
 >>> % 9. There is only one Pythagorean triplet, {a, b, c}, for which a + b + c = 96. Find the product abc.
->>> pythag(A n2, B n2, C n2) :- A**2 = (B**2) + (C**2).
---> pythag(A,B,C) :- A = MuA, A = 1 .. 99, B = MuB, B = 1 .. 99, C = MuC, C = 1 .. 99, (MuA**2) = ((MuB**2)+(MuC**2)).
+>>> pythag(A n2, B n2, C n2) :- (A**2) + (B**2) = C**2.
+--> pythag(A,B,C) :- A = MuA, nondet_int_in_range(1,99,A), B = MuB, nondet_int_in_range(1,99,B), C = MuC, nondet_int_in_range(1,99,C), (D+E) = F, pow(MuA,2,D), pow(MuB,2,E), pow(MuC,2,F).
 understood.
 
 >>> pythag[3,4]?
---> what(A) :- pythag(A,3,4).
+--> what(A) :- pythag(3,4,A).
 that: 5.
 
->>> triple(A,B,C) :- pythag(A,B,C)?
---> what(triple(MuA,MuB,MuC)) :- pythag(MuA,MuB,MuC).
-that: triple(5,3,4) | triple(5,4,3) | triple(10,6,8) | triple(10,8,6) | triple(13,5,12) | triple(13,12,5) | triple(15,9,12) | triple(15,12,9) | triple(17,8,15) | triple(17,15,8) | triple(20,12,16) | triple(20,16,12) | triple(25,7,24) | triple(25,15,20) | triple(25,20,15) | triple(25,24,7) | triple(26,10,24) | triple(26,24,10) | triple(29,20,21) | triple(29,21,20) | triple(30,18,24) | triple(30,24,18) | triple(34,16,30) | triple(34,30,16) | triple(35,21,28) | triple(35,28,21) | triple(37,12,35) | triple(37,35,12) | triple(39,15,36) | triple(39,36,15) | triple(40,24,32) | triple(40,32,24) | triple(41,9,40) | triple(41,40,9) | triple(45,27,36) | triple(45,36,27) | triple(50,14,48) | triple(50,30,40) | triple(50,40,30) | triple(50,48,14) | triple(51,24,45) | triple(51,45,24) | triple(52,20,48) | triple(52,48,20) | triple(53,28,45) | triple(53,45,28) | triple(55,33,44) | triple(55,44,33) | triple(58,40,42) | triple(58,42,40) | triple(60,36,48) | triple(60,48,36) | triple(61,11,60) | triple(61,60,11) | triple(65,16,63) | triple(65,25,60) | triple(65,33,56) | triple(65,39,52) | triple(65,52,39) | triple(65,56,33) | triple(65,60,25) | triple(65,63,16) | triple(68,32,60) | triple(68,60,32) | triple(70,42,56) | triple(70,56,42) | triple(73,48,55) | triple(73,55,48) | triple(74,24,70) | triple(74,70,24) | triple(75,21,72) | triple(75,45,60) | triple(75,60,45) | triple(75,72,21) | triple(78,30,72) | triple(78,72,30) | triple(80,48,64) | triple(80,64,48) | triple(82,18,80) | triple(82,80,18) | triple(85,13,84) | triple(85,36,77) | triple(85,40,75) | triple(85,51,68) | triple(85,68,51) | triple(85,75,40) | triple(85,77,36) | triple(85,84,13) | triple(87,60,63) | triple(87,63,60) | triple(89,39,80) | triple(89,80,39) | triple(90,54,72) | triple(90,72,54) | triple(91,35,84) | triple(91,84,35) | triple(95,57,76) | triple(95,76,57) | triple(97,65,72) | triple(97,72,65).
+>>> tuple(A,B,C) :- pythag(A,B,C)?
+--> what({MuA,MuB,MuC}) :- pythag(MuA,MuB,MuC).
+that: [3, 4, 5] | [4, 3, 5] | [5, 12, 13] | [6, 8, 10] | [7, 24, 25] | [8, 6, 10] | [8, 15, 17] | [9, 12, 15] | [9, 40, 41] | [10, 24, 26] | [11, 60, 61] | [12, 5, 13] | [12, 9, 15] | [12, 16, 20] | [12, 35, 37] | [13, 84, 85] | [14, 48, 50] | [15, 8, 17] | [15, 20, 25] | [15, 36, 39] | [16, 12, 20] | [16, 30, 34] | [16, 63, 65] | [18, 24, 30] | [18, 80, 82] | [20, 15, 25] | [20, 21, 29] | [20, 48, 52] | [21, 20, 29] | [21, 28, 35] | [21, 72, 75] | [24, 7, 25] | [24, 10, 26] | [24, 18, 30] | [24, 32, 40] | [24, 45, 51] | [24, 70, 74] | [25, 60, 65] | [27, 36, 45] | [28, 21, 35] | [28, 45, 53] | [30, 16, 34] | [30, 40, 50] | [30, 72, 78] | [32, 24, 40] | [32, 60, 68] | [33, 44, 55] | [33, 56, 65] | [35, 12, 37] | [35, 84, 91] | [36, 15, 39] | [36, 27, 45] | [36, 48, 60] | [36, 77, 85] | [39, 52, 65] | [39, 80, 89] | [40, 9, 41] | [40, 30, 50] | [40, 42, 58] | [40, 75, 85] | [42, 40, 58] | [42, 56, 70] | [44, 33, 55] | [45, 24, 51] | [45, 28, 53] | [45, 60, 75] | [48, 14, 50] | [48, 20, 52] | [48, 36, 60] | [48, 55, 73] | [48, 64, 80] | [51, 68, 85] | [52, 39, 65] | [54, 72, 90] | [55, 48, 73] | [56, 33, 65] | [56, 42, 70] | [57, 76, 95] | [60, 11, 61] | [60, 25, 65] | [60, 32, 68] | [60, 45, 75] | [60, 63, 87] | [63, 16, 65] | [63, 60, 87] | [64, 48, 80] | [65, 72, 97] | [68, 51, 85] | [70, 24, 74] | [72, 21, 75] | [72, 30, 78] | [72, 54, 90] | [72, 65, 97] | [75, 40, 85] | [76, 57, 95] | [77, 36, 85] | [80, 18, 82] | [80, 39, 89] | [84, 13, 85] | [84, 35, 91].
 
->>> triple(A,B,C) :- pythag(A,B,C), (A+B)+C = 96?
---> what(triple(MuA,MuB,MuC)) :- pythag(MuA,MuB,MuC), ((MuA+MuB)+MuC) = 96.
-that: triple(40,24,32) | triple(40,32,24).
+>>> tuple(A,B,C) :- pythag(A,B,C), (A+B)+C = 96?
+--> what({MuA,MuB,MuC}) :- pythag(MuA,MuB,MuC), ((MuA+MuB)+MuC) = 96.
+that: [24, 32, 40] | [32, 24, 40].
 
 >>> (A*B)*C :- pythag(A,B,C), (A+B)+C = 96?
 --> what((MuA*MuB)*MuC) :- pythag(MuA,MuB,MuC), ((MuA+MuB)+MuC) = 96.

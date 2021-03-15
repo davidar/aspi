@@ -34,12 +34,8 @@ def run_mercury(lp: str) -> List[str]:
         result = sh.Command(os.path.join(tempdir, 'main'))().stdout
     if 'DEBUG' in os.environ:
         print(result, file=sys.stderr)
-    for x in json.loads(result):
-        if type(x) is list:
-            x = f'list{tuple(x)}'
-        else:
-            x = repr(x)
-        x = x.replace("'", '"')
+    for x in json.loads(result.replace(b'{',b'[').replace(b'}',b']')):
+        x = repr(x).replace("'", '"')
         yield f'what({x})'
 
 

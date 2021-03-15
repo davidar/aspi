@@ -327,6 +327,8 @@ class LDCS(lark.Transformer[str]):
 
     def pred(self, name: str, *args: CSym) -> CSym:
         vals, bodies = unzip(args)
+        if name == 'tuple':
+            return f"{{{','.join(vals)}}}", commas(*bodies)
         if not vals:
             return name, None
         return f"{name}({','.join(vals)})", commas(*bodies)
