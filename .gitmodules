@@ -1,0 +1,3 @@
+[submodule "mercury"]
+	path = mercury
+	url = https://github.com/Mercury-Language/mercury.git
