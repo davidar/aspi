@@ -1,12 +1,13 @@
 >>> % 21. Evaluate the sum of all amicable numbers under 1000.
+>>> #mode proper_divisor(in,out).
+>>> #pragma memo(proper_divisor/2).
 >>> proper_divisor[N n3]: 1..(N-1) multiple=N.
---> proper_divisor(B,A) :- A = MuN, A = 1 .. 999, B = 1 .. (MuN-1), (MuN \ B) = 0.
+--> proper_divisor(A,C) :- A = MuN, nondet_int_in_range(1,999,A), C = B, nondet_int_in_range(1,MuN-1,B), (mod(MuN,C)) = 0.
 understood.
 
 >>> aliquot[N n3]: sum{proper_divisor.N}.
---> aliquot(D,A) :- A = MuN, A = 1 .. 999, D = @sumof(C), setof((1,MuN),C).
-    gather_index((1,MuN)) :- A = MuN, A = 1 .. 999.
-    gather((1,MuN),B) :- proper_divisor(B,MuN), A = MuN, A = 1 .. 999.
+--> aliquot(A,D) :- A = MuN, nondet_int_in_range(1,999,A), sum(C,D), solutions(gather1(MuN),C).
+    gather1(MuN,B) :- proper_divisor(MuN,B), A = MuN, nondet_int_in_range(1,999,A).
 understood.
 
 >>> perfect(A) :- aliquot(A,A).
@@ -17,12 +18,14 @@ understood.
 --> what(A) :- perfect(A).
 that: 6 | 28 | 496.
 
+>>> #mode amicable(in,out).
+>>> #pragma memo(amicable/2).
 >>> amicable(A,B) :- aliquot(A,B), aliquot(B,A), A != B.
---> amicable(MuA,MuB) :- aliquot(MuA,MuB), aliquot(MuB,MuA), MuA != MuB.
+--> amicable(MuA,MuB) :- aliquot(MuA,MuB), aliquot(MuB,MuA), MuA \= MuB.
 understood.
 
 >>> amicable: amicable.n3.
---> amicable(B) :- amicable(B,A), A = 1 .. 999.
+--> amicable(B) :- amicable(A,B), nondet_int_in_range(1,999,A).
 understood.
 
 >>> amicable?
@@ -30,8 +33,8 @@ understood.
 that: 220 | 284.
 
 >>> sum{amicable (< 1000)}?
---> what(C) :- C = @sumof(B), setof((2),B).
-    gather((2),A) :- amicable(A), A < 1000.
+--> gather2(A) :- amicable(A), A < 1000.
+    what(C) :- sum(B,C), solutions(gather2,B).
 that: 504.
 
 >>> thanks.
