@@ -350,6 +350,8 @@ class LDCS(lark.Transformer[str]):
             return x, commas(f'pow({arg1},{arg2},{x})', body)
         if op == '!=':
             op = '\='
+        if op == '<=':
+            op = '=<'
         if not arg1.isalnum() and arg1[0] != '@':
             arg1 = f'({arg1})'
         if not arg2.isalnum() and arg2[0] != '@':
@@ -438,7 +440,7 @@ class LDCS(lark.Transformer[str]):
         var, body = var_body
         if ', ' not in body and ' = ' in body:
             return lambda x: commas(f'{x} = {var}', body.replace('=', '\='))
-        lam = self.lift(var_body, 'negation', ground=True)
+        lam = self.lift(var_body, 'negation')
         return lambda x: 'not ' + lam(x)
 
     def ineq(self, op: str, var_body: CSym) -> Unary:

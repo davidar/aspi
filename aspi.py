@@ -26,13 +26,16 @@ atexit.register(readline.write_history_file, 'history.log')
 
 
 def run_mercury(lp: str) -> List[str]:
+    dbg = ('DEBUG' in os.environ)
     with tempfile.TemporaryDirectory() as tempdir:
         with open(os.path.join(tempdir, 'main.m'), 'w') as f:
             print(lp, file=f)
-        sh.mmc('main.m', infer_all=True, grade='asm_fast.gc.decldebug.stseg', _cwd=tempdir,
-                _err=sys.stderr if 'DEBUG' in os.environ else None)
+        sh.mmc('main.m', infer_all=True,
+                grade='asm_fast.gc.decldebug.stseg' if dbg else 'asm_fast.gc',
+                _cwd=tempdir,
+                _err=sys.stderr if dbg else None)
         result = sh.Command(os.path.join(tempdir, 'main'))().stdout
-    if 'DEBUG' in os.environ:
+    if dbg:
         print(result, file=sys.stderr)
     for x in result.decode('utf8').split('\n'):
         yield f'what({x})'

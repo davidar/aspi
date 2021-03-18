@@ -1,26 +1,32 @@
 >>> % 11. What is the greatest product of four numbers on the same straight line?
 >>> 
 >>> grid[R,C]: csv[R,C].
---> grid(A,MuR,MuC) :- csv(A,MuR,MuC).
+--> grid(MuR,MuC,A) :- csv(MuR,MuC,A).
 understood.
 
->>> line[R 1..10, C 1..10, I (-1)..1, J (-1)..1]: grid[R + (I*N), C + (J*N)] :- N = 0..3.
---> line(F,A,B,C,D) :- A = MuR, A = 1 .. 10, B = MuC, B = 1 .. 10, C = MuI, C = (-1) .. 1, D = MuJ, D = (-1) .. 1, grid(F,MuR+(MuI*MuN),MuC+(MuJ*MuN)), MuN = E, E = 0 .. 3.
+>>> unit: 1 | (-1).
+--> unit(A) :- disjunction1(A).
+    disjunction1(1).
+    disjunction1(-1).
 understood.
 
->>> lines: {{line[R,C,I,J]}}.
---> lines(B) :- bagof((1,MuC,MuI,MuJ,MuR),B).
-    gather((1,MuC,MuI,MuJ,MuR),(A,P0)) :- proof(P0,line(A,MuR,MuC,MuI,MuJ)).
+>>> line[R 1..10, C 1..10, unit I, unit J]: grid[X,Y] :- N = 0..3, X = R + (I*N), Y = C + (J*N).
+--> line(B,D,E,F,H) :- B = MuR, B = A, nondet_int_in_range(1,10,A), D = MuC, D = C, nondet_int_in_range(1,10,C), unit(E), E = MuI, unit(F), F = MuJ, grid(MuX,MuY,H), MuN = G, nondet_int_in_range(0,3,G), MuX = (MuR+(MuI*MuN)), MuY = (MuC+(MuJ*MuN)).
 understood.
 
->>> lines product=max{product.lines}?
---> what(E) :- lines(E), D = @productof(E), D = @maxof(C), setof((2),C).
-    gather((2),B) :- B = @productof(A), lines(A).
-that: bag(49,71,95,99).
+>>> lines: {{line[R,C,I,J]}} :- R = 1..10, C = 1..10, unit(I), unit(J).
+--> lines(D) :- sorted_solutions(gather1(MuC,MuI,MuJ,MuR),D), MuR = B, nondet_int_in_range(1,10,B), MuC = C, nondet_int_in_range(1,10,C), unit(MuI), unit(MuJ).
+    gather1(MuC,MuI,MuJ,MuR,A) :- line(MuR,MuC,MuI,MuJ,A), MuR = B, nondet_int_in_range(1,10,B), MuC = C, nondet_int_in_range(1,10,C), unit(MuI), unit(MuJ).
+understood.
 
->>> product.that?
---> what(B) :- B = @productof(A), that(A).
+>>> max{product.lines}?
+--> gather2(B) :- product(A,B), lines(A).
+    what(D) :- max(C,D), solutions(gather2,C).
 that: 32719995.
+
+>>> lines product=that?
+--> what(B) :- lines(B), product(B,A), that(A).
+that: [49, 71, 95, 99].
 
 >>> thanks.
 YOU'RE WELCOME!
