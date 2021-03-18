@@ -1,4 +1,6 @@
 >>> % 25. What is the first term in the Fibonacci sequence to contain 10 digits?
+>>> #mode fib(in,out).
+>>> #pragma memo(fib/2).
 >>> fib[0]: 0.
 --> fib(0,0).
 understood.
@@ -8,25 +10,28 @@ understood.
 understood.
 
 >>> fib[N 2..45]: fib[N-1] + fib[N-2].
---> fib(B+C,A) :- A = MuN, A = 2 .. 45, fib(B,MuN-1), fib(C,MuN-2).
+--> fib(B,C+D) :- B = MuN, B = A, nondet_int_in_range(2,45,A), fib(MuN-1,C), fib(MuN-2,D).
 understood.
 
 >>> fib: fib[0..45].
---> fib(B) :- fib(B,A), A = 0 .. 45.
+--> fib(B) :- fib(A,B), nondet_int_in_range(0,45,A).
 understood.
 
->>> #macro char.S: substring.S length=1.
---> char(E,MuS) :- E = @substring(MuS,F,G), F = H, F = 1 .. I, G = 0 .. ((I - H) + 1), I = @length(MuS), 1 = @length(E).
+>>> #macro char.S: substring[S, 1..length.S, 1].
+--> char(MuS,C) :- between(MuS,B - 1,(B + 1) - 1,C), nondet_int_in_range(1,A,B), length(MuS,A).
 understood.
 
 >>> #macro digit.N: decimal.char.show.N.
---> digit(K,MuN) :- K = @decimal(F), F = @substring(A,G,H), G = I, G = 1 .. J, H = 0 .. ((J - I) + 1), J = @length(A), 1 = @length(F), A = @show(MuN).
+--> digit(MuN,G) :- decimal(D,G), between(A,E - 1,(E + 1) - 1,D), nondet_int_in_range(1,F,E), length(A,F), show(MuN,A).
 understood.
 
->>> fib N :- count{{digit.N}} = 10?
---> what(Q) :- fib(Q), Q = MuN, P = 10, P = @countof(O), bagof((1,MuN),O).
-    aggregation((1,MuN),G) :- G = @decimal(H), H = @substring(I,J,K), J = L, J = 1 .. M, K = 0 .. ((M - L) + 1), M = @length(I), 1 = @length(H), I = @show(MuN), fib(Q), Q = MuN, P = 10.
-    gather((1,MuN),(N,P0)) :- proof(P0,aggregation((1,MuN),N)), fib(Q), Q = MuN, P = 10.
+>>> fib?
+--> what(A) :- fib(A).
+that: 0 | 1 | 2 | 3 | 5 | 8 | 13 | 21 | 34 | 55 | 89 | 144 | 233 | 377 | 610 | 987 | 1597 | 2584 | 4181 | 6765 | 10946 | 17711 | 28657 | 46368 | 75025 | 121393 | 196418 | 317811 | 514229 | 832040 | 1346269 | 2178309 | 3524578 | 5702887 | 9227465 | 14930352 | 24157817 | 39088169 | 63245986 | 102334155 | 165580141 | 267914296 | 433494437 | 701408733 | 1134903170.
+
+>>> that N :- count{{digit.N}} = 10?
+--> gather1(MuN,E) :- decimal(F,E), between(G,H - 1,(H + 1) - 1,F), nondet_int_in_range(1,I,H), length(G,I), show(MuN,G), that(L), L = MuN, K = 10.
+    what(L) :- that(L), L = MuN, K = 10, count(J,K), sorted_solutions(gather1(MuN),J).
 that: 1134903170.
 
 >>> thanks.
