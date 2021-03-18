@@ -3,7 +3,7 @@
 :- import_module io.
 :- pred main(io::di, io::uo) is det.
 :- implementation.
-:- import_module int, list, solutions, string.
+:- import_module int, list, solutions, string, char.
 
 sum([X|L], X+S) :- sum(L,S).
 sum([], 0).
@@ -22,7 +22,9 @@ count(L,N) :- list.length(L,N).
 :- pred show(int, string).
 show(X,S) :- format("%d", [i(X)], S).
 
-decimal(S,X) :- to_int(S,X).
+decimal(S,X) :- string.to_int(S,X).
+
+codepoint(S,X) :- to_char_list(S,[C]), char.to_int(C,X).
 
 :- pred reverse(string, string).
 reverse(S, from_char_list(to_rev_char_list(S))).

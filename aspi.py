@@ -29,13 +29,12 @@ def run_mercury(lp: str) -> List[str]:
     with tempfile.TemporaryDirectory() as tempdir:
         with open(os.path.join(tempdir, 'main.m'), 'w') as f:
             print(lp, file=f)
-        sh.mmc('main.m', infer_all=True, _cwd=tempdir,
+        sh.mmc('main.m', infer_all=True, grade='asm_fast.gc.decldebug.stseg', _cwd=tempdir,
                 _err=sys.stderr if 'DEBUG' in os.environ else None)
         result = sh.Command(os.path.join(tempdir, 'main'))().stdout
     if 'DEBUG' in os.environ:
         print(result, file=sys.stderr)
-    for x in json.loads(result.replace(b'{',b'[').replace(b'}',b']')):
-        x = repr(x).replace("'", '"')
+    for x in result.decode('utf8').split('\n'):
         yield f'what({x})'
 
 
@@ -106,7 +105,7 @@ class ASPI:
             return
         if cmd.startswith('#include "'):
             return self.include(cmd[len('#include "'):-2])
-        if cmd.startswith('#pragma ') or cmd.startswith('#mode '):
+        if cmd.split()[0] in ('#pragma','#mode','#type'):
             self.program += f':- {cmd[1:]}\n'
             return
         if cmd == 'thanks.':
@@ -147,7 +146,7 @@ class ASPI:
         for t in self.that:
             if not t.startswith('list'):
                 lp += f'that({t}).\n'
-        lp += 'main(!IO) :- solutions(what,X), print(X,!IO), nl(!IO).\n'
+        lp += 'main(!IO) :- solutions(what,X), write_list(X,"\n",write,!IO).\n'
 
         try:
             return Results(self, run_mercury(lp))
@@ -180,7 +179,6 @@ class Results:
         self.acts: List[str] = []
         self.already: List[str] = []
         self.shows: List[str] = []
-        self.names: Dict[str, str] = {}
         for result in results:
             self.parse(result)
         self.acts = [self.replace_names(act, t)
@@ -190,7 +188,7 @@ class Results:
     def replace_names(self, s: str, offset: int = 0) -> str:
         while True:
             r = s
-            for k, v in self.names.items():
+            for k, v in self.parent.ldcs.describe.items():
                 if k[-1] == ')':
                     r = r.replace(k, v)
                 else:
@@ -213,9 +211,6 @@ class Results:
         elif result.startswith('already('):
             result = result[len('already('):-1].replace(',', ', ')
             self.already.append(result)
-        elif result.startswith('describe('):
-            r = result[len('describe('):-1].split(',')
-            self.names[r[0]] = ' '.join(r[1:])
         elif result in ('ok', 'yes', 'no'):
             self.status = result
 

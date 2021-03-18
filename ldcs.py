@@ -111,6 +111,7 @@ class LDCS(lark.Transformer[str]):
         self.counts: Dict[str, int] = {}
         self.rules: List[str] = []
         self.macros: Dict[str, Tuple[List[Sym], lark.Tree]] = {}
+        self.describe: Dict[str, str] = {}
 
     def counter(self, prefix: str = '') -> int:
         if prefix not in self.counts:
@@ -269,16 +270,17 @@ class LDCS(lark.Transformer[str]):
         return f'proof(@proof({prf}),{head}) :- {commas(*terms)}.'
 
     def enum(self, head: str, *args: List[Unary]) -> None:
+        self.rules.append(f':- type {head} ---> {head}_(int).')
         for lams in args:
             i = self.counter(head)
-            name = f'{head}({i})'
+            name = f'{head}_({i})'
             describe = ', '.join(lam('').replace('()', '')
                                  for lam in lams if ', ' not in lam('')
                                                 and ',)' not in lam(''))
             if describe:
-                self.rules.append(f'describe({name}, {describe}).')
+                self.describe[name] = describe
             self.rules.append(f'{head}({name}).')
-            self.rules.append(f'{head}({name},{i}).')
+            self.rules.append(f'{head}({i},{name}).')
             for lam in lams:
                 self.rules.append(lam(name).replace(', ', ' :- ', 1) + '.')
 
@@ -346,6 +348,8 @@ class LDCS(lark.Transformer[str]):
         if op == '**':
             x = self.gensym()
             return x, commas(f'pow({arg1},{arg2},{x})', body)
+        if op == '!=':
+            op = '\='
         if not arg1.isalnum() and arg1[0] != '@':
             arg1 = f'({arg1})'
         if not arg2.isalnum() and arg2[0] != '@':
