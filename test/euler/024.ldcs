@@ -1,2 +1,2 @@
 % 24. What is the hundredth lexicographic permutation of the digits 1, 2, 3, 4, and 5?
-100'th.{permutation."12345"}?
+100'th.{from_char_list.perm.to_char_list."12345"}?

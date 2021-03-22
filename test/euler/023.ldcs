@@ -1,8 +1,10 @@
 % 23. Find the largest even positive integer which cannot be written as the sum of two abundant numbers.
 proper_divisor[N n3]: 1..(N-1) multiple=N.
 aliquot[N n3]: sum{proper_divisor.N}.
+#mode abundant(out).
+#pragma memo(abundant/1).
 abundant(N n3) :- N < aliquot.N.
 abundant?
-abundant + abundant?
+that + that?
 n3 ~that?
 max{that even}?

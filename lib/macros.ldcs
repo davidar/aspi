@@ -19,26 +19,9 @@ before(E,F) :- end_time(0..(T-1), E), start_time(T, F).
 during(E,F) :- start_time(S T1..T2, E), end_time(S..T2, E), start_time(T1, F (!= E)), end_time(T2, F).
 just_before(E,F) :- end_time(T-1, E), start_time(T, F).
 
-negate.Y: (-Y).
-multiple(X,Y) :- X \ Y = 0.
-even(X) :- X \ 2 = 0.
-odd(X) :- X \ 2 = 1.
+multiple(Y,X) :- mod(X,Y) = 0.
 
-show(X,A) :- X = @show(A).
-concatenate(X,A,B) :- X = @concatenate(A,B).
-concatenate(X,A,B,C) :- X = @concatenate(A,Y), Y = @concatenate(B,C).
-reverse(X,A) :- X = @reverse(A).
-substring(X,A,S,L) :- X = @substring(A,S,L).
-substring(X,A) :- X = @substring(A, S 1..N, 0..((N-S)+1)), N = @length(A).
-length(X,A) :- X = @length(A).
-decimal(X,A) :- X = @decimal(A).
-permutation(X,A) :- X = @permutation(A).
-codepoint(X,A) :- X = @codepoint(A).
-
-count(X,L) :- X = @countof(L).
-sum(X,L) :- X = @sumof(L).
-product(X,L) :- X = @productof(L).
-min(X,L) :- X = @minof(L).
-max(X,L) :- X = @maxof(L).
+substring(A,S,L,X) :- between(A,S-1,(S+L)-1,X).
+substring(A,X) :- substring(A, 1..N, 1..(N+1), X), length(A,N).
 
 mean.L: sum.L / count.L.

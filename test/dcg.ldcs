@@ -1,4 +1,5 @@
-#macro words[A,B]: concatenate[A, " ", B].
+#macro words[A,B]: (A ++ " ") ++ B.
+#type tree ---> s(tree,tree); np(string,string); vp(string,tree).
 sentence[s(N,V)]: words[noun_phrase.N, verb_phrase.V].
 noun_phrase[np(D,N)]: words[det D, noun N].
 verb_phrase[vp(V,N)]: words[verb V, noun_phrase.N].

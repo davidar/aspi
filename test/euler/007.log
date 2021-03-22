@@ -1,16 +1,18 @@
 >>> % 7. Find the 101st prime.
+>>> #mode composite(out).
+>>> #pragma memo(composite/1).
 >>> composite: N multiple[2..(N-1)] n3.
---> composite(B) :- B = MuN, (B \ A) = 0, A = 2 .. (MuN-1), B = 1 .. 999.
+--> composite(B) :- B = MuN, (mod(B,A)) = 0, nondet_int_in_range(2,MuN-1,A), nondet_int_in_range(1,999,B).
 understood.
 
 >>> prime: (> 1) ~composite n3.
---> prime(B) :- B > 1, not negation((2),B), B = 1 .. 999.
-    negation((2),A) :- composite(A), A = 1 .. 999.
+--> prime(B) :- B > 1, not negation1(B), nondet_int_in_range(1,999,B).
+    negation1(A) :- composite(A).
 understood.
 
 >>> 101'th.{prime}?
---> what(D) :- A = 101, (A,D) = @enumerateof(C), setof((1),C).
-    gather((1),B) :- prime(B).
+--> gather1(B) :- prime(B).
+    what(D) :- A = 101, index1(C,A,D), solutions(gather1,C).
 that: 547.
 
 >>> thanks.

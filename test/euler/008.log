@@ -1,25 +1,24 @@
 >>> % 8. Discover the largest product of four consecutive digits in the 10-digit number.
 >>> four_digits: substring."0319989000" length=4.
---> four_digits(E) :- E = @substring("0319989000",F,G), F = H, F = 1 .. I, G = 0 .. ((I - H) + 1), I = @length("0319989000"), 4 = @length(E).
+--> four_digits(D) :- between("0319989000",E - 1,(E + F) - 1,D), nondet_int_in_range(1,G,E), nondet_int_in_range(1,G + 1,F), length("0319989000",G), length(D,4).
 understood.
 
 >>> four_digits?
 --> what(A) :- four_digits(A).
 that: "0319" | "1998" | "3199" | "8900" | "9000" | "9890" | "9989".
 
->>> #macro char.S: substring.S length=1.
---> char(E,MuS) :- E = @substring(MuS,F,G), F = H, F = 1 .. I, G = 0 .. ((I - H) + 1), I = @length(MuS), 1 = @length(E).
+>>> #macro char.S: substring[S, 1..length.S, 1].
+--> char(MuS,C) :- between(MuS,B - 1,(B + 1) - 1,C), nondet_int_in_range(1,A,B), length(MuS,A).
 understood.
 
 >>> product{{decimal.char.S}} :- four_digits(S)?
---> what(M) :- M = @productof(L), bagof((1,MuS),L), four_digits(MuS).
-    aggregation((1,MuS),J) :- J = @decimal(E), E = @substring(MuS,F,G), F = H, F = 1 .. I, G = 0 .. ((I - H) + 1), I = @length(MuS), 1 = @length(E), four_digits(MuS).
-    gather((1,MuS),(K,P0)) :- proof(P0,aggregation((1,MuS),K)), four_digits(MuS).
+--> gather1(MuS,F) :- decimal(C,F), between(MuS,D - 1,(D + 1) - 1,C), nondet_int_in_range(1,E,D), length(MuS,E), four_digits(MuS).
+    what(H) :- product(G,H), sorted_solutions(gather1(MuS),G), four_digits(MuS).
 that: 0 | 243 | 648 | 5832.
 
 >>> max{that}?
---> what(C) :- C = @maxof(B), setof((2),B).
-    gather((2),A) :- that(A).
+--> gather2(A) :- that(A).
+    what(C) :- max(B,C), solutions(gather2,B).
 that: 5832.
 
 >>> thanks.

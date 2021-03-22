@@ -10,6 +10,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install Mercury
+      run: |
+        sudo apt update && sudo apt install -y wget ca-certificates gnupg
+        wget https://paul.bone.id.au/paul.asc -O- | sudo apt-key add -
+        echo deb http://dl.mercurylang.org/deb/ focal main | sudo tee /etc/apt/sources.list.d/mercury.list
+        sudo apt update && sudo apt install -y mercury-recommended
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:

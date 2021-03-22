@@ -3,23 +3,23 @@
 ...               |                                                ip_address_state="Punjab"
 ...               | mailing_state="Gujarat" billing_state="Punjab" ip_address_state="Gujarat"
 ...               .
---> customer(customer(1)).
-    customer(customer(1),1).
-    mailing_state("Bihar",customer(1)).
-    billing_state("Bihar",customer(1)).
-    ip_address_state("Bihar",customer(1)).
-    customer(customer(2)).
-    customer(customer(2),2).
-    billing_state("Kerala",customer(2)).
-    ip_address_state("Kerala",customer(2)).
-    customer(customer(3)).
-    customer(customer(3),3).
-    ip_address_state("Punjab",customer(3)).
-    customer(customer(4)).
-    customer(customer(4),4).
-    mailing_state("Gujarat",customer(4)).
-    billing_state("Punjab",customer(4)).
-    ip_address_state("Gujarat",customer(4)).
+--> customer(customer_(1)).
+    customer(1,customer_(1)).
+    mailing_state(customer_(1),"Bihar").
+    billing_state(customer_(1),"Bihar").
+    ip_address_state(customer_(1),"Bihar").
+    customer(customer_(2)).
+    customer(2,customer_(2)).
+    billing_state(customer_(2),"Kerala").
+    ip_address_state(customer_(2),"Kerala").
+    customer(customer_(3)).
+    customer(3,customer_(3)).
+    ip_address_state(customer_(3),"Punjab").
+    customer(customer_(4)).
+    customer(4,customer_(4)).
+    mailing_state(customer_(4),"Gujarat").
+    billing_state(customer_(4),"Punjab").
+    ip_address_state(customer_(4),"Gujarat").
 understood.
 
 >>> 
@@ -27,18 +27,19 @@ understood.
 ...           | email="bob@builder.com"
 ...           | email="asdf@fake.com"
 ...           .
---> user(user(1)).
-    user(user(1),1).
-    email("asdf@fake.com",user(1)).
-    user(user(2)).
-    user(user(2),2).
-    email("bob@builder.com",user(2)).
-    user(user(3)).
-    user(user(3),3).
-    email("asdf@fake.com",user(3)).
+--> user(user_(1)).
+    user(1,user_(1)).
+    email(user_(1),"asdf@fake.com").
+    user(user_(2)).
+    user(2,user_(2)).
+    email(user_(2),"bob@builder.com").
+    user(user_(3)).
+    user(3,user_(3)).
+    email(user_(3),"asdf@fake.com").
 understood.
 
 >>> 
+>>> #mode genus(out,out) is multi.
 >>> #enum plant: genus="Astragalus" species="annularis"
 ...            | genus="Astragalus" species="anisus"
 ...            | genus="Astragalus" species="annularis"
@@ -46,88 +47,101 @@ understood.
 ...            | genus="Eugenia" species="foetida"
 ...            | genus="Eugenia" species="lamprophylla"
 ...            .
---> plant(plant(1)).
-    plant(plant(1),1).
-    genus("Astragalus",plant(1)).
-    species("annularis",plant(1)).
-    plant(plant(2)).
-    plant(plant(2),2).
-    genus("Astragalus",plant(2)).
-    species("anisus",plant(2)).
-    plant(plant(3)).
-    plant(plant(3),3).
-    genus("Astragalus",plant(3)).
-    species("annularis",plant(3)).
-    plant(plant(4)).
-    plant(plant(4),4).
-    genus("Eugenia",plant(4)).
-    species("fulva",plant(4)).
-    plant(plant(5)).
-    plant(plant(5),5).
-    genus("Eugenia",plant(5)).
-    species("foetida",plant(5)).
-    plant(plant(6)).
-    plant(plant(6),6).
-    genus("Eugenia",plant(6)).
-    species("lamprophylla",plant(6)).
+--> plant(plant_(1)).
+    plant(1,plant_(1)).
+    genus(plant_(1),"Astragalus").
+    species(plant_(1),"annularis").
+    plant(plant_(2)).
+    plant(2,plant_(2)).
+    genus(plant_(2),"Astragalus").
+    species(plant_(2),"anisus").
+    plant(plant_(3)).
+    plant(3,plant_(3)).
+    genus(plant_(3),"Astragalus").
+    species(plant_(3),"annularis").
+    plant(plant_(4)).
+    plant(4,plant_(4)).
+    genus(plant_(4),"Eugenia").
+    species(plant_(4),"fulva").
+    plant(plant_(5)).
+    plant(5,plant_(5)).
+    genus(plant_(5),"Eugenia").
+    species(plant_(5),"foetida").
+    plant(plant_(6)).
+    plant(6,plant_(6)).
+    genus(plant_(6),"Eugenia").
+    species(plant_(6),"lamprophylla").
 understood.
 
 >>> 
->>> #enum pet: owner=owner(1) type="dog"
-...          | owner=owner(1) type="cat"
-...          | owner=owner(2) type="dog"
-...          | owner=owner(2) type="parakeet"
-...          .
---> pet(pet(1)).
-    pet(pet(1),1).
-    owner(owner(1),pet(1)).
-    type("dog",pet(1)).
-    pet(pet(2)).
-    pet(pet(2),2).
-    owner(owner(1),pet(2)).
-    type("cat",pet(2)).
-    pet(pet(3)).
-    pet(pet(3),3).
-    owner(owner(2),pet(3)).
-    type("dog",pet(3)).
-    pet(pet(4)).
-    pet(pet(4),4).
-    owner(owner(2),pet(4)).
-    type("parakeet",pet(4)).
+>>> #enum owner: maher | rishi | chandra.
+--> owner(owner_(1)).
+    owner(1,owner_(1)).
+    maher(owner_(1)).
+    owner(owner_(2)).
+    owner(2,owner_(2)).
+    rishi(owner_(2)).
+    owner(owner_(3)).
+    owner(3,owner_(3)).
+    chandra(owner_(3)).
 understood.
 
 >>> 
->>> #enum dog: owner="ken"   name="darcy"
-...          | owner="bob"   name="darcy"
-...          | owner="bob"   name="lassie"
-...          | owner="ahmed" name="darcy"
-...          | owner="sara"  name="floof"
-...          | owner="sara"  name="lassie"
+>>> #enum pet: pet_owner=owner.1 type="dog"
+...          | pet_owner=owner.1 type="cat"
+...          | pet_owner=owner.2 type="dog"
+...          | pet_owner=owner.2 type="parakeet"
 ...          .
---> dog(dog(1)).
-    dog(dog(1),1).
-    owner("ken",dog(1)).
-    name("darcy",dog(1)).
-    dog(dog(2)).
-    dog(dog(2),2).
-    owner("bob",dog(2)).
-    name("darcy",dog(2)).
-    dog(dog(3)).
-    dog(dog(3),3).
-    owner("bob",dog(3)).
-    name("lassie",dog(3)).
-    dog(dog(4)).
-    dog(dog(4),4).
-    owner("ahmed",dog(4)).
-    name("darcy",dog(4)).
-    dog(dog(5)).
-    dog(dog(5),5).
-    owner("sara",dog(5)).
-    name("floof",dog(5)).
-    dog(dog(6)).
-    dog(dog(6),6).
-    owner("sara",dog(6)).
-    name("lassie",dog(6)).
+--> pet(pet_(1)).
+    pet(1,pet_(1)).
+    pet_owner(pet_(1),A) :- owner(1,A).
+    type(pet_(1),"dog").
+    pet(pet_(2)).
+    pet(2,pet_(2)).
+    pet_owner(pet_(2),B) :- owner(1,B).
+    type(pet_(2),"cat").
+    pet(pet_(3)).
+    pet(3,pet_(3)).
+    pet_owner(pet_(3),C) :- owner(2,C).
+    type(pet_(3),"dog").
+    pet(pet_(4)).
+    pet(4,pet_(4)).
+    pet_owner(pet_(4),D) :- owner(2,D).
+    type(pet_(4),"parakeet").
+understood.
+
+>>> 
+>>> #enum dog: dog_owner="ken"   name="darcy"
+...          | dog_owner="bob"   name="darcy"
+...          | dog_owner="bob"   name="lassie"
+...          | dog_owner="ahmed" name="darcy"
+...          | dog_owner="sara"  name="floof"
+...          | dog_owner="sara"  name="lassie"
+...          .
+--> dog(dog_(1)).
+    dog(1,dog_(1)).
+    dog_owner(dog_(1),"ken").
+    name(dog_(1),"darcy").
+    dog(dog_(2)).
+    dog(2,dog_(2)).
+    dog_owner(dog_(2),"bob").
+    name(dog_(2),"darcy").
+    dog(dog_(3)).
+    dog(3,dog_(3)).
+    dog_owner(dog_(3),"bob").
+    name(dog_(3),"lassie").
+    dog(dog_(4)).
+    dog(4,dog_(4)).
+    dog_owner(dog_(4),"ahmed").
+    name(dog_(4),"darcy").
+    dog(dog_(5)).
+    dog(5,dog_(5)).
+    dog_owner(dog_(5),"sara").
+    name(dog_(5),"floof").
+    dog(dog_(6)).
+    dog(6,dog_(6)).
+    dog_owner(dog_(6),"sara").
+    name(dog_(6),"lassie").
 understood.
 
 >>> 
@@ -139,35 +153,34 @@ understood.
 >>> %           ip_address_state
 >>> %        ) AS state
 >>> % FROM addresses
->>> row(customer C, mailing_state.C || billing_state.C || ip_address_state.C)?
---> what(row(A,E)) :- customer(A), A = MuC, disjunction((1,MuC),E).
-    negation((2,MuC),0) :- mailing_state(B,MuC), billing_state(C,MuC), customer(A), A = MuC.
-    negation((3,MuC),0) :- billing_state(C,MuC), ip_address_state(D,MuC), customer(A), A = MuC.
-    disjunction((1,MuC),B) :- mailing_state(B,MuC), customer(A), A = MuC.
-    disjunction((1,MuC),C) :- not negation((2,MuC),0), billing_state(C,MuC), customer(A), A = MuC.
-    disjunction((1,MuC),D) :- not negation((2,MuC),0), not negation((3,MuC),0), ip_address_state(D,MuC), customer(A), A = MuC.
-that: row(customer(1),"Bihar") | row(customer(2),"Kerala") | row(customer(3),"Punjab") | row(customer(4),"Gujarat").
+>>> tuple(customer C, mailing_state.C || billing_state.C || ip_address_state.C)?
+--> negation1(MuC,0) :- mailing_state(MuC,B), billing_state(MuC,C), customer(A), A = MuC.
+    negation2(MuC,0) :- billing_state(MuC,C), ip_address_state(MuC,D), customer(A), A = MuC.
+    disjunction1(MuC,B) :- mailing_state(MuC,B), customer(A), A = MuC.
+    disjunction1(MuC,C) :- not negation1(MuC,0), billing_state(MuC,C), customer(A), A = MuC.
+    disjunction1(MuC,D) :- not negation1(MuC,0), not negation2(MuC,0), ip_address_state(MuC,D), customer(A), A = MuC.
+    what({A,E}) :- customer(A), A = MuC, disjunction1(MuC,E).
+that: {customer_(1), "Bihar"} | {customer_(2), "Kerala"} | {customer_(3), "Punjab"} | {customer_(4), "Gujarat"}.
 
 >>> 
 >>> % SELECT email, COUNT(*)
 >>> % FROM users
 >>> % GROUP BY email
 >>> % HAVING COUNT(*) > 1
->>> row(E email.user, count{{email=E}} (> 1))?
---> what(row(B,E)) :- B = MuE, email(B,A), user(A), E = @countof(D), bagof((1,MuE),D), E > 1.
-    gather((1,MuE),(C,P0)) :- proof(P0,email(MuE,C)), B = MuE, email(B,A), user(A).
-that: row("asdf@fake.com",2).
+>>> tuple(E email.user, count{{email=E}} (> 1))?
+--> gather1(MuE,C) :- email(C,MuE), B = MuE, email(A,B), user(A).
+    what({B,E}) :- B = MuE, email(A,B), user(A), count(D,E), sorted_solutions(gather1(MuE),D), E > 1.
+that: {"asdf@fake.com", 4}.
 
 >>> 
 >>> % SELECT COUNT(DISTINCT species), genus
 >>> % FROM plants
 >>> % GROUP BY 2
 >>> % ORDER BY 1 ASC
->>> row(count{species.genus=G}, G genus.plant)?
---> what(row(D,F)) :- D = @countof(C), setof((2,MuG),C), F = MuG, genus(F,E), plant(E).
-    gather_index((2,MuG)) :- F = MuG, genus(F,E), plant(E).
-    gather((2,MuG),B) :- species(B,A), genus(MuG,A), F = MuG, genus(F,E), plant(E).
-that: row(2,"Astragalus") | row(3,"Eugenia").
+>>> tuple(count{species.genus=G}, G genus.plant)?
+--> gather2(MuG,B) :- species(A,B), genus(A,MuG), F = MuG, genus(E,F), plant(E).
+    what({D,F}) :- count(C,D), solutions(gather2(MuG),C), F = MuG, genus(E,F), plant(E).
+that: {2, "Astragalus"} | {3, "Eugenia"}.
 
 >>> 
 >>> % SELECT owner
@@ -182,25 +195,22 @@ that: row(2,"Astragalus") | row(3,"Eugenia").
 >>> %     ELSE 0 END) AS num_other
 >>> % FROM pets
 >>> % GROUP BY owner
->>> row(O owner.pet, count{owner=O type="dog"})?
---> what(row(B,E)) :- B = MuO, owner(B,A), pet(A), E = @countof(D), setof((3,MuO),D).
-    gather_index((3,MuO)) :- B = MuO, owner(B,A), pet(A).
-    gather((3,MuO),C) :- owner(MuO,C), type("dog",C), B = MuO, owner(B,A), pet(A).
-that: row(owner(1),1) | row(owner(2),1).
+>>> tuple(O pet_owner.pet, count{pet_owner=O type="dog"})?
+--> gather3(MuO,C) :- pet_owner(C,MuO), type(C,"dog"), B = MuO, pet_owner(A,B), pet(A).
+    what({B,E}) :- B = MuO, pet_owner(A,B), pet(A), count(D,E), solutions(gather3(MuO),D).
+that: {maher, 1} | {rishi, 1}.
 
->>> row(O owner.pet, count{owner=O type="cat"})?
---> what(row(B,E)) :- B = MuO, owner(B,A), pet(A), E = @countof(D), setof((4,MuO),D).
-    gather_index((4,MuO)) :- B = MuO, owner(B,A), pet(A).
-    gather((4,MuO),C) :- owner(MuO,C), type("cat",C), B = MuO, owner(B,A), pet(A).
-that: row(owner(1),1) | row(owner(2),0).
+>>> tuple(O pet_owner.pet, count{pet_owner=O type="cat"})?
+--> gather4(MuO,C) :- pet_owner(C,MuO), type(C,"cat"), B = MuO, pet_owner(A,B), pet(A).
+    what({B,E}) :- B = MuO, pet_owner(A,B), pet(A), count(D,E), solutions(gather4(MuO),D).
+that: {maher, 1} | {rishi, 0}.
 
->>> row(O owner.pet, count{owner=O type=(~"dog" ~"cat")})?
---> what(row(B,F)) :- B = MuO, owner(B,A), pet(A), F = @countof(E), setof((5,MuO),E).
-    negation((4),"dog").
-    negation((5),"cat").
-    gather_index((5,MuO)) :- B = MuO, owner(B,A), pet(A).
-    gather((5,MuO),D) :- owner(MuO,D), type(C,D), not negation((4),C), not negation((5),C), B = MuO, owner(B,A), pet(A).
-that: row(owner(1),0) | row(owner(2),1).
+>>> tuple(O pet_owner.pet, count{pet_owner=O type=(~"dog" ~"cat")})?
+--> negation3("dog").
+    negation4("cat").
+    gather5(MuO,D) :- pet_owner(D,MuO), type(D,C), not negation3(C), not negation4(C), B = MuO, pet_owner(A,B), pet(A).
+    what({B,F}) :- B = MuO, pet_owner(A,B), pet(A), count(E,F), solutions(gather5(MuO),E).
+that: {maher, 0} | {rishi, 1}.
 
 >>> 
 >>> % SELECT owner
@@ -210,10 +220,9 @@ that: row(owner(1),0) | row(owner(2),1).
 >>> %   FROM dogs
 >>> %   GROUP BY name
 >>> %   HAVING count(*) > 2)
->>> owner.name=N :- count{name=N} > 2?
---> what(E) :- owner(E,A), name(MuN,A), D > 2, D = @countof(C), setof((6,MuN),C).
-    gather_index((6,MuN)) :- owner(E,A), name(MuN,A).
-    gather((6,MuN),B) :- name(MuN,B), owner(E,A), name(MuN,A).
+>>> dog_owner.name=N :- count{name=N} > 2?
+--> gather6(MuN,B) :- name(B,MuN), dog_owner(A,E), name(A,MuN).
+    what(E) :- dog_owner(A,E), name(A,MuN), D > 2, count(C,D), solutions(gather6(MuN),C).
 that: "ahmed" | "bob" | "ken".
 
 >>> thanks.

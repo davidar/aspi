@@ -1,8 +1,12 @@
 >>> % 26. Find the value of d < 1000 for which 1/d contains the longest recurring cycle.
 >>> #include "test/oeis/b051626.txt".
->>> 1..1000 b051626=max{b051626[1..1000]}?
---> what(E) :- E = 1 .. 1000, b051626(D,E), D = @maxof(C), setof((1),C).
-    gather((1),B) :- b051626(B,A), A = 1 .. 1000.
+>>> max{b051626[1..1000]}?
+--> gather1(B) :- b051626(A,B), nondet_int_in_range(1,1000,A).
+    what(D) :- max(C,D), solutions(gather1,C).
+that: 982.
+
+>>> 1..1000 b051626=that?
+--> what(C) :- C = A, nondet_int_in_range(1,1000,A), b051626(C,B), that(B).
 that: 983.
 
 >>> thanks.

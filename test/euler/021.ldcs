@@ -1,8 +1,12 @@
 % 21. Evaluate the sum of all amicable numbers under 1000.
+#mode proper_divisor(in,out).
+#pragma memo(proper_divisor/2).
 proper_divisor[N n3]: 1..(N-1) multiple=N.
 aliquot[N n3]: sum{proper_divisor.N}.
 perfect(A) :- aliquot(A,A).
 perfect?
+#mode amicable(in,out).
+#pragma memo(amicable/2).
 amicable(A,B) :- aliquot(A,B), aliquot(B,A), A != B.
 amicable: amicable.n3.
 amicable?

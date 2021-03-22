@@ -1,7 +1,7 @@
 >>> % 24. What is the hundredth lexicographic permutation of the digits 1, 2, 3, 4, and 5?
->>> 100'th.{permutation."12345"}?
---> what(D) :- A = 100, (A,D) = @enumerateof(C), setof((1),C).
-    gather((1),B) :- B = @permutation("12345").
+>>> 100'th.{from_char_list.perm.to_char_list."12345"}?
+--> gather1(D) :- from_char_list(C,D), perm(B,C), to_char_list("12345",B).
+    what(F) :- A = 100, index1(E,A,F), solutions(gather1,E).
 that: "51342".
 
 >>> thanks.

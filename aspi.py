@@ -8,6 +8,7 @@ import re
 import readline
 import sh  # type: ignore
 import sys
+import tempfile
 from typing import cast, Dict, List, Optional
 
 import ldcs
@@ -24,36 +25,20 @@ except FileNotFoundError:
 atexit.register(readline.write_history_file, 'history.log')
 
 
-class ClingoExitCode(enum.IntFlag):
-    # https://github.com/potassco/clasp/issues/42
-    UNKNOWN = 0  # Satisfiablity of problem not known; search not started.
-    INTERRUPT = 1  # Run was interrupted.
-    SAT = 10  # At least one model was found.
-    EXHAUST = 20  # Search-space was completely examined.
-    MEMORY = 33  # Run was interrupted by out of memory exception.
-    ERROR = 65  # Run was interrupted by internal error.
-    NO_RUN = 128  # Search not started because of syntax or command line error.
-
-
-def run_clingo(lp: str) -> List[str]:
-    result = json.loads(sh.clingo(
-        outf=2, time_limit=5, _in=lp,
-        _err=sys.stderr if 'DEBUG' in os.environ else None,
-        _ok_code=[
-            ClingoExitCode.SAT,
-            ClingoExitCode.SAT | ClingoExitCode.EXHAUST
-        ]).stdout)
-    if 'DEBUG' in os.environ:
-        print(json.dumps(result, indent=2), file=sys.stderr)
-    witness = result['Call'][-1]['Witnesses'][-1]
-    if result['Result'] == 'OPTIMUM FOUND':
-        costs = result['Models']['Costs']
-        assert costs == witness['Costs']
-        if costs[0] < 0:
-            print(f"reward: {-costs[0]}.")
-        else:
-            print(f"cost: {costs[0]}.")
-    return cast(List[str], witness['Value'])
+def run_mercury(lp: str) -> List[str]:
+    dbg = ('DEBUG' in os.environ)
+    with tempfile.TemporaryDirectory() as tempdir:
+        with open(os.path.join(tempdir, 'main.m'), 'w') as f:
+            print(lp, file=f)
+        sh.mmc('main.m', infer_all=True,
+                grade='asm_fast.gc.decldebug.stseg' if dbg else 'asm_fast.gc',
+                _cwd=tempdir,
+                _err=sys.stderr if dbg else None)
+        result = sh.Command(os.path.join(tempdir, 'main'))().stdout
+    if dbg:
+        print(result, file=sys.stderr)
+    for x in result.decode('utf8').split('\n'):
+        yield f'what({x})'
 
 
 class ASPI:
@@ -64,13 +49,16 @@ class ASPI:
         self.now = 0
         self.program = ''
         self.proofs = True
+        self.that = []
 
-        for arg in ['lib/prelude.lp', 'lib/macros.ldcs', 'lib/plans.ldcs'] + args:
+        for arg in ['lib/prelude.m', 'lib/macros.ldcs'] + args:
             self.include(arg)
 
     def include(self, arg: str) -> None:
         if arg.endswith('.lp'):
             self.program += f'#include "{arg}".\n'
+        elif arg.endswith('.m'):
+            self.program += open(arg, 'r').read()
         elif arg.endswith('.ldcs'):
             with open(arg, 'r') as f:
                 while True:
@@ -96,15 +84,15 @@ class ASPI:
                     for c, v in enumerate(line.split(',')):
                         cols += 1
                         v = v.strip()
-                        self.program += f'csv({v},{r+1},{c+1}).\n'
-                    self.program += f'csv_cols({cols},{r+1}).\n'
+                        self.program += f'csv({r+1},{c+1},{v}).\n'
+                    self.program += f'csv_cols({r+1},{cols}).\n'
                 self.program += f'csv_rows({rows}).\n'
         elif arg.endswith('.txt'):
             name = os.path.basename(arg)[:-4]
             with open(arg, 'r') as f:
                 for line in f:
                     k, v = line.split()
-                    self.program += f'{name}({v},{k}).\n'
+                    self.program += f'{name}({k},{v}).\n'
 
     def repl(self, cmd: str) -> None:
         if not cmd or cmd.startswith('%'):
@@ -120,6 +108,9 @@ class ASPI:
             return
         if cmd.startswith('#include "'):
             return self.include(cmd[len('#include "'):-2])
+        if cmd.split()[0] in ('#pragma','#mode','#type'):
+            self.program += f':- {cmd[1:]}\n'
+            return
         if cmd == 'thanks.':
             print("YOU'RE WELCOME!")
             sys.exit(0)
@@ -133,6 +124,7 @@ class ASPI:
                 if fact.startswith('moves('):
                     self.now = int(fact[len('moves('):-1])
             self.counter += 1
+            self.that = res.shows
 
     def eval(self, cmd: str) -> Optional['Results']:
         lp = self.ldcs.toASP(cmd.replace('#macro ', ''))
@@ -140,7 +132,7 @@ class ASPI:
             return None
         print('-->', '\n    '.join(
             line for line in lp.split('\n')
-            if '@proof' not in line or 'DEBUG' in os.environ))
+            if not line.startswith(':-') or 'DEBUG' in os.environ))
         lp += '\n'
         if cmd.endswith('.'):
             for line in lp.split('\n'):
@@ -153,28 +145,20 @@ class ASPI:
             print('understood.\n')
             return None
 
-        lp += f'#const now = {self.now}.\n'
-        lp += f'#const counter = {self.counter}.\n'
-        lp += ''.join(fact + '.\n' for fact in self.facts)
-        lp += self.program
-        if cmd.endswith('!'):
-            lp += '#include "lib/planner.lp".\n'
+        lp = self.program + lp
+        for t in self.that:
+            if not t.startswith('list'):
+                lp += f'that({t}).\n'
+        lp += 'main(!IO) :- solutions(what,X), write_list(X,"\n",write,!IO).\n'
+
         try:
-            return Results(self, run_clingo(lp))
+            return Results(self, run_mercury(lp))
         except sh.ErrorReturnCode as e:
-            if e.exit_code == ClingoExitCode.INTERRUPT:
-                print('timeout.\n')
-                return None
-            elif e.exit_code == ClingoExitCode.EXHAUST:
-                print('impossible.\n')
-                return None
-            else:
-                print(e.stderr.decode('utf-8'), file=sys.stderr)
-                print(ClingoExitCode(e.exit_code), file=sys.stderr)
-                for i, line in enumerate(lp.split('\n')):
-                    if not line.startswith('csv('):
-                        print(f'{i+1:3}|', line, file=sys.stderr)
-                sys.exit(1)
+            for i, line in enumerate(lp.split('\n')):
+                if not line.startswith('csv('):
+                    print(f'{i+1:3}|', line, file=sys.stderr)
+            print(e.stderr.decode('utf-8'), file=sys.stderr)
+            sys.exit(1)
 
     def print(self, res: 'Results') -> None:
         for fact in res.already:
@@ -184,10 +168,8 @@ class ASPI:
         if res.status:
             print(res.status + '.')
         if res.shows:
-            terms = [clingo.parse_term(r) for r in res.shows]
-            terms.sort()
-            that = ' | '.join(res.replace_names(str(t)) for t in terms)
-            if len(that) / len(terms) > 30:
+            that = ' | '.join(res.replace_names(t) for t in res.shows)
+            if len(that) / len(res.shows) > 30:
                 that = that.replace(' | ', '\n    | ')
             print(f'that: {that}.')
         print()
@@ -200,7 +182,6 @@ class Results:
         self.acts: List[str] = []
         self.already: List[str] = []
         self.shows: List[str] = []
-        self.names: Dict[str, str] = {}
         for result in results:
             self.parse(result)
         self.acts = [self.replace_names(act, t)
@@ -210,7 +191,7 @@ class Results:
     def replace_names(self, s: str, offset: int = 0) -> str:
         while True:
             r = s
-            for k, v in self.names.items():
+            for k, v in self.parent.ldcs.describe.items():
                 if k[-1] == ')':
                     r = r.replace(k, v)
                 else:
@@ -233,9 +214,6 @@ class Results:
         elif result.startswith('already('):
             result = result[len('already('):-1].replace(',', ', ')
             self.already.append(result)
-        elif result.startswith('describe('):
-            r = result[len('describe('):-1].split(',')
-            self.names[r[0]] = ' '.join(r[1:])
         elif result in ('ok', 'yes', 'no'):
             self.status = result
 

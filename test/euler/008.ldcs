@@ -1,6 +1,6 @@
 % 8. Discover the largest product of four consecutive digits in the 10-digit number.
 four_digits: substring."0319989000" length=4.
 four_digits?
-#macro char.S: substring.S length=1.
+#macro char.S: substring[S, 1..length.S, 1].
 product{{decimal.char.S}} :- four_digits(S)?
 max{that}?

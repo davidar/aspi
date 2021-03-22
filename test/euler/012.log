@@ -1,8 +1,7 @@
 >>> % 12. What is the first triangle number to have over twenty divisors?
 >>> triangle: sum{1..N} :- N = 1..99.
---> triangle(D) :- D = @sumof(B), setof((1,MuN),B), MuN = C, C = 1 .. 99.
-    gather_index((1,MuN)) :- MuN = C, C = 1 .. 99.
-    gather((1,MuN),A) :- A = 1 .. MuN, MuN = C, C = 1 .. 99.
+--> triangle(D) :- sum(B,D), solutions(gather1(MuN),B), MuN = C, nondet_int_in_range(1,99,C).
+    gather1(MuN,A) :- nondet_int_in_range(1,MuN,A), MuN = C, nondet_int_in_range(1,99,C).
 understood.
 
 >>> triangle (< 100)?
@@ -10,26 +9,25 @@ understood.
 that: 1 | 3 | 6 | 10 | 15 | 21 | 28 | 36 | 45 | 55 | 66 | 78 | 91.
 
 >>> divisor[X n3]: multiple'[X] n3.
---> divisor(B,A) :- A = MuX, A = 1 .. 999, (MuX \ B) = 0, B = 1 .. 999.
+--> divisor(A,B) :- A = MuX, nondet_int_in_range(1,999,A), (mod(MuX,B)) = 0, nondet_int_in_range(1,999,B).
 understood.
 
 >>> divisors[X n3]: count{divisor.X}.
---> divisors(D,A) :- A = MuX, A = 1 .. 999, D = @countof(C), setof((2,MuX),C).
-    gather_index((2,MuX)) :- A = MuX, A = 1 .. 999.
-    gather((2,MuX),B) :- divisor(B,MuX), A = MuX, A = 1 .. 999.
+--> divisors(A,D) :- A = MuX, nondet_int_in_range(1,999,A), count(C,D), solutions(gather2(MuX),C).
+    gather2(MuX,B) :- divisor(MuX,B), A = MuX, nondet_int_in_range(1,999,A).
 understood.
 
 >>> triangle N :- divisors.N > 20?
---> what(B) :- triangle(B), B = MuN, A > 20, divisors(A,MuN).
+--> what(B) :- triangle(B), B = MuN, A > 20, divisors(MuN,A).
 that: 630 | 780 | 990.
 
 >>> min{that}?
---> what(C) :- C = @minof(B), setof((3),B).
-    gather((3),A) :- that(A).
+--> gather3(A) :- that(A).
+    what(C) :- min(B,C), solutions(gather3,B).
 that: 630.
 
 >>> divisor.that?
---> what(B) :- divisor(B,A), that(A).
+--> what(B) :- divisor(A,B), that(A).
 that: 1 | 2 | 3 | 5 | 6 | 7 | 9 | 10 | 14 | 15 | 18 | 21 | 30 | 35 | 42 | 45 | 63 | 70 | 90 | 105 | 126 | 210 | 315 | 630.
 
 >>> thanks.

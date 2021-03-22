@@ -9,6 +9,7 @@
           | email="asdf@fake.com"
           .
 
+#mode genus(out,out) is multi.
 #enum plant: genus="Astragalus" species="annularis"
            | genus="Astragalus" species="anisus"
            | genus="Astragalus" species="annularis"
@@ -17,18 +18,20 @@
            | genus="Eugenia" species="lamprophylla"
            .
 
-#enum pet: owner=owner(1) type="dog"
-         | owner=owner(1) type="cat"
-         | owner=owner(2) type="dog"
-         | owner=owner(2) type="parakeet"
+#enum owner: maher | rishi | chandra.
+
+#enum pet: pet_owner=owner.1 type="dog"
+         | pet_owner=owner.1 type="cat"
+         | pet_owner=owner.2 type="dog"
+         | pet_owner=owner.2 type="parakeet"
          .
 
-#enum dog: owner="ken"   name="darcy"
-         | owner="bob"   name="darcy"
-         | owner="bob"   name="lassie"
-         | owner="ahmed" name="darcy"
-         | owner="sara"  name="floof"
-         | owner="sara"  name="lassie"
+#enum dog: dog_owner="ken"   name="darcy"
+         | dog_owner="bob"   name="darcy"
+         | dog_owner="bob"   name="lassie"
+         | dog_owner="ahmed" name="darcy"
+         | dog_owner="sara"  name="floof"
+         | dog_owner="sara"  name="lassie"
          .
 
 
@@ -39,19 +42,19 @@
 %           ip_address_state
 %        ) AS state
 % FROM addresses
-row(customer C, mailing_state.C || billing_state.C || ip_address_state.C)?
+tuple(customer C, mailing_state.C || billing_state.C || ip_address_state.C)?
 
 % SELECT email, COUNT(*)
 % FROM users
 % GROUP BY email
 % HAVING COUNT(*) > 1
-row(E email.user, count{{email=E}} (> 1))?
+tuple(E email.user, count{{email=E}} (> 1))?
 
 % SELECT COUNT(DISTINCT species), genus
 % FROM plants
 % GROUP BY 2
 % ORDER BY 1 ASC
-row(count{species.genus=G}, G genus.plant)?
+tuple(count{species.genus=G}, G genus.plant)?
 
 % SELECT owner
 % , SUM(CASE 
@@ -65,9 +68,9 @@ row(count{species.genus=G}, G genus.plant)?
 %     ELSE 0 END) AS num_other
 % FROM pets
 % GROUP BY owner
-row(O owner.pet, count{owner=O type="dog"})?
-row(O owner.pet, count{owner=O type="cat"})?
-row(O owner.pet, count{owner=O type=(~"dog" ~"cat")})?
+tuple(O pet_owner.pet, count{pet_owner=O type="dog"})?
+tuple(O pet_owner.pet, count{pet_owner=O type="cat"})?
+tuple(O pet_owner.pet, count{pet_owner=O type=(~"dog" ~"cat")})?
 
 % SELECT owner
 % FROM dogs
@@ -76,4 +79,4 @@ row(O owner.pet, count{owner=O type=(~"dog" ~"cat")})?
 %   FROM dogs
 %   GROUP BY name
 %   HAVING count(*) > 2)
-owner.name=N :- count{name=N} > 2?
+dog_owner.name=N :- count{name=N} > 2?

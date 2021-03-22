@@ -1,20 +1,19 @@
 >>> % 16. What is the sum of the digits of the number 2^10?
 >>> 2**10?
---> what(2**10).
+--> what(A) :- pow(2,10,A).
 that: 1024.
 
->>> #macro char.S: substring.S length=1.
---> char(E,MuS) :- E = @substring(MuS,F,G), F = H, F = 1 .. I, G = 0 .. ((I - H) + 1), I = @length(MuS), 1 = @length(E).
+>>> #macro char.S: substring[S, 1..length.S, 1].
+--> char(MuS,C) :- between(MuS,B - 1,(B + 1) - 1,C), nondet_int_in_range(1,A,B), length(MuS,A).
 understood.
 
 >>> #macro digit.N: decimal.char.show.N.
---> digit(K,MuN) :- K = @decimal(F), F = @substring(A,G,H), G = I, G = 1 .. J, H = 0 .. ((J - I) + 1), J = @length(A), 1 = @length(F), A = @show(MuN).
+--> digit(MuN,G) :- decimal(D,G), between(A,E - 1,(E + 1) - 1,D), nondet_int_in_range(1,F,E), length(A,F), show(MuN,A).
 understood.
 
 >>> sum{{digit[2**10]}}?
---> what(P) :- P = @sumof(O), bagof((1),O).
-    aggregation((1),G) :- G = @decimal(H), H = @substring(I,J,K), J = L, J = 1 .. M, K = 0 .. ((M - L) + 1), M = @length(I), 1 = @length(H), I = @show(2**10).
-    gather((1),(N,P0)) :- proof(P0,aggregation((1),N)).
+--> gather1(F) :- decimal(G,F), between(H,I - 1,(I + 1) - 1,G), nondet_int_in_range(1,J,I), length(H,J), show(A,H), pow(2,10,A).
+    what(L) :- sum(K,L), sorted_solutions(gather1,K).
 that: 7.
 
 >>> thanks.

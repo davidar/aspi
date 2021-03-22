@@ -8,7 +8,8 @@ scripts = [
     'dcg',
     'golf',
     'hanoi',
-    'shortest-path',
+    'shortest-path-plan',
+    'shortest-path-recur',
     'shrdlu',
 #    'zebra',
 ]
@@ -18,8 +19,10 @@ for i in range(1000):
     if os.path.exists(f'test/{name}.ldcs'):
         scripts.append(name)
 
+'''
 for i in (116, 10131, 10154):
     scripts.append(f'uva/{i}')
+'''
 
 
 @pytest.mark.parametrize('name', scripts)

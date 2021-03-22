@@ -21,7 +21,7 @@ _WS: WS
 
 INEQ_OP: "!=" | "<=" | ">=" | "<" | ">"
 CMP_OP: "=" | INEQ_OP
-BIN_OP: ".." | "**" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
+BIN_OP: ".." | "**" | "++" | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
 SUP_SUFFIX: "'est" | "'each" | "'th" | "'"
 VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
 NAME: ["@"] LCASE_LETTER ("_"|LETTER|DIGIT)*
@@ -111,6 +111,7 @@ class LDCS(lark.Transformer[str]):
         self.counts: Dict[str, int] = {}
         self.rules: List[str] = []
         self.macros: Dict[str, Tuple[List[Sym], lark.Tree]] = {}
+        self.describe: Dict[str, str] = {}
 
     def counter(self, prefix: str = '') -> int:
         if prefix not in self.counts:
@@ -142,18 +143,27 @@ class LDCS(lark.Transformer[str]):
             muvars = sorted(set(re.findall('Mu[A-Z]', commas(*vars, *bodies))))
         if vars[0][0] not in string.ascii_uppercase:
             ground = False
-        closure = ','.join([str(i)] + muvars)
+        closure = ','.join(muvars)
 
         def f(x: str, name: str = prefix) -> str:
-            return f'{name}(({closure}),{x})'
+            solutions = f'solutions(gather{i}'
+            if closure:
+                solutions += f'({closure})'
+            if name == 'setof':
+                return f'{solutions},{x})'
+            if name == 'bagof':
+                return f'sorted_{solutions},{x})'
+            if closure:
+                x = f'{closure},{x}'
+            return f'{name}{i}({x})'
+        mode = ','.join(['in' for _ in muvars] + ['out'])
+        self.rules.append(f':- mode {prefix_gather}{i}({mode}) is nondet.')
         for var, body in var_bodies:
             if len(muvars) > 0 or ground:
                 args = f('_')
                 if ground:
                     args = f'{var},{args}'
                 body = commas(body, f'@context({args})')
-                if prefix == 'setof':
-                    self.rules.append(f'gather_index(({closure})) :- @context({args}).')
             if body:
                 self.rules.append(f'{f(var, prefix_gather)} :- {body}.')
             else:
@@ -179,7 +189,7 @@ class LDCS(lark.Transformer[str]):
                 if pred[1] == ',':
                     groundvar = pred[0]
                     pred = pred[2:]
-                template = re.escape(pred).replace('_', '([A-Z0])')
+                template = re.sub(r'\b_\b', '([A-Z0])', re.escape(pred))
                 for rule2 in self.rules:
                     if ' :- ' in rule2:
                         body = rule2[:-1].split(' :- ')[1].split(', ')
@@ -194,9 +204,9 @@ class LDCS(lark.Transformer[str]):
                                             and t[2] not in '<>' \
                                             and 'Mu' in pred:
                                         context.append(t)
-                                    elif groundvar and '..' in t and \
-                                            t.startswith(f'{headvar} = '):
-                                        context.append(groundvar + t[1:])
+                                    elif groundvar and 'nondet_int_in_range' in t and \
+                                            t.endswith(f'{headvar})'):
+                                        context.append(f'{t[:-2]}{groundvar})')
                                     elif groundvar and \
                                             t.endswith(f'({headvar})'):
                                         context.append(
@@ -211,11 +221,8 @@ class LDCS(lark.Transformer[str]):
 
     def start(self, rule: Optional[str]) -> str:
         if rule:
-            self.rules.insert(0, rule + '.')
+            self.rules.append(rule + '.')
         self.expand_contexts()
-        for rule in self.rules[:]:
-            if '{' not in rule and not rule.startswith(':-'):
-                self.rules.append(self.proof(rule))
         return '\n'.join(self.rules) \
                    .replace(';,', ';') \
                    .replace(';.', '.') \
@@ -263,16 +270,18 @@ class LDCS(lark.Transformer[str]):
         return f'proof(@proof({prf}),{head}) :- {commas(*terms)}.'
 
     def enum(self, head: str, *args: List[Unary]) -> None:
+        self.rules.append(f':- type {head} ---> {head}_(int).')
         for lams in args:
             i = self.counter(head)
-            name = f'{head}({i})'
+            name = f'{head}_({i})'
             describe = ', '.join(lam('').replace('()', '')
                                  for lam in lams if ', ' not in lam('')
+                                                and '(,' not in lam('')
                                                 and ',)' not in lam(''))
             if describe:
-                self.rules.append(f'describe({name}, {describe}).')
+                self.describe[name] = describe
             self.rules.append(f'{head}({name}).')
-            self.rules.append(f'{head}({name},{i}).')
+            self.rules.append(f'{head}({i},{name}).')
             for lam in lams:
                 self.rules.append(lam(name).replace(', ', ' :- ', 1) + '.')
 
@@ -286,6 +295,7 @@ class LDCS(lark.Transformer[str]):
 
     def query(self, var_body: CSym) -> str:
         var, body = var_body
+        self.rules.append(':- mode what(out) is nondet.')
         if body:
             return f'what({var}) :- {body}'
         else:
@@ -320,6 +330,8 @@ class LDCS(lark.Transformer[str]):
 
     def pred(self, name: str, *args: CSym) -> CSym:
         vals, bodies = unzip(args)
+        if name == 'tuple':
+            return f"{{{','.join(vals)}}}", commas(*bodies)
         if not vals:
             return name, None
         return f"{name}({','.join(vals)})", commas(*bodies)
@@ -330,11 +342,22 @@ class LDCS(lark.Transformer[str]):
     def binop(self, a: CSym, op: str, b: CSym) -> CSym:
         arg1, body1 = a
         arg2, body2 = b
+        body = commas(body1, body2)
+        if op == '..':
+            x = self.gensym()
+            return x, commas(f'nondet_int_in_range({arg1},{arg2},{x})', body)
+        if op == '**':
+            x = self.gensym()
+            return x, commas(f'pow({arg1},{arg2},{x})', body)
+        if op == '!=':
+            op = '\='
+        if op == '<=':
+            op = '=<'
         if not arg1.isalnum() and arg1[0] != '@':
             arg1 = f'({arg1})'
         if not arg2.isalnum() and arg2[0] != '@':
             arg2 = f'({arg2})'
-        return f'{arg1} {op} {arg2}', commas(body1, body2)
+        return f'{arg1} {op} {arg2}', body
 
     def binop_term(self, a: CSym, op: str, b: CSym) -> str:
         return commas(*self.binop(a, op, b))
@@ -359,7 +382,7 @@ class LDCS(lark.Transformer[str]):
                 not re.search(r'\b_\b', body) and \
                 '..' not in head:
             x = head[len('_ = '):]
-            if x[0] != '"':
+            if '"' not in x:
                 x = x.replace(' ', '')
             return x, commas(body, cond)
         else:
@@ -398,24 +421,27 @@ class LDCS(lark.Transformer[str]):
             return lambda *args: rel(*reversed(args))
         elif op == "'each":
             y = self.gensym()
-            return lambda x, z: f'{rel(x, y)} : {y} = @memberof({z});'
+            return lambda z, x: f'all_true(pred({y}::in) is semidet :- {rel(y, x)}, {z})'
         elif op == "'est":
             y = self.gensym()
-            return lambda x, z: f'{rel(x, y)} : {y} = @memberof({z}), {x} != {y}; {x} = @memberof({z})'
+            return lambda z, x: f'{rel(x, y)} : {y} = @memberof({z}), {x} != {y}; {x} = @memberof({z})'
         elif op == "'th":
             y = self.gensym()
-            return lambda x, z: f'{rel(y)}, ({y},{x}) = @enumerateof({z})'
+            return lambda z, x: f'{rel(y)}, index1({z},{y},{x})'
         assert False
 
     def join(self, rel: Variadic, *var_bodies: CSym) -> Unary:
         ys, bs = unzip(var_bodies)
-        return lambda x: commas(rel(x, *ys), *bs)
+        return lambda x: commas(rel(*ys, x), *bs)
 
     def reverse_join(self, rel: Binary, var_body: CSym) -> Unary:
         return self.join(lambda x, y: rel(y, x), var_body)
 
     def neg(self, var_body: CSym) -> Unary:
-        lam = self.lift(var_body, 'negation', ground=True)
+        var, body = var_body
+        if ', ' not in body and ' = ' in body:
+            return lambda x: commas(f'{x} = {var}', body.replace('=', '\='))
+        lam = self.lift(var_body, 'negation')
         return lambda x: 'not ' + lam(x)
 
     def ineq(self, op: str, var_body: CSym) -> Unary:
@@ -430,12 +456,7 @@ class LDCS(lark.Transformer[str]):
     def bagof(self, a, b=None) -> Unary:
         if b is not None:
             return self.join(a, self.ldcs(self.bagof(b)))
-        var, body = a
-        if body is not None and ' ' in body:
-            var, body = self.ldcs(self.lift((var, body), 'aggregation'))
-        var = f'({var},P0)'
-        body = f'proof(P0,{body})'
-        return self.lift((var, body), 'bagof', gather=True)
+        return self.lift(a, 'bagof', gather=True)
 
     def unify(self, pred_body: CSym) -> Unary:
         pred, body = pred_body
@@ -483,8 +504,8 @@ rule_ebnf = r'''
 ATOM: ["@"] LCASE_LETTER ("_"|LETTER|DIGIT)*
 VARIABLE: UCASE_LETTER ("_"|LETTER|DIGIT)*
 OPERATOR: "=" | "!=" | "<=" | ">=" | "<" | ">"
-        | "+" | "-" | "*" | "/"
-        | "\\" | "**" | "&" | "?" | "^" | ".."
+        | ".." | "**" | "++"
+        | "+" | "-" | "*" | "/" | "\\" | "&" | "?" | "^"
 
 ?start: rule
 rule: head [":-" pred ("," pred)*] "."
