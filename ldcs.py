@@ -276,6 +276,7 @@ class LDCS(lark.Transformer[str]):
             name = f'{head}_({i})'
             describe = ', '.join(lam('').replace('()', '')
                                  for lam in lams if ', ' not in lam('')
+                                                and '(,' not in lam('')
                                                 and ',)' not in lam(''))
             if describe:
                 self.describe[name] = describe
