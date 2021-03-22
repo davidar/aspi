@@ -1,0 +1,24 @@
+>>> % via recurrence equation
+>>> #include "test/shortest-path.ldcs".
+>>> paths.B: path.A + edge[A,B].
+--> paths(MuB,A+B) :- path(MuA,A), edge(MuA,MuB,B).
+understood.
+
+>>> #mode path(in,out).
+>>> #pragma memo(path/2).
+>>> path[node B ~start]: min{paths.B}.
+--> path(B,E) :- node(B), B = MuB, not negation1(B), min(D,E), solutions(gather1(MuB),D).
+    negation1(A) :- start(A).
+    gather1(MuB,C) :- paths(MuB,C), node(B), B = MuB, not negation1(B).
+understood.
+
+>>> path.start: 0.
+--> path(A,0) :- start(A).
+understood.
+
+>>> tuple(node A, path.A)?
+--> what({A,B}) :- node(A), A = MuA, path(MuA,B).
+that: {"BOS", 0} | {"DFW", 1578} | {"JFK", 187} | {"LAX", 2813} | {"MIA", 1258} | {"ORD", 2380} | {"SFO", 2769}.
+
+>>> thanks.
+YOU'RE WELCOME!

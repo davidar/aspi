@@ -1,0 +1,5 @@
+% via goal-directed planning
+#include "test/shortest-path.ldcs".
+init: at(start).
+go(A,B) :: action demands.at(A) deletes.at(A) adds.at(B) costs.edge[A,B] :- edge(A,B).
+at("ORD")!

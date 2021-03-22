@@ -1,29 +1,30 @@
->>> #macro words[A,B]: concatenate[A, " ", B].
---> words(B,MuA,MuB) :- B = @concatenate(MuA,C), C = @concatenate(" ",MuB).
+>>> #macro words[A,B]: (A ++ " ") ++ B.
+--> words(MuA,MuB,(MuA ++ (" ")) ++ MuB).
 understood.
 
+>>> #type tree ---> s(tree,tree); np(string,string); vp(string,tree).
 >>> sentence[s(N,V)]: words[noun_phrase.N, verb_phrase.V].
---> sentence(D,s(MuN,MuV)) :- D = @concatenate(A,E), E = @concatenate(" ",B), noun_phrase(A,MuN), verb_phrase(B,MuV).
+--> sentence(s(MuN,MuV),C) :- C = (A ++ (" ")) ++ B, noun_phrase(MuN,A), verb_phrase(MuV,B).
 understood.
 
 >>> noun_phrase[np(D,N)]: words[det D, noun N].
---> noun_phrase(D,np(MuD,MuN)) :- D = @concatenate(A,E), E = @concatenate(" ",B), det(A), A = MuD, noun(B), B = MuN.
+--> noun_phrase(np(MuD,MuN),C) :- C = (A ++ (" ")) ++ B, det(A), A = MuD, noun(B), B = MuN.
 understood.
 
 >>> verb_phrase[vp(V,N)]: words[verb V, noun_phrase.N].
---> verb_phrase(D,vp(MuV,MuN)) :- D = @concatenate(A,E), E = @concatenate(" ",B), verb(A), A = MuV, noun_phrase(B,MuN).
+--> verb_phrase(vp(MuV,MuN),C) :- C = (A ++ (" ")) ++ B, verb(A), A = MuV, noun_phrase(MuN,B).
 understood.
 
 >>> det: "a" | "the".
---> det(A) :- disjunction((1),A).
-    disjunction((1),"a").
-    disjunction((1),"the").
+--> det(A) :- disjunction1(A).
+    disjunction1("a").
+    disjunction1("the").
 understood.
 
 >>> noun: "bat" | "cat".
---> noun(A) :- disjunction((2),A).
-    disjunction((2),"bat").
-    disjunction((2),"cat").
+--> noun(A) :- disjunction2(A).
+    disjunction2("bat").
+    disjunction2("cat").
 understood.
 
 >>> verb: "eats".
@@ -31,12 +32,12 @@ understood.
 understood.
 
 >>> parse.S: sentence'.S.
---> parse(A,MuS) :- sentence(MuS,A).
+--> parse(MuS,A) :- sentence(A,MuS).
 understood.
 
 >>> parse."the bat eats a cat"?
---> what(A) :- parse(A,"the bat eats a cat").
-that: s(np("the","bat"),vp("eats",np("a","cat"))).
+--> what(A) :- parse("the bat eats a cat",A).
+that: s(np("the", "bat"), vp("eats", np("a", "cat"))).
 
 >>> thanks.
 YOU'RE WELCOME!

@@ -1,0 +1,8 @@
+% via recurrence equation
+#include "test/shortest-path.ldcs".
+paths.B: path.A + edge[A,B].
+#mode path(in,out).
+#pragma memo(path/2).
+path[node B ~start]: min{paths.B}.
+path.start: 0.
+tuple(node A, path.A)?
