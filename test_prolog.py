@@ -503,6 +503,73 @@ class TestIntegration:
         assert result == 'that: 5.'
 
 
+    def test_define_multi_arg_join_head(self):
+        """define_heads with multi-arg join should produce the right head predicate."""
+        result = self._query(
+            'name: "alice" | "bob".',
+            'score["alice"]: 10.',
+            'score["bob"]: 20.',
+            'doubled[name S]: score.S * 2.',
+            'doubled."alice"?',
+        )
+        assert result == 'that: 20.'
+
+    def test_define_with_aggregation(self):
+        """define with aggregation in the body."""
+        result = self._query(
+            'score["alice"]: 10 | 20.',
+            'score["bob"]: 30.',
+            'total[S]: sum{{score.S}}.',
+            'total."alice"?',
+        )
+        assert result == 'that: 30.'
+
+    def test_char_macro_basic(self):
+        """char macro should extract individual characters."""
+        result = self._query(
+            '#macro char.S: substring.S length=1.',
+            'char."hello"?',
+        )
+        assert '"h"' in result and '"o"' in result
+
+    def test_letter_value(self):
+        """letter.char should compute character positions (A=1, B=2, etc.)."""
+        result = self._query(
+            '#macro char.S: substring.S length=1.',
+            '#macro letter.C: (codepoint.C - codepoint."A") + 1.',
+            'letter.char."A"?',
+        )
+        assert result == 'that: 1.'
+
+    def test_sum_letter_char(self):
+        """sum of letter values of a string."""
+        result = self._query(
+            '#macro char.S: substring.S length=1.',
+            '#macro letter.C: (codepoint.C - codepoint."A") + 1.',
+            'sum{{letter.char."AB"}}?',
+        )
+        assert result == 'that: 3.'  # A=1, B=2
+
+    def test_position_nth(self):
+        """N'th superlative should find the Nth element of a set."""
+        result = self._query(
+            'item: "c" | "a" | "b".',
+            '2\'th.{item}?',
+        )
+        assert result == 'that: "b".'  # sorted: a=1, b=2, c=3
+
+    def test_define_position_value_score(self):
+        """Full euler/022 pattern: position * value for named items."""
+        result = self._query(
+            'name: "AB" | "C".',
+            '#macro char.S: substring.S length=1.',
+            '#macro letter.C: (codepoint.C - codepoint."A") + 1.',
+            'value[name S]: sum{{letter.char.S}}.',
+            'value."AB"?',
+        )
+        assert result == 'that: 3.'  # A=1 + B=2
+
+
 # ── LDCS file-based tests ─────────────────────────────────────────────────────
 
 import glob
@@ -512,13 +579,12 @@ import subprocess
 
 
 _KNOWN_FAILURES = {
-    'euler/011': 'bagof grouping not implemented — @productof needs grouped bags',
-    'euler/019': 'date/calendar operations not implemented',
-    'euler/022': 'grouped bag aggregation sum{{...}} + @substring/@codepoint',
-    'euler/027': 'quadratic prime formula — performance',
-    'euler/030': 'digit power sums — timeout (brute force over large domain)',
-    'db-call': 'complex SQL-like query — wrong join/aggregation result',
-    'db-dept': 'complex SQL-like query — wrong subquery result',
+    'euler/011': 'performance — grouped bag over CSV grid with tabling too slow',
+    'euler/019': 'missing date/calendar builtins',
+    'euler/027': 'performance — n4 domain with prime search',
+    'euler/030': 'performance — brute force digit power sums',
+    'db-call': 'complex SQL join semantics — start_time/duration arithmetic differs',
+    'db-dept': 'complex SQL subquery — negation in multi-join context',
 }
 
 

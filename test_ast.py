@@ -270,6 +270,99 @@ class TestToPterm:
 
 # ── PrologLDCS pipeline ─────────────────────────────────────────────────────
 
+class TestDefine:
+    """Test the define mechanism — how define_heads + body produce rules."""
+
+    def setup_method(self):
+        self.p = PrologLDCS()
+
+    def test_define_simple_produces_correct_head(self):
+        """foo: 1. should produce foo(1)."""
+        r = self.p.toProlog('foo: 1.')
+        assert 'foo(1)' in r
+
+    def test_define_join_head_is_first_gcall(self):
+        """doubled[S]: ... should produce doubled(result, S) as head."""
+        self.p.toProlog('score."alice": 10.')
+        r = self.p.toProlog('doubled[S]: score.S.')
+        assert 'doubled(' in r, f'Expected doubled() in head, got: {r}'
+        head = r.split(' :- ')[0] if ' :- ' in r else r.rstrip('.')
+        assert head.startswith('doubled('), f'Head should be doubled(...), got: {head}'
+
+    def test_define_join_head_arity(self):
+        """doubled[name S] should produce a 2-arg head: doubled(value, name_arg)."""
+        self.p.toProlog('score."alice": 10.')
+        r = self.p.toProlog('doubled[name S]: score.S * 2.')
+        lines = [l for l in r.split('\n') if 'doubled(' in l]
+        assert lines, f'No doubled() rule found in output: {r}'
+        head = lines[0].split(' :- ')[0]
+        assert head.startswith('doubled('), f'Head should be doubled(...), got: {head}'
+
+    def test_define_heads_single_join(self):
+        """doubled[name S] should parse as ONE head (a join), not two (doubled + name)."""
+        r = self.p.toProlog('doubled[S]: S.')
+        # Should produce exactly one rule with doubled as head
+        assert 'doubled(' in r, f'Expected doubled in output: {r}'
+        # Should NOT produce a rule with a different head
+        for line in r.split('\n'):
+            if ' :- ' in line:
+                head = line.split(' :- ')[0]
+                assert not head.startswith('name('), f'Should not have name() as head: {line}'
+
+    def test_define_heads_with_typed_param(self):
+        """position[name S] — 'name' qualifies S, both part of the join."""
+        self.p.toProlog('item: "a" | "b".')
+        r = self.p.toProlog('position[item S]: S.')
+        # Head should be position(...), not item(...)
+        for line in r.split('\n'):
+            if line.strip() and ' :- ' in line:
+                head = line.split(' :- ')[0]
+                # position should appear as the head at some point
+                if 'position(' in head:
+                    break
+        else:
+            assert False, f'No rule with position() as head found in: {r}'
+
+    def test_define_body_contains_score(self):
+        """The body of doubled[name S]: score.S * 2 should reference score."""
+        self.p.toProlog('score."alice": 10.')
+        r = self.p.toProlog('doubled[name S]: score.S * 2.')
+        lines = [l for l in r.split('\n') if 'doubled(' in l and ' :- ' in l]
+        assert lines, f'No doubled() rule with body found in: {r}'
+        body = lines[0].split(' :- ', 1)[1]
+        assert 'score(' in body, f'Body should reference score, got: {body}'
+
+    def test_func_returns_pcompound_for_plain_call(self):
+        """func("foo")(x, y) should return PCompound("foo", (x, y))."""
+        f = self.p.func("foo")
+        result = f(PVar('X'), PVar('Y'))
+        assert isinstance(result, PCompound)
+        assert result.functor == 'foo'
+        assert result.args == (PVar('X'), PVar('Y'))
+
+    def test_func_returns_patom_for_zero_args(self):
+        """func("foo")() should return PAtom("foo")."""
+        f = self.p.func("foo")
+        result = f()
+        assert isinstance(result, PAtom)
+        assert result.name == 'foo'
+
+    def test_join_produces_call_before_body(self):
+        """join(f, csym) should produce [body_goals..., GCall(f(x, y))]."""
+        f = self.p.func("foo")
+        csym = (PVar('Y'), [GCall(PCompound('bar', (PVar('Y'),)))])
+        j = self.p.join(f, csym)
+        # Call with result var X
+        goals = j(PVar('X'))
+        assert isinstance(goals, list)
+        # Should contain a GCall with foo
+        call_goals = [g for g in goals if isinstance(g, GCall) and isinstance(g.term, PCompound) and g.term.functor == 'foo']
+        assert call_goals, f'Expected GCall(foo(...)) in goals: {goals}'
+        # Body goal bar(Y) should also be present
+        bar_goals = [g for g in goals if isinstance(g, GCall) and isinstance(g.term, PCompound) and g.term.functor == 'bar']
+        assert bar_goals, f'Expected GCall(bar(Y)) in goals: {goals}'
+
+
 class TestPrologLDCSPipeline:
     """Test the full LDCS→Prolog AST pipeline."""
 

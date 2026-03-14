@@ -322,7 +322,7 @@ _DIRECTIONAL = {
     'atom_concat': ({0, 1}, {2}),
     'char_code': ({0}, {1}), 'sub_atom': ({0}, {1, 2, 3, 4}),
     'member': (set(), {0}),
-    'nth1': ({0, 1}, {2}), 'permutation': ({0}, {1}), 'reverse': ({0}, {1}),
+    'permutation': ({0}, {1}), 'reverse': ({0}, {1}),
 }
 
 
@@ -1165,14 +1165,14 @@ class PrologLDCS(ldcs.LDCS):
         for head in reversed(heads):
             result = head(var)
             if isinstance(result, list):
-                # Find the head predicate call (first GCall containing var)
+                # Find the head predicate call (last GCall — join puts call at end)
                 head_term = None
-                body_goals = []
-                for g in result:
-                    if head_term is None and isinstance(g, GCall) and isinstance(g.term, PCompound):
+                head_idx = None
+                for i, g in enumerate(result):
+                    if isinstance(g, GCall) and isinstance(g.term, PCompound):
                         head_term = g.term
-                    else:
-                        body_goals.append(g)
+                        head_idx = i
+                body_goals = [g for i, g in enumerate(result) if i != head_idx]
                 if head_term is None:
                     # Fallback: first goal is the head
                     if result and isinstance(result[0], GUnify):
