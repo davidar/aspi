@@ -403,149 +403,10 @@ def _to_pterm(s: str) -> PTerm:
     return PAtom(s)
 
 
-def _split_args(s: str) -> list:
-    """Split on commas respecting parentheses."""
-    parts = []
-    depth = 0
-    cur = ''
-    for ch in s:
-        if ch in '([': depth += 1
-        elif ch in ')]': depth -= 1
-        if ch == ',' and depth == 0:
-            parts.append(cur)
-            cur = ''
-        else:
-            cur += ch
-    if cur:
-        parts.append(cur)
-    return parts
-
-
 _parse_counter = [0]
 def _fresh_var() -> str:
     _parse_counter[0] += 1
     return f'G{chr(64 + (_parse_counter[0] % 26))}'
-
-def _goals_from_body_str(body_str: str, gensym=None) -> PBody:
-    """Convert a comma-separated body string to PGoal nodes. Used at macro boundary.
-
-    Handles @function conversions and basic ASP→Prolog syntax.
-    """
-    if not body_str or not body_str.strip():
-        return []
-    goals = []
-    for t in _split_args(body_str):
-        t = t.strip()
-        if not t:
-            continue
-        g = _parse_body_term(t, gensym)
-        if isinstance(g, list):
-            goals.extend(g)
-        else:
-            goals.append(g)
-    return goals
-
-
-def _parse_body_term(term: str, gensym=None) -> 'PGoal | list[PGoal]':
-    """Parse a single body term string into PGoal node(s)."""
-    term = re.sub(r'\(\s*-\s*(\d+)\s*\)', r'-\1', term)  # normalize negatives
-
-    # @concatenate
-    m = re.match(r'(\w+) = @concatenate\((.+)\)$', term)
-    if m:
-        var, args_s = _to_pterm(m.group(1)), _split_args(m.group(2))
-        if len(args_s) == 2:
-            return GCall(PCompound('atom_concat', tuple(_to_pterm(a.strip()) for a in args_s) + (var,)))
-        elif len(args_s) == 3:
-            a, b, c = [_to_pterm(x.strip()) for x in args_s]
-            tmp = PVar(gensym() if gensym else _fresh_var())
-            return [GCall(PCompound('atom_concat', (b, c, tmp))),
-                    GCall(PCompound('atom_concat', (a, tmp, var)))]
-
-    # @show
-    m = re.match(r'(\w+) = @show\((.+)\)$', term)
-    if m:
-        return GCall(PCompound('term_to_atom', (_to_pterm(m.group(2)), _to_pterm(m.group(1)))))
-
-    # @length
-    m = re.match(r'(\w+) = @length\((.+)\)$', term)
-    if m:
-        return GCall(PCompound('atom_length', (_to_pterm(m.group(2)), _to_pterm(m.group(1)))))
-
-    # @substring
-    m = re.match(r'(\w+) = @substring\((.+)\)$', term)
-    if m:
-        var = _to_pterm(m.group(1))
-        args = _split_args(m.group(2))
-        if len(args) == 3:
-            a, s, l = [_to_pterm(x.strip()) for x in args]
-            s1 = PVar(gensym() if gensym else _fresh_var())
-            return [GIs(s1, PArith('-', s, PNum(1))),
-                    GCall(PCompound('sub_atom', (a, s1, l, PVar('_'), var)))]
-
-    # @decimal
-    m = re.match(r'(\w+) = @decimal\((.+)\)$', term)
-    if m:
-        return GCall(PCompound('atom_number', (_to_pterm(m.group(2)), _to_pterm(m.group(1)))))
-
-    # @codepoint
-    m = re.match(r'(\w+) = @codepoint\((.+)\)$', term)
-    if m:
-        arg, var = _to_pterm(m.group(2)), _to_pterm(m.group(1))
-        ch = PVar(gensym() if gensym else _fresh_var())
-        return [GCall(PCompound('atom_chars', (arg, PCompound('[', (ch,))))),
-                GCall(PCompound('char_code', (ch, var)))]
-
-    # @reverse
-    m = re.match(r'(\w+) = @reverse\((.+)\)$', term)
-    if m:
-        var, arg = _to_pterm(m.group(1)), _to_pterm(m.group(2))
-        c1 = PVar(gensym() if gensym else _fresh_var())
-        c2 = PVar(gensym() if gensym else _fresh_var())
-        return [GCall(PCompound('atom_chars', (arg, c1))),
-                GCall(PCompound('reverse', (c1, c2))),
-                GCall(PCompound('atom_chars', (var, c2)))]
-
-    # @productof
-    m = re.match(r'(\w+) = @productof\((.+)\)$', term)
-    if m:
-        return GCall(PCompound('product_of', (_to_pterm(m.group(2)), _to_pterm(m.group(1)))))
-
-    # @permutation
-    m = re.match(r'(\w+) = @permutation\((.+)\)$', term)
-    if m:
-        var, arg = _to_pterm(m.group(1)), _to_pterm(m.group(2))
-        c1 = PVar(gensym() if gensym else _fresh_var())
-        c2 = PVar(gensym() if gensym else _fresh_var())
-        return [GCall(PCompound('atom_chars', (arg, c1))),
-                GCall(PCompound('permutation', (c1, c2))),
-                GCall(PCompound('atom_chars', (var, c2)))]
-
-    # @memberof
-    m = re.match(r'(\w+) = @memberof\((.+)\)$', term)
-    if m:
-        return GCall(PCompound('member', (_to_pterm(m.group(1)), _to_pterm(m.group(2)))))
-
-    # @enumerateof
-    m = re.match(r'\((\w+),(\w+)\) = @enumerateof\((.+)\)$', term)
-    if m:
-        return GCall(PCompound('nth1', (_to_pterm(m.group(1)), _to_pterm(m.group(3)), _to_pterm(m.group(2)))))
-
-    # Convert \ to mod
-    term = re.sub(r' \\ ', ' mod ', term)
-
-    # not -> \+
-    if term.startswith('not '):
-        inner = _parse_body_term(term[4:], gensym)
-        inner_goals = inner if isinstance(inner, list) else [inner]
-        return GNot(inner_goals)
-
-    # inequality
-    if ' != ' in term:
-        pos = term.index(' != ')
-        return GCompare('\\=', _to_pterm(term[:pos]), _to_pterm(term[pos+4:]))
-
-    return GRaw(term)
 
 
 @lark.v_args(inline=True)
@@ -566,20 +427,20 @@ class _MacroExpander(lark.Transformer):
         return body
 
     def rule(self, head, *body):
-        goals = list(head)  # head goals (unifications for Head params)
+        goals = list(head)
         for b in body:
             if isinstance(b, list):
                 goals.extend(b)
-            elif isinstance(b, PGoal):
+            elif isinstance(b, (GCall, GUnify, GIs, GCompare, GBetween, GNot, GFindAll, GBagOf, GWhen, GRaw)):
                 goals.append(b)
             elif isinstance(b, PTerm):
                 goals.append(GCall(b))
             else:
-                goals.append(GRaw(str(b)))
+                raise TypeError(f'MacroExpander.rule: unexpected body item: {type(b).__name__}: {b!r}')
         return goals
 
     def pred(self, name, *args):
-        n = name.name if isinstance(name, PAtom) else str(name)
+        n = name.name if isinstance(name, PAtom) else name if isinstance(name, str) else render_term(name)
         if not args:
             return PAtom(n)
         compound = PCompound(n, tuple(args))
@@ -834,7 +695,7 @@ class PrologLDCS(ldcs.LDCS):
                 subst = dict(zip(params, args))
                 return _MacroExpander(subst, self.gensym, params, ldcs_instance=self).transform(tree)
             elif n == 0:
-                return name  # bare atom
+                return PAtom(name)
             else:
                 return PCompound(name, tuple(args))
         return variadic
@@ -867,15 +728,11 @@ class PrologLDCS(ldcs.LDCS):
             call_result = rel(x, *ys)
             if isinstance(call_result, list):
                 goals = call_result
-            elif isinstance(call_result, str):
-                goals = _goals_from_body_str(call_result)
-            elif isinstance(call_result, (PCompound, PAtom)):
-                goals = [GCall(call_result)]
             elif isinstance(call_result, PTerm):
                 goals = [GCall(call_result)]
             else:
-                raise TypeError(f'join: unexpected call result type: {type(call_result).__name__}: {call_result!r}')
-            return bs + goals  # bind args before using them in the call
+                raise TypeError(f'join: unexpected call result: {type(call_result).__name__}: {call_result!r}')
+            return bs + goals
         return unary
 
     def reverse_join(self, rel, var_body) -> PUnary:
@@ -888,12 +745,10 @@ class PrologLDCS(ldcs.LDCS):
                 result = lam(x)
                 if isinstance(result, list):
                     goals.extend(result)
-                elif isinstance(result, str):
-                    goals.extend(_goals_from_body_str(result))
                 elif isinstance(result, PTerm):
                     goals.append(GCall(result))
                 else:
-                    raise TypeError(f'conj: unexpected lam result type: {type(result).__name__}: {result!r}')
+                    raise TypeError(f'conj: unexpected lam result: {type(result).__name__}: {result!r}')
             return goals
         return unary
 
@@ -905,16 +760,14 @@ class PrologLDCS(ldcs.LDCS):
         result = lam(x)
         if isinstance(result, list):
             goals = result
-        elif isinstance(result, str):
-            goals = _goals_from_body_str(result)
         elif isinstance(result, PTerm):
             goals = [GCall(result)]
         else:
-            raise TypeError(f'ldcs: unexpected lam result type: {type(result).__name__}: {result!r}')
+            raise TypeError(f'ldcs: unexpected lam result: {type(result).__name__}: {result!r}')
 
         cond_goals = []
         if cond:
-            cond_goals = _goals_from_body_str(cond) if isinstance(cond, str) else [cond]
+            cond_goals = cond if isinstance(cond, list) else [cond]
 
         # Try to simplify: if first goal is GUnify(x, value), extract value
         if goals and isinstance(goals[0], GUnify) and goals[0].left == x:
@@ -953,8 +806,7 @@ class PrologLDCS(ldcs.LDCS):
             guards = []
             for j in range(i):
                 prev_var, prev_goals = csyms[j]
-                guard_body = render_body(prev_goals + [GUnify(PVar('_'), prev_var)])
-                guards.append(GNot(_goals_from_body_str(guard_body) if guard_body else []))
+                guards.append(GNot(prev_goals + [GUnify(PVar('_'), prev_var)]))
             guarded.append((var, guards + goals))
         return self._lifts(guarded, 'disjunction')
 
@@ -963,12 +815,7 @@ class PrologLDCS(ldcs.LDCS):
     def claim(self, head_body: PCSym, cond=None) -> str:
         value, goals = head_body
         if cond:
-            if isinstance(cond, list):
-                goals = goals + cond
-            elif isinstance(cond, str):
-                goals = goals + _goals_from_body_str(cond)
-            else:
-                goals = goals + [cond]
+            goals = goals + (cond if isinstance(cond, list) else [cond])
         # Extract arithmetic from head: if value is PCompound with PArith args,
         # replace with fresh vars and add GIs goals
         value, extra_goals = self._extract_head_arith_ast(value)
@@ -1015,8 +862,6 @@ class PrologLDCS(ldcs.LDCS):
     def query_any(self, body) -> None:
         if isinstance(body, list):
             body_str = render_body(body)
-        elif isinstance(body, str):
-            body_str = body
         else:
             body_str = render_goal(body) if body else 'true'
         self.rules += [f'yes :- {body_str}.', 'no :- \\+ yes.']
@@ -1089,22 +934,11 @@ class PrologLDCS(ldcs.LDCS):
         for arg in args:
             if isinstance(arg, list):
                 goals.extend(arg)
-            elif isinstance(arg, str):
-                goals.extend(_goals_from_body_str(arg))
             elif isinstance(arg, PTerm):
                 goals.append(GCall(arg))
             else:
                 raise TypeError(f'clause: unexpected arg type: {type(arg).__name__}: {arg!r}')
         return goals
-
-    def not_term(self, term, lift: bool = False) -> PBody:
-        if isinstance(term, list):
-            return [GNot(term)]
-        if isinstance(term, str):
-            return [GNot(_goals_from_body_str(term))]
-        if isinstance(term, PTerm):
-            return [GNot([GCall(term)])]
-        raise TypeError(f'not_term: unexpected type: {type(term).__name__}: {term!r}')
 
     def pred(self, name: str, *args) -> PCSym:
         args = tuple(a for a in args if a is not None)
@@ -1144,13 +978,12 @@ class PrologLDCS(ldcs.LDCS):
         var, goals = var_body
         return lambda x: goals + [GUnify(x, PArith('-', PNum(0), var))]
 
-    def not_term(self, term, lift: bool = False) -> str:
-        if isinstance(term, str):
-            if ', ' in term or lift:
-                lam = self._lift((PAtom('0'), _goals_from_body_str(term)), 'negation')
-                term = render_term(lam(PAtom('0')))
-            return f'\\+ {term}'
-        return f'\\+ {render_term(term)}'
+    def not_term(self, term, lift: bool = False) -> PBody:
+        if isinstance(term, list):
+            return [GNot(term)]
+        if isinstance(term, PTerm):
+            return [GNot([GCall(term)])]
+        raise TypeError(f'not_term: unexpected type: {type(term).__name__}: {term!r}')
 
     # ── Superlatives ──
 
@@ -1195,8 +1028,6 @@ class PrologLDCS(ldcs.LDCS):
                 inner = rel(y)
                 if isinstance(inner, list):
                     inner_goals = inner
-                elif isinstance(inner, str):
-                    inner_goals = _goals_from_body_str(inner)
                 elif isinstance(inner, PTerm):
                     inner_goals = [GCall(inner)]
                 else:
@@ -1216,12 +1047,11 @@ class PrologLDCS(ldcs.LDCS):
     def _get_agg_name(self, a):
         """Check if a is a func wrapping an aggregation name (sum, count, etc.)."""
         if callable(a):
-            # Check by calling with 0 args to get the bare name
             try:
                 result = a()
-                if isinstance(result, str):
-                    if result in self._agg_funcs:
-                        return result
+                name = result.name if isinstance(result, PAtom) else None
+                if name and name in self._agg_funcs:
+                    return name
             except Exception:
                 pass
         return None
@@ -1324,33 +1154,10 @@ class PrologLDCS(ldcs.LDCS):
         return lambda x: [GCall(make_call(x))]
 
     def lift(self, var_body, prefix: str, **kwargs):
-        if isinstance(var_body, tuple) and len(var_body) == 2:
-            val, body = var_body
-            if isinstance(val, str):
-                val = _to_pterm(val)
-            if isinstance(body, str):
-                goals = _goals_from_body_str(body)
-            elif isinstance(body, list):
-                goals = body
-            else:
-                goals = []
-            return self._lift((val, goals), prefix, **kwargs)
         return self._lift(var_body, prefix, **kwargs)
 
     def lifts(self, var_bodies, prefix: str, **kwargs):
-        converted = []
-        for vb in var_bodies:
-            val, body = vb
-            if isinstance(val, str):
-                val = _to_pterm(val)
-            if isinstance(body, str):
-                goals = _goals_from_body_str(body)
-            elif isinstance(body, list):
-                goals = body
-            else:
-                goals = []
-            converted.append((val, goals))
-        return self._lifts(converted, prefix, **kwargs)
+        return self._lifts(var_bodies, prefix, **kwargs)
 
     # ── Define and enum ──
 
@@ -1375,12 +1182,8 @@ class PrologLDCS(ldcs.LDCS):
                     else:
                         head_term = PAtom(render_body(result))
                 body_goals = body_goals + goals
-            elif isinstance(result, str):
-                parts = result.split(', ', 1)
-                head_term = _to_pterm(parts[0])
-                body_goals = (_goals_from_body_str(parts[1]) if len(parts) > 1 else []) + goals
-            else:
-                head_term = result if isinstance(result, (PVar, PAtom, PNum, PStr, PCompound, PArith)) else _to_pterm(str(result))
+            elif isinstance(result, PTerm):
+                head_term = result
                 body_goals = goals
             head_term, extra = self._extract_head_arith_ast(head_term)
             body_goals = body_goals + extra
@@ -1426,8 +1229,8 @@ class PrologLDCS(ldcs.LDCS):
                             self.rules.append(f'{h}.')
                     else:
                         self.rules.append(render_body(all_goals).replace(', ', ' :- ', 1) + '.')
-                elif isinstance(result, str):
-                    self.rules.append(result.replace(', ', ' :- ', 1) + '.')
+                else:
+                    raise TypeError(f'enum: unexpected lam result: {type(result).__name__}: {result!r}')
 
     # ── Expand macros ──
 
@@ -1438,7 +1241,7 @@ class PrologLDCS(ldcs.LDCS):
             subst = dict(zip(params, args))
             return _MacroExpander(subst, self.gensym, params).transform(tree)
         elif len(args) == 0:
-            return name
+            return PAtom(name)
         else:
             return PCompound(name, tuple(args))
 
@@ -1449,7 +1252,7 @@ class PrologLDCS(ldcs.LDCS):
             if isinstance(rule, str):
                 self.rules.insert(0, rule + '.')
             else:
-                self.rules.insert(0, render_body([rule]) + '.' if isinstance(rule, PGoal) else str(rule) + '.')
+                self.rules.insert(0, render_body([rule]) + '.' if isinstance(rule, (GCall, GUnify, GIs, GCompare, GBetween, GNot, GFindAll, GBagOf, GWhen, GRaw)) else render_term(rule) + '.' if isinstance(rule, PTerm) else repr(rule) + '.')
         return '\n'.join(self.rules) \
                    .replace(';,', ';') \
                    .replace(';.', '.') \

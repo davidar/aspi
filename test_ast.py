@@ -6,7 +6,7 @@ from prolog import (
     GCall, GUnify, GIs, GCompare, GBetween, GNot, GFindAll, GBagOf, GWhen, GRaw,
     render_term, render_goal, render_body,
     term_vars, goal_vars, goal_needs_ground, goal_binds,
-    _goals_from_body_str, _to_pterm,
+    _to_pterm,
     PrologLDCS,
 )
 
@@ -266,53 +266,6 @@ class TestToPterm:
     def test_underscore(self):
         assert _to_pterm('_') == PVar('_')
 
-
-# ── _goals_from_body_str ─────────────────────────────────────────────────────
-
-class TestGoalsFromBodyStr:
-    def test_show(self):
-        goals = _goals_from_body_str('X = @show(A)')
-        assert len(goals) == 1
-        assert isinstance(goals[0], GCall)
-        assert goals[0].term.functor == 'term_to_atom'
-
-    def test_concatenate(self):
-        goals = _goals_from_body_str('X = @concatenate(A, B)')
-        assert len(goals) == 1
-        assert isinstance(goals[0], GCall)
-        assert goals[0].term.functor == 'atom_concat'
-
-    def test_length(self):
-        goals = _goals_from_body_str('X = @length(A)')
-        assert len(goals) == 1
-        assert goals[0].term.functor == 'atom_length'
-
-    def test_memberof(self):
-        goals = _goals_from_body_str('X = @memberof(L)')
-        assert len(goals) == 1
-        assert goals[0].term.functor == 'member'
-
-    def test_plain_term(self):
-        goals = _goals_from_body_str('foo(X)')
-        assert len(goals) == 1
-        assert isinstance(goals[0], GRaw)
-
-    def test_not(self):
-        goals = _goals_from_body_str('not foo(X)')
-        assert len(goals) == 1
-        assert isinstance(goals[0], GNot)
-
-    def test_inequality(self):
-        goals = _goals_from_body_str('X != Y')
-        assert len(goals) == 1
-        assert isinstance(goals[0], GCompare)
-        assert goals[0].op == '\\='
-
-    def test_mod_conversion(self):
-        goals = _goals_from_body_str('X = A \\ B')
-        # Should contain 'mod' somewhere
-        rendered = render_body(goals)
-        assert 'mod' in rendered or '\\' not in rendered
 
 
 # ── PrologLDCS pipeline ─────────────────────────────────────────────────────
