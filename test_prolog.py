@@ -59,21 +59,14 @@ class TestQuoteAtomsInTerm:
 
 class TestFormatPrologTerm:
     def test_int(self):
-        assert prolog._format_prolog_term(42) == '42'
+        assert prolog._format_prolog_term('42') == '42'
 
-    def test_float_whole(self):
-        assert prolog._format_prolog_term(3.0) == '3'
-
-    def test_bool(self):
-        assert prolog._format_prolog_term(True) == 'true'
+    def test_negative(self):
+        assert prolog._format_prolog_term('-7') == '-7'
 
     def test_str_atom_quoted(self):
-        """Bare atom strings from janus should be quoted."""
+        """Bare atom strings should be quoted."""
         assert prolog._format_prolog_term('ahmed') == '"ahmed"'
-
-    def test_str_numeric_atom_quoted(self):
-        """Atom that looks like a number (from sub_atom) should still be quoted."""
-        assert prolog._format_prolog_term('552') == '"552"'
 
     def test_str_compound(self):
         """Compound term string from term_to_atom should have atoms quoted."""
@@ -191,43 +184,43 @@ class TestPrologEngine:
     def test_add_and_query(self):
         self.engine.add_clause('test_fact(1).')
         self.engine.add_clause('test_fact(2).')
-        results = self.engine.query('test_fact(X)')
-        values = sorted(r['X'] for r in results)
-        assert values == [1, 2]
+        results = self.engine.query('test_fact(What)')
+        values = sorted(r['What'] for r in results)
+        assert values == ['1', '2']
 
     def test_retract_all(self):
         self.engine.add_clause('temp(1).')
         self.engine.add_clause('temp(2).')
         self.engine.retract_all('temp', 1)
-        results = self.engine.query('temp(X)')
+        results = self.engine.query('temp(What)')
         assert results == []
 
     def test_arithmetic(self):
-        result = self.engine.query_once('X is 2 + 3')
-        assert result['X'] == 5
+        results = self.engine.query_with_extra(
+            'what(What)', extra_clauses='what(X) :- X is 2 + 3.')
+        assert results[0]['What'] == '5'
 
     def test_between(self):
-        results = self.engine.query('between(1, 5, X)')
-        values = [r['X'] for r in results]
-        assert values == [1, 2, 3, 4, 5]
+        results = self.engine.query('between(1, 5, What)')
+        values = [r['What'] for r in results]
+        assert values == ['1', '2', '3', '4', '5']
 
     def test_findall(self):
         self.engine.add_clause('testnum(1).')
         self.engine.add_clause('testnum(2).')
         self.engine.add_clause('testnum(3).')
-        # findall+sum_list via query_with_extra to avoid janus list serialization issues
         results = self.engine.query_with_extra(
-            'what(S)',
+            'what(What)',
             extra_clauses='what(S) :- findall(X, testnum(X), L), sum_list(L, S).')
-        assert any(r.get('S') == 6 or r.get('What') == 6 for r in results)
+        assert results[0]['What'] == '6'
 
     def test_query_with_extra(self):
         self.engine.add_clause('base(1).')
         results = self.engine.query_with_extra(
-            'what(X)',
+            'what(What)',
             extra_clauses='what(X) :- base(X).')
         assert len(results) == 1
-        assert results[0]['X'] == 1
+        assert results[0]['What'] == '1'
 
 
 # ── Integration: LDCS -> Prolog -> answer ─────────────────────────────────────

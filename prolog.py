@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Prolog backend for aspi — replaces clingo with SWI-Prolog + tabling."""
 
-import janus_swi as janus
 import lark
 import os
 import re
@@ -1295,27 +1294,24 @@ class PrologLDCS(ldcs.LDCS):
 # ── PrologEngine ──────────────────────────────────────────────────────────────
 
 class PrologEngine:
-    """Wraps SWI-Prolog via janus for in-process evaluation."""
+    """Runs SWI-Prolog queries via subprocess."""
 
     def __init__(self) -> None:
         self.clauses: List[str] = []
         self.predicates: Dict[Tuple[str, int], bool] = {}
         self._prelude = ''
         self._load_prelude()
-        self._dirty = True
 
     def _load_prelude(self) -> None:
         prelude_path = os.path.join(os.path.dirname(__file__), 'lib', 'prelude.pl')
         if os.path.exists(prelude_path):
             self._prelude = open(prelude_path).read()
-        janus.consult('user', self._prelude)
 
     def add_clause(self, clause: str) -> None:
         clause = clause.strip()
         if not clause:
             return
         self.clauses.append(clause)
-        self._dirty = True
         pred_info = self._extract_pred(clause.rstrip('.'))
         if pred_info and pred_info not in self.predicates:
             self.predicates[pred_info] = False
@@ -1323,7 +1319,6 @@ class PrologEngine:
     def retract_all(self, name: str, arity: int) -> None:
         prefix = f'{name}('
         self.clauses = [c for c in self.clauses if not c.startswith(prefix)]
-        self._dirty = True
 
     def _build_program(self, extra: str = '') -> str:
         all_clauses = '\n'.join(self.clauses)
@@ -1340,18 +1335,6 @@ class PrologEngine:
             all_clauses, '', extra,
         ])
 
-    def _ensure_consulted(self) -> None:
-        if self._dirty:
-            program = self._build_program()
-            try:
-                janus.consult('user', program)
-            except Exception as e:
-                print(f'Prolog consult error: {e}', file=sys.stderr)
-                if 'DEBUG' in os.environ:
-                    for i, line in enumerate(program.split('\n')):
-                        print(f'{i+1:3}| {line}', file=sys.stderr)
-            self._dirty = False
-
     def _is_recursive(self, name: str, program: str) -> bool:
         for line in program.split('\n'):
             line = line.strip()
@@ -1364,93 +1347,59 @@ class PrologEngine:
                     return True
         return False
 
-    def query(self, goal: str, timeout: float = 30) -> List:
-        self._ensure_consulted()
+    def _run_query(self, program: str, goal: str, timeout: float = 30) -> List[Dict]:
+        """Write program to temp file, run swipl, parse results."""
+        import subprocess, tempfile
+        # Build the query directive: findall + output each result
+        query_directive = (
+            f':- (findall(What, ({goal}), Results_) -> true ; Results_ = []),\n'
+            f'   forall(member(R_, Results_), '
+            f'(term_to_atom(R_, A_), format("result:~w~n", [A_]))),\n'
+            f'   halt.\n'
+        )
+        full = program + '\n' + query_directive
+
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.pl', delete=False) as f:
+            f.write(full)
+            f.flush()
+            tmppath = f.name
+
         try:
-            janus.query_once(f'set_query_alarm({timeout})')
-        except Exception:
-            pass
-        try:
-            results = list(janus.query(goal))
+            proc = subprocess.run(
+                ['swipl', '-q', tmppath],
+                capture_output=True, text=True, timeout=timeout)
+            results = []
+            for line in proc.stdout.split('\n'):
+                if line.startswith('result:'):
+                    val = line[len('result:'):]
+                    results.append({'What': val})
+            if proc.stderr and 'DEBUG' in os.environ:
+                print(proc.stderr, file=sys.stderr)
             return results
-        except janus.PrologError as e:
-            err = str(e)
-            if 'time_limit_exceeded' in err:
-                return []
-            if 'py_term' in err:
-                return self._query_with_atom_conversion(goal)
-            if 'DEBUG' in os.environ:
-                print(f'Prolog query error: {e}', file=sys.stderr)
+        except subprocess.TimeoutExpired:
             return []
         except Exception as e:
             if 'DEBUG' in os.environ:
-                print(f'Prolog query error: {e}', file=sys.stderr)
+                print(f'swipl error: {e}', file=sys.stderr)
             return []
         finally:
-            try:
-                janus.query_once('clear_query_alarm')
-            except Exception:
-                pass
+            os.unlink(tmppath)
 
-    def _query_with_atom_conversion(self, goal: str) -> List:
-        wrapped = goal.replace('what(What)', 'what(_What_), term_to_atom(_What_, What)')
-        try:
-            return list(janus.query(wrapped))
-        except Exception as e:
-            if 'DEBUG' in os.environ:
-                print(f'Prolog query error (atom conversion): {e}', file=sys.stderr)
-            return []
+    def query(self, goal: str, timeout: float = 30) -> List:
+        program = self._build_program()
+        return self._run_query(program, goal, timeout)
 
-    def query_once(self, goal: str):
-        self._ensure_consulted()
-        try:
-            return janus.query_once(goal)
-        except Exception as e:
-            if 'DEBUG' in os.environ:
-                print(f'Prolog query error: {e}', file=sys.stderr)
-            return None
+    def query_once(self, goal: str, timeout: float = 30):
+        results = self.query(goal, timeout)
+        return results[0] if results else None
 
     def query_with_extra(self, goal: str, extra_clauses: str, timeout: float = 30) -> List:
         program = self._build_program(extra=extra_clauses)
-        try:
-            janus.consult('user', program)
-        except Exception as e:
-            print(f'Prolog consult error: {e}', file=sys.stderr)
-            if 'DEBUG' in os.environ:
-                for i, line in enumerate(program.split('\n')):
-                    print(f'{i+1:3}| {line}', file=sys.stderr)
-            return []
-        self._dirty = True
-        try:
-            janus.query_once(f'set_query_alarm({timeout})')
-        except Exception:
-            pass
-        try:
-            results = list(janus.query(goal))
-            return results
-        except janus.PrologError as e:
-            err = str(e)
-            if 'time_limit_exceeded' in err:
-                return []
-            if 'py_term' in err:
-                return self._query_with_atom_conversion(goal)
-            if 'DEBUG' in os.environ:
-                print(f'Prolog query error: {e}', file=sys.stderr)
-            return []
-        except Exception as e:
-            if 'DEBUG' in os.environ:
-                print(f'Prolog query error: {e}', file=sys.stderr)
-            return []
-        finally:
-            try:
-                janus.query_once('clear_query_alarm')
-            except Exception:
-                pass
+        return self._run_query(program, goal, timeout)
 
     def reset(self) -> None:
         self.clauses.clear()
         self.predicates.clear()
-        self._dirty = True
 
     def _extract_pred(self, clause: str) -> Optional[Tuple[str, int]]:
         head = clause.split(':-')[0].strip() if ':-' in clause else clause.strip()
@@ -1510,24 +1459,23 @@ def _quote_atoms_in_term(s: str) -> str:
 
 
 def _format_prolog_term(val) -> str:
-    if isinstance(val, bool): return 'true' if val else 'false'
-    if isinstance(val, int): return str(val)
-    if isinstance(val, float):
-        return str(int(val)) if val == int(val) else str(val)
+    """Format a Prolog term (from term_to_atom output) for display."""
     if isinstance(val, str):
         if val.startswith('"'): return val
         if val.startswith("'") and val.endswith("'"): return f'"{val[1:-1]}"'
+        # Try parsing as number
+        try:
+            n = int(val)
+            return str(n)
+        except ValueError:
+            pass
+        try:
+            f = float(val)
+            return str(int(f)) if f == int(f) else str(f)
+        except ValueError:
+            pass
         if '(' in val or "'" in val: return _quote_atoms_in_term(val)
         return f'"{val}"'
-    if isinstance(val, dict):
-        if 'functor' in val and 'args' in val:
-            name = val['functor']
-            args = val['args']
-            if not args: return str(name)
-            return f'{name}({",".join(_format_prolog_term(a) for a in args)})'
-        return str(val)
-    if isinstance(val, (list, tuple)):
-        return ','.join(_format_prolog_term(v) for v in val)
     return str(val)
 
 

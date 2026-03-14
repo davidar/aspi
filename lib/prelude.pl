@@ -2,28 +2,7 @@
 :- use_module(library(lists)).
 :- use_module(library(apply)).
 :- use_module(library(aggregate)).
-:- use_module(library(time)).
 :- set_prolog_flag(double_quotes, atom).
-
-%% Query timeout via alarm
-:- dynamic query_alarm_id_/1.
-set_query_alarm(T) :-
-    alarm(T, throw(time_limit_exceeded), Id),
-    retractall(query_alarm_id_(_)),
-    assertz(query_alarm_id_(Id)).
-clear_query_alarm :-
-    (query_alarm_id_(Id) ->
-        (remove_alarm(Id), retractall(query_alarm_id_(_)))
-    ; true).
-
-%% Helper to assert clauses from strings (avoids janus py_term issues)
-assert_from_string(S) :-
-    term_to_atom(T, S),
-    assertz(T).
-
-declare_dynamic(Name, Arity) :-
-    functor(Head, Name, Arity),
-    (predicate_property(Head, dynamic) -> true ; dynamic(Name/Arity)).
 
 %% String operations
 :- discontiguous concatenate/3.

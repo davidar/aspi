@@ -5,9 +5,7 @@ description = "Answer Set Programming, Interactively — a language based on Lam
 requires-python = ">=3.13"
 dependencies = [
     "clingo",
-    "janus-swi",
     "lark",
-    "sh",
 ]
 
 [dependency-groups]
