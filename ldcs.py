@@ -315,10 +315,12 @@ class LDCS(lark.Transformer[str]):
         return list(args)
 
     def term(self, name: str, *args: CSym) -> str:
+        args = tuple(a for a in args if a is not None)
         vals, bodies = unzip(args)
         return commas(self.expand_macro(name, *vals), *bodies)
 
     def pred(self, name: str, *args: CSym) -> CSym:
+        args = tuple(a for a in args if a is not None)
         vals, bodies = unzip(args)
         if not vals:
             return name, None
@@ -360,7 +362,9 @@ class LDCS(lark.Transformer[str]):
                 '..' not in head:
             x = head[len('_ = '):]
             if x[0] != '"':
-                x = x.replace(' ', '')
+                # Strip spaces around symbol operators but preserve around
+                # word operators (e.g., 'mod') for Prolog compatibility
+                x = re.sub(r'(?<=\W) | (?=\W)', '', x)
             return x, commas(body, cond)
         else:
             x = self.gensym()
@@ -553,7 +557,7 @@ class RuleBody(lark.Transformer[str]):
         return f"{name}({','.join(unparen(arg) for arg in args)})"
 
     def predop(self, *args: str) -> str:
-        return ' '.join(args)
+        return ' '.join(a for a in args if a is not None)
 
     def var(self, name: Sym) -> Sym:
         if name not in self.subst:

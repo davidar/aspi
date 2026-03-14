@@ -1,0 +1,22 @@
+[project]
+name = "aspi"
+version = "0.1.0"
+description = "Answer Set Programming, Interactively — a language based on Lambda DCS"
+requires-python = ">=3.13"
+dependencies = [
+    "clingo",
+    "janus-swi",
+    "lark",
+    "sh",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-console-scripts",
+    "pytest-timeout",
+    "mypy",
+]
+
+[tool.pytest.ini_options]
+timeout = 30
