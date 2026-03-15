@@ -42,3 +42,29 @@ odd(X) :- 1 is X mod 2.
 count_of(L, N) :- length(L, N).
 product_of([], 1).
 product_of([H|T], P) :- product_of(T, P1), P is P1 * H.
+
+%% Meta-interpreter for proof tracking
+%% prove(+Goal, -ProofTree) — re-derives Goal, exploring all clause choices.
+%% Only traces user-defined predicates; built-ins and library predicates are
+%% called directly. Different derivation paths produce different proof trees,
+%% which gives bag ({{X}}?) its duplicates.
+:- meta_predicate prove(0, -).
+prove(true, true) :- !.
+prove((A, B), (PA, PB)) :- !, prove(A, PA), prove(B, PB).
+prove(Goal, leaf) :-
+    \+ user_defined(Goal), !, call(Goal).
+prove(Goal, Proof) :-
+    clause(Goal, Body),
+    (Body == true ->
+        Proof = fact(Goal)
+    ;
+        prove(Body, BodyProof),
+        Proof = step(Goal, BodyProof)
+    ).
+
+user_defined(Goal) :-
+    \+ predicate_property(Goal, built_in),
+    \+ predicate_property(Goal, imported_from(_)).
+
+%% proof(ProofTree, Goal) — wrapper matching LDCS join convention (result first)
+proof(Tree, Goal) :- prove(Goal, Tree).

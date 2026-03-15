@@ -579,6 +579,7 @@ class PrologLDCS(ldcs.LDCS):
         super().__init__()
         self._agg_counter = 0
         self._result_wrapper = None  # 'set' or 'bag' for bare {X}? / {{X}}? queries
+        self._proofs = True  # proof tracking enabled by default
 
     def _gensym_var(self) -> PVar:
         return PVar(self.gensym())
@@ -1107,9 +1108,16 @@ class PrologLDCS(ldcs.LDCS):
         muvars = {v for v in all_vars if v.startswith('Mu')}
         result_var = PVar(f'Agg{tag}L_')
         self._result_wrapper = 'bag'
+        proofs = self._proofs
         def f(x):
             if muvars:
+                # Grouped aggregation — don't wrap in prove (breaks bagof grouping)
                 return [GBagOf(var, goals, x)]
+            if proofs:
+                # Wrap body in prove/2 to enumerate all derivation paths
+                body_str = _render_body_no_autowrap(goals)
+                prove_goals = [GRaw(f'prove(({body_str}), _)')]
+                return [GFindAll(var, prove_goals, x)]
             return [GFindAll(var, goals, x)]
         return f
 
@@ -1640,6 +1648,7 @@ class PrologASPI:
             sys.exit(0)
         if cmd == '#proof off.':
             self.proofs = False
+            self.ldcs._proofs = False
             return
         if cmd.startswith('#macro '):
             cmd = cmd.replace('#macro ', '')

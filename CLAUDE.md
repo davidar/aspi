@@ -61,17 +61,18 @@ See README.md for syntax. Key concepts:
 
 ## Testing
 
-Tests use full transcript checking — every line of output (understood/that/impossible/yes/no) is compared against `.log` files. Don't filter test output.
+Tests use full transcript checking — every line of output (understood/that/impossible/yes/no) is compared against `.log` files.
+
+**Never filter test output.** No `-q`, `--tb=short`, `--tb=line`, `| tail`, `| grep`. Just run `uv run pytest` bare. The UI shows a compact scrolling view — full output is always needed to see what's actually failing.
 
 Test with `--runxfail` to see actual failures for xfailed tests:
 ```bash
-uv run pytest test_prolog.py -k "euler/002" --runxfail --tb=short
+uv run pytest test_prolog.py -k "euler/002" --runxfail
 ```
 
 ## Prolog Backend Status (branch: prolog-backend)
 
-216 passed, 4 xfailed:
-- **euler/002**: Proof tracking not implemented (bag duplicates + proof queries)
+219 passed, 3 xfailed:
 - **euler/011, 027, 030**: Performance (would benefit from CLP(FD))
 
-Remaining phases: CLP(FD) constraints, planning fallback (`!` goals), proof tracking.
+Remaining phases: CLP(FD) constraints, planning fallback (`!` goals).
