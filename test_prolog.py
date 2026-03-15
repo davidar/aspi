@@ -577,6 +577,74 @@ class TestIntegration:
         assert '"alice"' in result
         assert '"bob"' in result
 
+    def test_negation_with_join(self):
+        """~pred[args] should negate the join."""
+        result = self._query(
+            '#enum dept: name="Engineering" loc=1 | name="Sales" loc=2 | name="HR" loc=1.',
+            'name.loc=1?',
+        )
+        assert '"Engineering"' in result
+        assert '"HR"' in result
+        assert '"Sales"' not in result
+
+    def test_negation_of_join(self):
+        """~pred[args] should return items NOT matching."""
+        result = self._query(
+            '#enum dept: name="Engineering" loc=1 | name="Sales" loc=2 | name="HR" loc=1.',
+            'name.~loc=1?',
+        )
+        assert '"Sales"' in result
+        assert '"Engineering"' not in result
+
+    def test_exists_transparent(self):
+        """exists(X) should be transparent — just a no-op marker."""
+        result = self._query(
+            'item: 1 | 2 | 3.',
+            'item (> 1)?',
+        )
+        assert '2' in result
+        assert '3' in result
+
+    def test_exists_in_clause(self):
+        """exists(...) in a :- clause should be transparent."""
+        result = self._query(
+            'color: "red" | "blue" | "green".',
+            'bright: "red" | "green".',
+            'color C :- exists(bright C)?',
+        )
+        # exists is transparent, so this is just: colors where bright holds
+        assert '"red"' in result
+        assert '"green"' in result
+        assert '"blue"' not in result
+
+    def test_not_exists_in_clause(self):
+        """not exists(...) should negate the existential."""
+        result = self._query(
+            'color: "red" | "blue" | "green".',
+            'bright: "red" | "green".',
+            'color C :- not exists(bright C)?',
+        )
+        assert result == 'that: "blue".'
+
+    def test_negation_of_join_with_filter(self):
+        """~pred[filter args] should negate the composed join."""
+        result = self._query(
+            'color: "red" | "blue" | "green".',
+            'bright: "red" | "green".',
+            '~bright color?',  # colors that are NOT bright
+        )
+        assert result == 'that: "blue".'
+
+    def test_negation_of_join_composition(self):
+        """~pred.set should negate composition correctly."""
+        result = self._query(
+            'item: 1 | 2 | 3 | 4 | 5 | 6.',
+            'bad: 2 | 4 | 6.',
+            'good: ~bad item.',
+            'good?',
+        )
+        assert result == 'that: 1 | 3 | 5.'
+
     def test_define_position_value_score(self):
         """Full euler/022 pattern: position * value for named items."""
         result = self._query(
@@ -601,8 +669,6 @@ _KNOWN_FAILURES = {
     'euler/011': 'performance — grouped bag over CSV grid with tabling too slow',
     'euler/027': 'performance — n4 domain with prime search',
     'euler/030': 'performance — brute force digit power sums',
-    'db-call': 'complex SQL join semantics — start_time/duration arithmetic differs',
-    'db-dept': 'complex SQL subquery — negation in multi-join context',
 }
 
 

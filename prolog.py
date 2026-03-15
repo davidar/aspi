@@ -174,7 +174,7 @@ def render_goal(g: PGoal) -> str:
 
     # Auto-wrap directional goals in when/2 if they have unground input vars
     needs = goal_needs_ground(g)
-    if needs and not isinstance(g, (GWhen, GRaw)):
+    if needs and not isinstance(g, (GNot, GWhen, GRaw)):
         return render_goal(GWhen(needs, g))
 
     match g:
@@ -739,16 +739,18 @@ class PrologLDCS(ldcs.LDCS):
 
     def conj(self, lams) -> PUnary:
         def unary(x):
-            goals = []
+            positive = []
+            negative = []
             for lam in lams:
                 result = lam(x)
                 if isinstance(result, list):
-                    goals.extend(result)
+                    for g in result:
+                        (negative if isinstance(g, GNot) else positive).append(g)
                 elif isinstance(result, PTerm):
-                    goals.append(GCall(result))
+                    positive.append(GCall(result))
                 else:
                     raise TypeError(f'conj: unexpected lam result: {type(result).__name__}: {result!r}')
-            return goals
+            return positive + negative  # generators before filters
         return unary
 
     def lams(self, *lams) -> list:
@@ -979,7 +981,14 @@ class PrologLDCS(ldcs.LDCS):
 
     def not_term(self, term, lift: bool = False) -> PBody:
         if isinstance(term, list):
-            return [GNot(term)]
+            # Lift negation to a helper predicate to properly scope existential vars
+            x = self._gensym_var()
+            lam = self._lift((x, term), 'negation')
+            # Use _ as the value arg since we only test existence
+            result = lam(PVar('_'))
+            if isinstance(result, list):
+                return [GNot(result)]
+            return [GNot([GCall(result)])]
         if isinstance(term, PTerm):
             return [GNot([GCall(term)])]
         raise TypeError(f'not_term: unexpected type: {type(term).__name__}: {term!r}')

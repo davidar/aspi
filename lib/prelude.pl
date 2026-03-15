@@ -20,6 +20,9 @@ reverse_str(X, A) :- atom_chars(A, Cs), reverse(Cs, Rs), atom_chars(X, Rs).
 :- discontiguous length_str/2.
 length_str(X, A) :- atom_length(A, X).
 
+%% exists(X) is always true — transparent marker for existential queries
+exists(_).
+
 %% Null value (for LEFT JOIN / short_disj fallback)
 :- discontiguous null/1.
 null(null).
