@@ -796,6 +796,25 @@ class TestIntegration:
         assert result.startswith('that: ')
         assert 'impossible' not in result
 
+    # ── Recursive aggregation ──
+
+    def test_recursive_min_aggregation(self):
+        """Recursive min aggregation: shortest path via recurrence."""
+        result = self._query(
+            'edge["A","B"]: 1.',
+            'edge["B","C"]: 2.',
+            'edge["A","C"]: 10.',
+            'edge(X,Y) :- exists(edge[X,Y]).',
+            'node(X) :- edge(X,Y).',
+            'node(X) :- edge(Y,X).',
+            'start: "A".',
+            'paths.B: path.A + edge[A,B].',
+            'path[node B ~start]: min{paths.B}.',
+            'path.start: 0.',
+            'path."C"?',
+        )
+        assert result == 'that: 3.'  # A->B(1) + B->C(2) = 3, not A->C(10)
+
 
 # ── LDCS file-based tests ─────────────────────────────────────────────────────
 
@@ -809,15 +828,15 @@ _KNOWN_FAILURES = {
     'euler/011': 'performance — grouped bag over CSV grid with tabling too slow',
     'euler/027': 'performance — n4 domain with prime search',
     'euler/030': 'performance — brute force digit power sums',
+    'shortest-path': "recursive min aggregation can't table through findall",
+    'shrdlu': "small'est superlative crashes parser",
 }
 
 
 def _discover_ldcs_tests():
     """Find all .ldcs files that have a .log with expected output."""
-    patterns = ['test/euler/*.ldcs', 'test/db-*.ldcs', 'test/dcg.ldcs', 'test/golf.ldcs']
     tests = []
-    for pat in patterns:
-        for ldcs_path in sorted(glob.glob(pat)):
+    for ldcs_path in sorted(glob.glob('test/**/*.ldcs', recursive=True)):
             log_path = ldcs_path.replace('.ldcs', '.log')
             try:
                 with open(log_path) as f:
@@ -878,11 +897,13 @@ def test_ldcs_file(ldcs_path, expected):
                 return True
         return False
 
-    assert len(actual) == len(expected) and all(lines_match(a, e) for a, e in zip(actual, expected)), (
-        f'\n  expected ({len(expected)} lines): {expected[:5]}...'
-        f'\n  actual   ({len(actual)} lines): {actual[:5]}...'
-        f'\n  stderr: {result.stderr[:200]}'
-    )
+    mismatches = []
+    for i, (a, e) in enumerate(zip(actual, expected)):
+        if not lines_match(a, e):
+            mismatches.append(f'  line {i}: expected {e!r}\n           got      {a!r}')
+    if len(actual) != len(expected):
+        mismatches.append(f'  length: expected {len(expected)}, got {len(actual)}')
+    assert not mismatches, '\n' + '\n'.join(mismatches)
 
 
 if __name__ == '__main__':
