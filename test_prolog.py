@@ -666,14 +666,18 @@ import subprocess
 
 
 _KNOWN_FAILURES = {
+    'euler/002': 'set/bag representation differs (Prolog lists vs ASP set/bag terms) + proof tracking',
+    'euler/009': 'intermediate query results differ (Pythagorean triple enumeration)',
     'euler/011': 'performance — grouped bag over CSV grid with tabling too slow',
+    'euler/019': 'enum identifiers in dates (month(12) vs december) for intermediate results',
     'euler/027': 'performance — n4 domain with prime search',
     'euler/030': 'performance — brute force digit power sums',
+    'db-call': 'start_time/duration arithmetic produces different values',
 }
 
 
 def _discover_ldcs_tests():
-    """Find all .ldcs files that have a .log with expected 'that:' output."""
+    """Find all .ldcs files that have a .log with expected output."""
     patterns = ['test/euler/*.ldcs', 'test/db-*.ldcs', 'test/dcg.ldcs', 'test/golf.ldcs']
     tests = []
     for pat in patterns:
@@ -681,9 +685,13 @@ def _discover_ldcs_tests():
             log_path = ldcs_path.replace('.ldcs', '.log')
             try:
                 with open(log_path) as f:
-                    lines = [l.strip() for l in f if l.startswith('that:')]
-                if lines:
-                    expected = lines[-1]
+                    # Extract all result lines: that:, understood., impossible., yes., no.
+                    expected = []
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith('that:') or line in ('understood.', 'impossible.', 'yes.', 'no.'):
+                            expected.append(line)
+                if expected:
                     name = ldcs_path.replace('test/', '').replace('.ldcs', '')
                     marks = []
                     if name in _KNOWN_FAILURES:
@@ -698,7 +706,7 @@ def _discover_ldcs_tests():
 
 @pytest.mark.parametrize('ldcs_path,expected', _discover_ldcs_tests())
 def test_ldcs_file(ldcs_path, expected):
-    """Run an LDCS file through the Prolog backend and check the last 'that:' line."""
+    """Run an LDCS file through the Prolog backend and check full transcript."""
     csv_path = ldcs_path.replace('.ldcs', '.csv')
     args = ['uv', 'run', 'python', 'prolog.py']
     import os
@@ -718,9 +726,17 @@ def test_ldcs_file(ldcs_path, expected):
             pytest.fail(f'Timed out after 30s')
         result = subprocess.CompletedProcess(args, proc.returncode, stdout, stderr)
 
-    that_lines = [l.strip() for l in result.stdout.split('\n') if l.startswith('that:')]
-    actual = that_lines[-1] if that_lines else ''
-    assert actual == expected, f'\n  expected: {expected}\n  actual:   {actual}\n  stderr:   {result.stderr[:200]}'
+    actual = []
+    for line in result.stdout.split('\n'):
+        line = line.strip()
+        if line.startswith('that:') or line in ('understood.', 'impossible.', 'yes.', 'no.'):
+            actual.append(line)
+
+    assert actual == expected, (
+        f'\n  expected ({len(expected)} lines): {expected[:5]}...'
+        f'\n  actual   ({len(actual)} lines): {actual[:5]}...'
+        f'\n  stderr: {result.stderr[:200]}'
+    )
 
 
 if __name__ == '__main__':
