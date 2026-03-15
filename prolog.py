@@ -581,6 +581,8 @@ class PrologLDCS(ldcs.LDCS):
         self._agg_counter = 0
         self._result_wrapper = None  # 'set' or 'bag' for bare {X}? / {{X}}? queries
         self._proofs = True  # proof tracking enabled by default
+        self._pending_lattice = None  # set by _make_agg for min/max
+        self._fluent_preds = set()  # fluent predicate names for planning state sync
 
     def _gensym_var(self) -> PVar:
         return PVar(self.gensym())
@@ -591,7 +593,7 @@ class PrologLDCS(ldcs.LDCS):
         return name
 
     def constant(self, c: str) -> PUnary:
-        if c in string.ascii_uppercase:
+        if c[0] in string.ascii_uppercase:
             term = PVar('Mu' + c)
         elif c.startswith('"') and c.endswith('"'):
             term = PStr(c[1:-1])
@@ -816,6 +818,37 @@ class PrologLDCS(ldcs.LDCS):
             guarded.append((var, guards + goals))
         return self._lifts(guarded, 'disjunction')
 
+    # ── Fluents ──
+
+    def fluent(self, head_body, *args):
+        """Generate Prolog rules for fluent predicates.
+
+        For ALL fluents: generates a holds shorthand `pred(A,B) :- holds(pred(A,B)).`
+        so that planning state (injected via holds facts) is accessible.
+
+        For derived fluents (with body): also generates the non-temporal Prolog rule
+        for use before planning occurs.
+        """
+        head, head_goals = head_body
+        body_preds = [vb for vb in args if vb is not None]
+        if body_preds:
+            # Derived fluent: generate the non-temporal Prolog rule
+            all_goals = list(head_goals)
+            for pred, pred_goals in body_preds:
+                all_goals.extend(pred_goals)
+                if isinstance(pred, PTerm):
+                    all_goals.append(GCall(pred))
+            head_str = render_term(head)
+            body_str = render_body(all_goals)
+            self.rules.append(f'{head_str} :- {body_str}.')
+        # Generate holds shorthand for planning state access
+        head_str = render_term(head)
+        self.rules.append(f'{head_str} :- holds({head_str}).')
+        # Track fluent predicate name for state sync
+        if isinstance(head, PCompound):
+            self._fluent_preds.add(head.functor)
+        return None
+
     # ── Claims and queries ──
 
     def claim(self, head_body: PCSym, cond=None) -> str:
@@ -904,6 +937,7 @@ class PrologLDCS(ldcs.LDCS):
         if op == '!=':
             return all_goals + [GCompare('\\=', val_a, val_b)]
         if op in ('<', '>', '<=', '>='):
+            op = self._ineq_ops.get(op, op)
             return all_goals + [GCompare(op, val_a, val_b)]
         result = self.binop(a, op, b)
         return result[1] + [GRaw(render_term(result[0]))]
@@ -976,8 +1010,11 @@ class PrologLDCS(ldcs.LDCS):
         lam = self._lift(var_body, 'negation', ground=True)
         return lambda x: [GNot(lam(x))]
 
+    _ineq_ops = {'<=': '=<', '!=': '\\='}
+
     def ineq(self, op: str, var_body: PCSym) -> PUnary:
         var, goals = var_body
+        op = self._ineq_ops.get(op, op)
         return lambda x: goals + [GCompare(op, x, var)]
 
     def negative(self, var_body: PCSym) -> PUnary:
@@ -1025,9 +1062,11 @@ class PrologLDCS(ldcs.LDCS):
             def handler(x, z):
                 inner = rel(x, y)
                 if isinstance(inner, list):
-                    inner_str = render_body(inner)
+                    inner_str = _render_body_no_autowrap(inner)
+                elif isinstance(inner, (PCompound, PAtom)):
+                    inner_str = render_term(inner)
                 else:
-                    inner_str = str(inner)
+                    inner_str = repr(inner)
                 inner2 = inner_str.replace(render_term(y), render_term(y2))
                 return PAtom(f'{inner_str}, member({render_term(y)}, {render_term(z)}), '
                              f'\\+ (member({render_term(y2)}, {render_term(z)}), '
@@ -1132,6 +1171,9 @@ class PrologLDCS(ldcs.LDCS):
             eval_var = PVar(f'AggV{tag}_')
             goals = goals + [GIs(eval_var, var)]
             var = eval_var
+        # For min/max, store lattice info so define() can use lattice tabling
+        if agg_name in ('min', 'max'):
+            self._pending_lattice = (agg_name, var, goals)
         list_var = PVar(f'Agg{tag}L_')
         if dedup:
             raw_var = PVar(f'Agg{tag}R_')
@@ -1184,7 +1226,27 @@ class PrologLDCS(ldcs.LDCS):
     # ── Define and enum ──
 
     def define(self, heads, var_body: PCSym) -> None:
+        lattice_info = self._pending_lattice
+        self._pending_lattice = None
+
         var, goals = var_body
+
+        if lattice_info:
+            agg_name, inner_var, inner_goals = lattice_info
+            # Replace findall+sort+reduce with direct inner goals for lattice tabling.
+            # Filter out the GFindAll and subsequent sort/reduce GCalls.
+            _reduce_funcs = set(self._agg_funcs.values())
+            cleaned = []
+            for g in goals:
+                if isinstance(g, GFindAll):
+                    continue
+                if isinstance(g, GCall) and isinstance(g.term, PCompound) \
+                        and g.term.functor in ('sort', *_reduce_funcs):
+                    continue
+                cleaned.append(g)
+            goals = cleaned + inner_goals
+            var = inner_var
+
         for head in reversed(heads):
             result = head(var)
             if isinstance(result, list):
@@ -1214,6 +1276,13 @@ class PrologLDCS(ldcs.LDCS):
                 self.rules.insert(0, f'{head_str} :- {render_body(body_goals)}.')
             else:
                 self.rules.insert(0, f'{head_str}.')
+            # Emit lattice tabling declaration for min/max defines
+            if lattice_info and isinstance(head_term, PCompound):
+                agg_name = lattice_info[0]
+                arity = len(head_term.args)
+                # First arg is the aggregated value, rest are keys
+                tabling_args = [f'lattice(my_{agg_name}/3)'] + ['+'] * (arity - 1)
+                self.rules.append(f':- table {head_term.functor}({", ".join(tabling_args)}).')
 
     def enum(self, head: str, *args) -> None:
         for lams in args:
@@ -1282,6 +1351,7 @@ class PrologLDCS(ldcs.LDCS):
 
     def toProlog(self, s: str) -> Optional[str]:
         self._result_wrapper = None
+        self._pending_lattice = None
         try:
             tree = ldcs.parser.parse(s)
             return self.transform(tree)
@@ -1324,6 +1394,7 @@ class PrologEngine:
         self.clauses: List[str] = []
         self.predicates: Dict[Tuple[str, int], bool] = {}
         self._prelude = ''
+        self._extra_facts_fn = None  # callable returning list of fact strings
         self._load_prelude()
 
     def _load_prelude(self) -> None:
@@ -1353,10 +1424,14 @@ class PrologEngine:
             decls.append(f':- discontiguous {name}/{arity}.')
             if recursive:
                 decls.append(f':- table {name}/{arity}.')
+        # Include live planning facts if available
+        planning_facts = ''
+        if self._extra_facts_fn:
+            planning_facts = '\n'.join(f'{f}.' for f in self._extra_facts_fn())
         return '\n'.join([
             self._prelude, '',
             '\n'.join(decls), '',
-            all_clauses, '', extra,
+            all_clauses, '', planning_facts, '', extra,
         ])
 
     def _is_recursive(self, name: str, program: str) -> bool:
@@ -1590,6 +1665,8 @@ class PrologASPI:
         self.engine = PrologEngine()
         self.proofs = False
         self.names: Dict[str, str] = {}  # enum id -> name mapping
+        # Wire up live planning facts: Prolog queries include ASP state automatically
+        self.engine._extra_facts_fn = lambda: list(self._asp.facts) + [f'now({self._asp.now})']
         for arg in args:  # macros handled directly by PrologLDCS._BUILTINS
             self.include(arg)
 
@@ -1647,8 +1724,11 @@ class PrologASPI:
             return
         # Feed all other commands to ASP backend silently (for planning state)
         import io, contextlib
-        with contextlib.redirect_stdout(io.StringIO()):
-            self._asp.repl(cmd)
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                self._asp.repl(cmd)
+        except Exception:
+            pass  # ASP may not handle all Prolog-specific commands
         # Normal Prolog processing
         if cmd.startswith('#undef '):
             name = cmd[len('#undef '):-1]

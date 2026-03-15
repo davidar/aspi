@@ -4,6 +4,11 @@
 :- use_module(library(aggregate)).
 :- set_prolog_flag(double_quotes, atom).
 
+%% Declare planning predicates as dynamic so they don't error when undefined.
+%% In ASP, undefined predicates are simply false; dynamic gives the same semantics.
+:- dynamic apply/2, adds/2, deletes/2, adds_temporary/2, demands/2, demands_not/2.
+:- dynamic init/1, action/1, costs/2, rewards/2, goal/1.
+
 %% String operations
 :- discontiguous concatenate/3.
 concatenate(X, A, B) :- atom(A), atom(B), atom_concat(A, B, X).
@@ -42,6 +47,12 @@ odd(X) :- 1 is X mod 2.
 count_of(L, N) :- length(L, N).
 product_of([], 1).
 product_of([H|T], P) :- product_of(T, P1), P is P1 * H.
+
+%% Lattice tabling helpers for recursive min/max aggregation.
+%% Used with :- table pred(lattice(my_min/3), +).
+%% SWI-Prolog calls my_min(New, Old, Keep) to merge answers.
+my_min(New, Old, Min) :- Min is min(New, Old).
+my_max(New, Old, Max) :- Max is max(New, Old).
 
 %% Meta-interpreter for proof tracking
 %% prove(+Goal, -ProofTree) — re-derives Goal, exploring all clause choices.

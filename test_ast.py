@@ -508,3 +508,226 @@ class TestPrologLDCSPipeline:
         result = self.p.toProlog('foo: 1 + 2.')
         assert result is not None
         assert ' is ' in result
+
+
+class TestMultiCharVariables:
+    """Test that multi-character uppercase identifiers are treated as Prolog variables."""
+
+    def setup_method(self):
+        self.p = PrologLDCS()
+
+    def test_single_char_is_var(self):
+        result = self.p.toProlog('foo.A?')
+        assert 'MuA' in result
+
+    def test_multi_char_is_var(self):
+        """T1, T2 etc. should be PVar, not PAtom."""
+        result = self.p.toProlog('foo[T1..T2]: bar[T1, T2].')
+        assert result is not None
+        assert 'MuT1' in result
+        assert 'MuT2' in result
+
+    def test_multi_char_gets_when_wrap(self):
+        """between(T1, T2, X) with variable bounds should be wrapped in when/2."""
+        result = self.p.toProlog('foo[T1..T2]: bar[T1, T2].')
+        assert result is not None
+        assert 'when(' in result  # between needs ground bounds
+
+    def test_lowercase_still_atom(self):
+        """Lowercase identifiers should remain atoms."""
+        result = self.p.toProlog('foo.hello?')
+        assert result is not None
+        assert 'hello' in result
+        assert 'Muhello' not in result
+
+
+class TestFluent:
+    """Test fluent compilation for Prolog backend."""
+
+    def setup_method(self):
+        self.p = PrologLDCS()
+
+    def test_base_fluent_generates_holds_shorthand(self):
+        """#fluent on(A,B). should generate on(MuA, MuB) :- holds(on(MuA, MuB))."""
+        result = self.p.toProlog('#fluent on(A,B).')
+        assert result is not None
+        assert 'holds(' in result
+        assert ':-' in result
+
+    def test_derived_fluent_generates_rule_and_shorthand(self):
+        """#fluent above(A,B) :- on(A,B). should generate both the rule and holds shorthand."""
+        result = self.p.toProlog('#fluent above(A,B) :- on(A,B).')
+        assert result is not None
+        lines = [l.strip() for l in result.split('\n') if l.strip()]
+        # Should have both a derived rule and a holds shorthand
+        has_derived = any('on(' in l and ':-' in l for l in lines)
+        has_holds = any('holds(' in l for l in lines)
+        assert has_derived, f'No derived rule found in: {lines}'
+        assert has_holds, f'No holds shorthand found in: {lines}'
+
+    def test_fluent_tracks_predicate_name(self):
+        """Fluent predicates should be tracked in _fluent_preds."""
+        self.p.toProlog('#fluent on(A,B).')
+        assert 'on' in self.p._fluent_preds
+
+
+class TestPlanningStateInjection:
+    """Test that ASP planning facts are injected into Prolog queries."""
+
+    def test_extra_facts_fn_included_in_program(self):
+        """PrologEngine should include extra facts in _build_program."""
+        from prolog import PrologEngine
+        engine = PrologEngine()
+        engine.add_clause('foo(1).')
+        engine._extra_facts_fn = lambda: ['bar(2)', 'baz(3)']
+        prog = engine._build_program()
+        assert 'bar(2).' in prog
+        assert 'baz(3).' in prog
+        assert 'foo(1).' in prog
+
+    def test_extra_facts_fn_none_is_fine(self):
+        """No extra_facts_fn should not break _build_program."""
+        from prolog import PrologEngine
+        engine = PrologEngine()
+        engine.add_clause('foo(1).')
+        prog = engine._build_program()
+        assert 'foo(1).' in prog
+
+    def test_holds_chain_with_planning_facts(self):
+        """Holds should resolve through state/init with injected planning facts."""
+        from prolog import PrologEngine, PrologLDCS
+        engine = PrologEngine()
+        p = PrologLDCS()
+
+        # Compile core planning rules
+        for line in [
+            'state.0: init.',
+            'tmax: now + 20.',
+            'time: 1..tmax.',
+            'state.T: adds=apply.T.',
+            'del.T: deletes=apply.T.',
+            'state[time T]: state[T-1] ~del[T].',
+            'holds.T: state.T.',
+            'holds: holds.now.',
+        ]:
+            r = p.toProlog(line)
+            if r:
+                for c in r.split('\n'):
+                    if c.strip():
+                        engine.add_clause(c)
+
+        # Simulate planning state: init(on(a,b)), now=0
+        engine._extra_facts_fn = lambda: ['init(on(a,b))', 'moves(0)', 'now(0)']
+
+        results = engine.query_with_extra(
+            'what(What)', extra_clauses='what(X) :- holds(X).', timeout=10)
+        values = [r['What'] for r in results]
+        assert 'on(a,b)' in values, f'Expected on(a,b) in holds results, got: {values}'
+
+
+class TestIneqOperators:
+    """Test inequality operator translation for Prolog."""
+
+    def setup_method(self):
+        self.p = PrologLDCS()
+
+    def test_lte_becomes_eql(self):
+        """<= should become =< in Prolog."""
+        from prolog import GCompare, PVar, render_goal
+        g = GCompare('<=', PVar('A'), PVar('B'))
+        result = self.p.ineq('<=', (PVar('B'), []))
+        # The ineq method should translate <= to =<
+        goals = result(PVar('A'))
+        assert any(isinstance(g, GCompare) and g.op == '=<' for g in goals)
+
+    def test_neq_becomes_backslash_eq(self):
+        """!= in binop_term should become \\= in Prolog."""
+        from prolog import GCompare, PVar, PNum
+        result = self.p.binop_term((PVar('A'), []), '!=', (PNum(5), []))
+        assert any(isinstance(g, GCompare) and g.op == '\\=' for g in result)
+
+
+class TestSuperlative:
+    """Test superlative operators in Prolog backend."""
+
+    def setup_method(self):
+        self.p = PrologLDCS()
+
+    def test_reverse_operator(self):
+        """' reverses argument order."""
+        result = self.p.toProlog("children'.X?")
+        assert result is not None
+        assert 'children(' in result
+
+    def test_each_no_crash(self):
+        """'each superlative should not crash."""
+        self.p.toProlog('big: 1 | 2 | 3.')
+        self.p.toProlog('pyramid: 1 | 2.')
+        result = self.p.toProlog("big'each.{pyramid}?")
+        assert result is not None
+        assert 'forall' in result
+
+    def test_est_no_crash(self):
+        """'est superlative should not crash on PTerm (was calling str() on PCompound)."""
+        self.p.toProlog('pyramid: 1 | 2.')
+        result = self.p.toProlog("small'est.{pyramid}?")
+        assert result is not None
+        # Should contain the negation-as-failure pattern for "smallest"
+        assert '\\+' in result or 'not' in result.lower()
+
+    def test_est_in_define_no_crash(self):
+        """'est in a define context should not crash."""
+        self.p.toProlog('block: 1 | 2 | 3.')
+        result = self.p.toProlog("superblock: big'est.{block}.")
+        assert result is not None
+        assert 'superblock(' in result
+
+    def test_th_no_crash(self):
+        """'th ordinal superlative should not crash."""
+        self.p.toProlog('item: 1 | 2 | 3.')
+        result = self.p.toProlog("item'th.2?")
+        assert result is not None
+        assert 'nth1' in result
+
+
+class TestLatticeAggregation:
+    """Test min/max aggregation in define context generates lattice tabling."""
+
+    def setup_method(self):
+        self.p = PrologLDCS()
+
+    def test_min_in_define_no_findall(self):
+        """min{} in a define should not use findall (needs lattice tabling)."""
+        self.p.toProlog('paths."a": 10.')
+        result = self.p.toProlog('path[node B]: min{paths.B}.')
+        assert result is not None
+        # Should NOT have findall (lattice tabling replaces it)
+        assert 'findall' not in result
+        # Should have the inner goal directly
+        assert 'paths(' in result
+        # Should have a lattice tabling declaration
+        assert 'lattice(' in result
+
+    def test_max_in_define_no_findall(self):
+        """max{} in a define should not use findall (needs lattice tabling)."""
+        self.p.toProlog('scores."a": 10.')
+        result = self.p.toProlog('best[player P]: max{scores.P}.')
+        assert result is not None
+        assert 'findall' not in result
+        assert 'scores(' in result
+        assert 'lattice(' in result
+
+    def test_min_in_query_still_uses_findall(self):
+        """min{} in a query context should still use findall."""
+        self.p.toProlog('foo: 1 | 2 | 3.')
+        result = self.p.toProlog('min{foo}?')
+        assert result is not None
+        assert 'findall(' in result
+        assert 'min_list(' in result
+
+    def test_sum_in_define_still_uses_findall(self):
+        """sum{} should not use lattice tabling (only min/max benefit)."""
+        self.p.toProlog('scores."a": 10.')
+        result = self.p.toProlog('total[player P]: sum{scores.P}.')
+        assert result is not None
+        assert 'findall(' in result

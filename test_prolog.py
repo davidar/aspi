@@ -828,8 +828,7 @@ _KNOWN_FAILURES = {
     'euler/011': 'performance — grouped bag over CSV grid with tabling too slow',
     'euler/027': 'performance — n4 domain with prime search',
     'euler/030': 'performance — brute force digit power sums',
-    'shortest-path': "recursive min aggregation can't table through findall",
-    'shrdlu': "small'est superlative crashes parser",
+    'shrdlu': "queries depend on ASP planning state not available in Prolog engine",
 }
 
 
