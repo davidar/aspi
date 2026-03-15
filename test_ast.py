@@ -6,7 +6,7 @@ from prolog import (
     GCall, GUnify, GIs, GCompare, GBetween, GNot, GFindAll, GBagOf, GWhen, GRaw,
     render_term, render_goal, render_body,
     term_vars, goal_vars, goal_needs_ground, goal_binds,
-    _to_pterm, _parse_result_term, _term_sort_key,
+    _to_pterm, _parse_result_term, _term_sort_key, _parse_prolog_list,
     PrologLDCS,
 )
 
@@ -412,13 +412,41 @@ class TestTermSortKey:
         assert sorted(vals, key=_term_sort_key) == ['triple(5,1,1)', 'triple(10,1,1)', 'triple(20,1,1)']
 
     def test_compound_sorts_by_second_arg(self):
+        """Atoms sort alphabetically, so december < september."""
         vals = ['date(1901,september,1)', 'date(1901,december,1)']
         assert sorted(vals, key=_term_sort_key) == ['date(1901,december,1)', 'date(1901,september,1)']
+
+    def test_compound_sorts_enum_by_id(self):
+        """Enum ids like month(9) sort numerically, before name replacement."""
+        vals = ['date(1901,month(9),1)', 'date(1901,month(12),1)']
+        assert sorted(vals, key=_term_sort_key) == ['date(1901,month(9),1)', 'date(1901,month(12),1)']
 
     def test_mixed_types(self):
         vals = ['42', '"hello"', 'foo']
         result = sorted(vals, key=_term_sort_key)
         assert result[0] == '42'  # numbers first
+
+
+class TestParsePrologList:
+    """Test parsing Prolog list strings."""
+
+    def test_simple_list(self):
+        assert _parse_prolog_list('[1,2,3]') == ['1', '2', '3']
+
+    def test_empty_list(self):
+        assert _parse_prolog_list('[]') == []
+
+    def test_nested_terms(self):
+        assert _parse_prolog_list('[foo(1,2),bar(3)]') == ['foo(1,2)', 'bar(3)']
+
+    def test_nested_lists(self):
+        assert _parse_prolog_list('[[1,2],[3]]') == ['[1,2]', '[3]']
+
+    def test_non_list(self):
+        assert _parse_prolog_list('hello') == ['hello']
+
+    def test_with_duplicates(self):
+        assert _parse_prolog_list('[1,2,2,3]') == ['1', '2', '2', '3']
 
 
 class TestPrologLDCSPipeline:

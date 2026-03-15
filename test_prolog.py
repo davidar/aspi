@@ -656,6 +656,118 @@ class TestIntegration:
         )
         assert result == 'that: 3.'  # A=1 + B=2
 
+    def test_enum_name_sort_order(self):
+        """Enum names should sort by underlying numeric id, not alphabetically.
+
+        month(9)=september should sort before month(12)=december,
+        even though 'december' < 'september' alphabetically.
+        """
+        result = self._query(
+            '#enum month: january | february | march | april | may | june '
+            '| july | august | september | october | november | december.',
+            'month?',
+        )
+        # Should be in enum order (1..12), not alphabetical
+        assert result == (
+            'that: january | february | march | april | may | june'
+            ' | july | august | september | october | november | december.'
+        )
+
+    def test_enum_name_sort_in_compound(self):
+        """Enum names inside compound terms should sort by underlying id.
+
+        date(1901,september,1) should sort before date(1901,december,1)
+        because month(9) < month(12), even though december < september.
+        """
+        result = self._query(
+            '#enum month: september | december.',
+            'year: 1901.',
+            'date: date(year Y, month M, 1).',
+            'date?',
+        )
+        # september=month(1), december=month(2) in this enum
+        # so september should sort before december
+        assert result == 'that: date(1901,september,1) | date(1901,december,1).'
+
+    def test_enum_name_replacement_preserves_that_facts(self):
+        """After name replacement, count{that} should still work.
+
+        The `that` facts need to use name-replaced values so count{that}
+        works correctly in follow-up queries.
+        """
+        result = self._query(
+            '#enum color: red | green | blue.',
+            'color?',
+            'count{that}?',
+        )
+        assert result == 'that: 3.'
+
+    # ── Set/bag representation ──
+
+    def test_bare_setof_produces_set_term(self):
+        """Bare {X}? query should produce a set(...) compound term."""
+        result = self._query(
+            'item: 1 | 2 | 3.',
+            '{item}?',
+        )
+        assert result == 'that: set(1,2,3).'
+
+    def test_bare_setof_deduplicates(self):
+        """Bare {X}? should deduplicate (set semantics)."""
+        result = self._query(
+            'item: 1 | 2 | 2 | 3.',
+            '{item}?',
+        )
+        assert result == 'that: set(1,2,3).'
+
+    def test_bare_bagof_produces_bag_term(self):
+        """Bare {{X}}? query should produce a bag(...) compound term."""
+        result = self._query(
+            'item: 1 | 2 | 3.',
+            '{{item}}?',
+        )
+        assert result == 'that: bag(1,2,3).'
+
+    def test_bare_bagof_preserves_duplicates(self):
+        """Bare {{X}}? should preserve duplicates (bag semantics)."""
+        result = self._query(
+            'item: 1 | 2 | 2 | 3.',
+            '{{item}}?',
+        )
+        assert result == 'that: bag(1,2,2,3).'
+
+    def test_setof_count_still_works(self):
+        """count{X}? should still work (not produce set wrapper)."""
+        result = self._query(
+            'item: 1 | 2 | 3.',
+            'count{item}?',
+        )
+        assert result == 'that: 3.'
+
+    def test_setof_sum_still_works(self):
+        """sum{X}? should still work."""
+        result = self._query(
+            'item: 10 | 20 | 30.',
+            'sum{item}?',
+        )
+        assert result == 'that: 60.'
+
+    def test_setof_superlative_still_works(self):
+        """2'th.{X}? should still work with set representation."""
+        result = self._query(
+            'item: 10 | 20 | 30.',
+            "2'th.{item}?",
+        )
+        assert result == 'that: 20.'
+
+    def test_setof_max_still_works(self):
+        """max{X}? should still work."""
+        result = self._query(
+            'item: 10 | 20 | 30.',
+            'max{item}?',
+        )
+        assert result == 'that: 30.'
+
 
 # ── LDCS file-based tests ─────────────────────────────────────────────────────
 
@@ -666,9 +778,8 @@ import subprocess
 
 
 _KNOWN_FAILURES = {
-    'euler/002': 'set/bag representation differs (Prolog lists vs ASP set/bag terms) + proof tracking',
+    'euler/002': 'proof tracking not implemented (bag duplicates + proof queries)',
     'euler/011': 'performance — grouped bag over CSV grid with tabling too slow',
-    'euler/019': 'enum identifiers in dates (month(12) vs december) for intermediate results',
     'euler/027': 'performance — n4 domain with prime search',
     'euler/030': 'performance — brute force digit power sums',
 }

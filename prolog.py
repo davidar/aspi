@@ -578,6 +578,7 @@ class PrologLDCS(ldcs.LDCS):
     def __init__(self) -> None:
         super().__init__()
         self._agg_counter = 0
+        self._result_wrapper = None  # 'set' or 'bag' for bare {X}? / {{X}}? queries
 
     def _gensym_var(self) -> PVar:
         return PVar(self.gensym())
@@ -702,6 +703,8 @@ class PrologLDCS(ldcs.LDCS):
     # ── Composition ──
 
     def join(self, rel, *var_bodies) -> PUnary:
+        # Set/bag consumed by join — not a bare query
+        self._result_wrapper = None
         if getattr(rel, '_prolog_needs_list', False):
             # Superlatives: strip member() and pass list directly
             new_var_bodies = []
@@ -1078,6 +1081,7 @@ class PrologLDCS(ldcs.LDCS):
         tag = self._agg_counter
         list_var = PVar(f'Agg{tag}L_')
         sorted_var = PVar(f'Agg{tag}S_')
+        self._result_wrapper = 'set'
         def f(x):
             return [GFindAll(var, goals, list_var),
                     GCall(PCompound('sort', (list_var, sorted_var))),
@@ -1102,6 +1106,7 @@ class PrologLDCS(ldcs.LDCS):
             all_vars |= goal_vars(g)
         muvars = {v for v in all_vars if v.startswith('Mu')}
         result_var = PVar(f'Agg{tag}L_')
+        self._result_wrapper = 'bag'
         def f(x):
             if muvars:
                 return [GBagOf(var, goals, x)]
@@ -1267,6 +1272,7 @@ class PrologLDCS(ldcs.LDCS):
                    .replace(' :- .', '.')
 
     def toProlog(self, s: str) -> Optional[str]:
+        self._result_wrapper = None
         try:
             tree = ldcs.parser.parse(s)
             return self.transform(tree)
@@ -1518,6 +1524,31 @@ def _pterm_sort_key(t: PTerm):
     return (6, repr(t))
 
 
+def _parse_prolog_list(s: str) -> list:
+    """Parse a Prolog list string like '[1,2,3]' into individual element strings."""
+    s = s.strip()
+    if not s.startswith('[') or not s.endswith(']'):
+        return [s]
+    inner = s[1:-1]
+    if not inner:
+        return []
+    # Split respecting nested parens/brackets
+    elements = []
+    depth = 0
+    cur = ''
+    for ch in inner:
+        if ch in '([': depth += 1
+        elif ch in ')]': depth -= 1
+        if ch == ',' and depth == 0:
+            elements.append(cur.strip())
+            cur = ''
+        else:
+            cur += ch
+    if cur.strip():
+        elements.append(cur.strip())
+    return elements
+
+
 def _format_prolog_term(val) -> str:
     """Format a Prolog term (from term_to_atom output) for display."""
     if isinstance(val, str):
@@ -1614,7 +1645,8 @@ class PrologASPI:
             cmd = cmd.replace('#macro ', '')
         res = self.eval(cmd)
         if res is not None:
-            self.print_results(res)
+            wrapper = self.ldcs._result_wrapper if cmd.endswith('?') else None
+            self.print_results(res, wrapper=wrapper)
             self.counter += 1
 
     def eval(self, cmd: str) -> Optional[List]:
@@ -1665,14 +1697,16 @@ class PrologASPI:
             s = s.replace(k, v)
         return s
 
-    def print_results(self, results: List) -> None:
+    def print_results(self, results: List, wrapper: str = None) -> None:
         if not results:
             print('impossible.\n')
             return
-        values = []
-        for r in results:
-            if 'What' in r:
-                values.append(_format_prolog_term(r['What']))
+        # Extract raw values
+        raw_values = [r['What'] for r in results if 'What' in r]
+        # For bag wrapper, expand list-valued raw results into elements before formatting
+        if wrapper == 'bag' and len(raw_values) == 1 and raw_values[0].startswith('['):
+            raw_values = _parse_prolog_list(raw_values[0])
+        values = [_format_prolog_term(v) for v in raw_values]
         if values == ['yes']:
             print('yes.\n')
             return
@@ -1680,22 +1714,32 @@ class PrologASPI:
             print('no.\n')
             return
         if values:
-            # Replace enum identifiers with names
+            # Dedup and sort by underlying term structure (before name replacement)
+            if wrapper == 'bag':
+                # Bags preserve duplicates and order — just sort
+                unique = sorted(values, key=_term_sort_key)
+            else:
+                seen = set()
+                unique = []
+                for v in values:
+                    if v not in seen:
+                        seen.add(v)
+                        unique.append(v)
+                unique.sort(key=_term_sort_key)
+            # Replace enum identifiers with names (after sorting)
             if self.names:
-                values = [self._replace_names(v) for v in values]
-            seen = set()
-            unique = []
-            for v in values:
-                if v not in seen:
-                    seen.add(v)
-                    unique.append(v)
-            unique.sort(key=_term_sort_key)
+                unique = [self._replace_names(v) for v in unique]
             self.engine.retract_all('that', 1)
-            for v in unique:
-                self.engine.add_clause(f'that({v}).')
-            that = ' | '.join(unique)
-            if len(unique) > 1 and len(that) / len(unique) > 30:
-                that = that.replace(' | ', '\n    | ')
+            if wrapper in ('set', 'bag'):
+                # Wrap results in set(...) or bag(...) compound term
+                that = f'{wrapper}({",".join(unique)})'
+                self.engine.add_clause(f'that({that}).')
+            else:
+                for v in unique:
+                    self.engine.add_clause(f'that({v}).')
+                that = ' | '.join(unique)
+                if len(unique) > 1 and len(that) / len(unique) > 30:
+                    that = that.replace(' | ', '\n    | ')
             print(f'that: {that}.')
         print()
 
