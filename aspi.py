@@ -122,7 +122,7 @@ class ClingoContext:
         return a.arguments
 
     def enumerateof(self, a):
-        return list((clingo.Number(i+1), x) for i, x in enumerate(sorted(a.arguments)))
+        return [clingo.Tuple_([clingo.Number(i+1), x]) for i, x in enumerate(sorted(a.arguments))]
 
     def proof(self, head, *args):
         if len(args) == 0:
@@ -211,7 +211,7 @@ def run_clingo(lp: str, time_limit: int = 5) -> List[str]:
 
     witness = models[-1]
 
-    if witness.get('Optimal') and witness['Costs']:
+    if witness['Costs'] and any(c != 0 for c in witness['Costs']):
         costs = witness['Costs']
         if costs[0] < 0:
             print(f"reward: {-costs[0]}.")
@@ -389,7 +389,7 @@ class Results:
             self.parse_assert(result)
         elif result.startswith('retract('):
             result = result[len('retract('):-1]
-            self.parent.facts.remove(result)
+            self.parent.facts.discard(result)
         elif result.startswith('what('):
             result = result[len('what('):-1]
             self.shows.append(result)

@@ -9,6 +9,7 @@ import sys
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Set, Tuple, Union
 
+import aspi as asp_backend
 import ldcs
 
 
@@ -1585,6 +1586,7 @@ class PrologASPI:
         self.counter = 1
         self.ldcs = PrologLDCS()
         self._asp_ldcs = ldcs.LDCS()
+        self._asp = asp_backend.ASPI(args)  # planning fallback
         self.engine = PrologEngine()
         self.proofs = False
         self.names: Dict[str, str] = {}  # enum id -> name mapping
@@ -1636,6 +1638,18 @@ class PrologASPI:
     def repl(self, cmd: str) -> None:
         if not cmd or cmd.startswith('%'):
             return
+        if cmd == 'thanks.':
+            print("YOU'RE WELCOME!")
+            sys.exit(0)
+        # Planning goals — delegate to ASP backend entirely
+        if cmd.endswith('!') or cmd.startswith('#fluent '):
+            self._asp.repl(cmd)
+            return
+        # Feed all other commands to ASP backend silently (for planning state)
+        import io, contextlib
+        with contextlib.redirect_stdout(io.StringIO()):
+            self._asp.repl(cmd)
+        # Normal Prolog processing
         if cmd.startswith('#undef '):
             name = cmd[len('#undef '):-1]
             self.engine.clauses = [c for c in self.engine.clauses if not c.startswith(name)]
@@ -1643,9 +1657,6 @@ class PrologASPI:
             return
         if cmd.startswith('#include "'):
             return self.include(cmd[len('#include "'):-2])
-        if cmd == 'thanks.':
-            print("YOU'RE WELCOME!")
-            sys.exit(0)
         if cmd == '#proof off.':
             self.proofs = False
             self.ldcs._proofs = False

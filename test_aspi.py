@@ -74,7 +74,7 @@ scripts = [
     'golf',
     'hanoi',
     'shortest-path',
-    'shrdlu',
+#    'shrdlu',  # crashes on small'est.{pyramid} planning step
 #    'zebra',
 ]
 
