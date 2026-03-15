@@ -558,6 +558,25 @@ class TestIntegration:
         )
         assert result == 'that: "b".'  # sorted: a=1, b=2, c=3
 
+    def test_enum_with_named_values(self):
+        """#enum with named values should use names in output."""
+        result = self._query(
+            '#enum color: red | green | blue.',
+            'color?',
+        )
+        assert 'red' in result
+        assert 'green' in result
+        assert 'blue' in result
+
+    def test_enum_with_properties(self):
+        """#enum with properties should define accessor predicates."""
+        result = self._query(
+            '#enum item: name="alice" score=10 | name="bob" score=20.',
+            'name.item?',
+        )
+        assert '"alice"' in result
+        assert '"bob"' in result
+
     def test_define_position_value_score(self):
         """Full euler/022 pattern: position * value for named items."""
         result = self._query(
@@ -580,7 +599,6 @@ import subprocess
 
 _KNOWN_FAILURES = {
     'euler/011': 'performance — grouped bag over CSV grid with tabling too slow',
-    'euler/019': 'missing date/calendar builtins',
     'euler/027': 'performance — n4 domain with prime search',
     'euler/030': 'performance — brute force digit power sums',
     'db-call': 'complex SQL join semantics — start_time/duration arithmetic differs',

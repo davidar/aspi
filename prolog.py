@@ -1204,10 +1204,10 @@ class PrologLDCS(ldcs.LDCS):
                     rendered = render_body(result).replace('()', '')
                     if ', ' not in rendered and ',)' not in rendered:
                         describe_parts.append(rendered)
-                elif isinstance(result, str):
-                    r = result.replace('()', '')
-                    if ', ' not in r and ',)' not in r:
-                        describe_parts.append(r)
+                elif isinstance(result, PTerm):
+                    rendered = render_term(result).replace('()', '')
+                    if ', ' not in rendered and ',)' not in rendered:
+                        describe_parts.append(rendered)
             if describe_parts:
                 self.rules.append(f'describe({name_str}, {", ".join(describe_parts)}).')
             self.rules.append(f'{head}({name_str}).')
@@ -1228,8 +1228,8 @@ class PrologLDCS(ldcs.LDCS):
                             self.rules.append(f'{h}.')
                     else:
                         self.rules.append(render_body(all_goals).replace(', ', ' :- ', 1) + '.')
-                else:
-                    raise TypeError(f'enum: unexpected lam result: {type(result).__name__}: {result!r}')
+                elif isinstance(result, PTerm):
+                    self.rules.append(f'{render_term(result)}.')
 
     # ── Expand macros ──
 
@@ -1488,6 +1488,7 @@ class PrologASPI:
         self._asp_ldcs = ldcs.LDCS()
         self.engine = PrologEngine()
         self.proofs = False
+        self.names: Dict[str, str] = {}  # enum id -> name mapping
         for arg in args:  # macros handled directly by PrologLDCS._BUILTINS
             self.include(arg)
 
@@ -1566,6 +1567,10 @@ class PrologASPI:
                 clause = clause.strip()
                 if clause:
                     self.engine.add_clause(clause)
+                    # Collect describe(id, name) for enum name substitution
+                    m = re.match(r'describe\((.+?),\s*(.+)\)\.$', clause)
+                    if m:
+                        self.names[m.group(1).strip()] = m.group(2).strip()
             print('understood.\n')
             return None
         if cmd.endswith('?'):
@@ -1594,6 +1599,12 @@ class PrologASPI:
                     extra_clauses='\n'.join(helpers))
         return None
 
+    def _replace_names(self, s: str) -> str:
+        """Replace enum identifiers with their names (from describe facts)."""
+        for k, v in self.names.items():
+            s = s.replace(k, v)
+        return s
+
     def print_results(self, results: List) -> None:
         if not results:
             print('impossible.\n')
@@ -1609,6 +1620,9 @@ class PrologASPI:
             print('no.\n')
             return
         if values:
+            # Replace enum identifiers with names
+            if self.names:
+                values = [self._replace_names(v) for v in values]
             seen = set()
             unique = []
             for v in values:
