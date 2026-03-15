@@ -667,12 +667,10 @@ import subprocess
 
 _KNOWN_FAILURES = {
     'euler/002': 'set/bag representation differs (Prolog lists vs ASP set/bag terms) + proof tracking',
-    'euler/009': 'intermediate query results differ (Pythagorean triple enumeration)',
     'euler/011': 'performance — grouped bag over CSV grid with tabling too slow',
     'euler/019': 'enum identifiers in dates (month(12) vs december) for intermediate results',
     'euler/027': 'performance — n4 domain with prime search',
     'euler/030': 'performance — brute force digit power sums',
-    'db-call': 'start_time/duration arithmetic produces different values',
 }
 
 

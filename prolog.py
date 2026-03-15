@@ -1467,6 +1467,57 @@ def _quote_atoms_in_term(s: str) -> str:
     return ''.join(result)
 
 
+def _parse_result_term(s: str) -> PTerm:
+    """Parse a Prolog term string (from term_to_atom) into a PTerm for sorting."""
+    s = s.strip()
+    if not s:
+        return PAtom('')
+    if s.startswith('"') and s.endswith('"'):
+        return PStr(s[1:-1])
+    if s.lstrip('-').isdigit():
+        return PNum(int(s))
+    if s == '_' or (s[0].isupper() and '(' not in s):
+        return PVar(s)
+    # Compound: name(args)
+    m = re.match(r'([a-z_]\w*)\((.+)\)$', s)
+    if m:
+        name = m.group(1)
+        # Split args respecting nested parens
+        args = []
+        depth = 0
+        cur = ''
+        for ch in m.group(2):
+            if ch in '([': depth += 1
+            elif ch in ')]': depth -= 1
+            if ch == ',' and depth == 0:
+                args.append(_parse_result_term(cur))
+                cur = ''
+            else:
+                cur += ch
+        if cur:
+            args.append(_parse_result_term(cur))
+        return PCompound(name, tuple(args))
+    return PAtom(s)
+
+
+def _term_sort_key(s: str):
+    """Sort key for Prolog result terms — structural comparison."""
+    t = _parse_result_term(s)
+    return _pterm_sort_key(t)
+
+
+def _pterm_sort_key(t: PTerm):
+    """Recursive sort key for PTerms."""
+    match t:
+        case PNum(v): return (0, v)
+        case PStr(v): return (1, v)
+        case PAtom(n): return (2, n)
+        case PVar(n): return (3, n)
+        case PCompound(f, args): return (4, f, tuple(_pterm_sort_key(a) for a in args))
+        case PArith(op, l, r): return (5, op, _pterm_sort_key(l), _pterm_sort_key(r))
+    return (6, repr(t))
+
+
 def _format_prolog_term(val) -> str:
     """Format a Prolog term (from term_to_atom output) for display."""
     if isinstance(val, str):
@@ -1638,10 +1689,7 @@ class PrologASPI:
                 if v not in seen:
                     seen.add(v)
                     unique.append(v)
-            try:
-                unique.sort(key=lambda x: int(x))
-            except (ValueError, TypeError):
-                unique.sort()
+            unique.sort(key=_term_sort_key)
             self.engine.retract_all('that', 1)
             for v in unique:
                 self.engine.add_clause(f'that({v}).')

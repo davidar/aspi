@@ -6,7 +6,7 @@ from prolog import (
     GCall, GUnify, GIs, GCompare, GBetween, GNot, GFindAll, GBagOf, GWhen, GRaw,
     render_term, render_goal, render_body,
     term_vars, goal_vars, goal_needs_ground, goal_binds,
-    _to_pterm,
+    _to_pterm, _parse_result_term, _term_sort_key,
     PrologLDCS,
 )
 
@@ -361,6 +361,64 @@ class TestDefine:
         # Body goal bar(Y) should also be present
         bar_goals = [g for g in goals if isinstance(g, GCall) and isinstance(g.term, PCompound) and g.term.functor == 'bar']
         assert bar_goals, f'Expected GCall(bar(Y)) in goals: {goals}'
+
+
+class TestParseResultTerm:
+    """Test _parse_result_term for sorting Prolog output."""
+
+    def test_num(self):
+        t = _parse_result_term('42')
+        assert t == PNum(42)
+
+    def test_negative_num(self):
+        t = _parse_result_term('-7')
+        assert t == PNum(-7)
+
+    def test_str(self):
+        t = _parse_result_term('"hello"')
+        assert t == PStr('hello')
+
+    def test_atom(self):
+        t = _parse_result_term('foo')
+        assert t == PAtom('foo')
+
+    def test_compound(self):
+        t = _parse_result_term('triple(5,3,4)')
+        assert isinstance(t, PCompound)
+        assert t.functor == 'triple'
+        assert t.args == (PNum(5), PNum(3), PNum(4))
+
+    def test_nested_compound(self):
+        t = _parse_result_term('date(1901,september,1)')
+        assert isinstance(t, PCompound)
+        assert t.functor == 'date'
+        assert t.args == (PNum(1901), PAtom('september'), PNum(1))
+
+    def test_compound_with_strings(self):
+        t = _parse_result_term('row("alice",42)')
+        assert isinstance(t, PCompound)
+        assert t.args == (PStr('alice'), PNum(42))
+
+
+class TestTermSortKey:
+    """Test structural sorting of Prolog result terms."""
+
+    def test_numbers_sort_numerically(self):
+        vals = ['10', '2', '1', '20']
+        assert sorted(vals, key=_term_sort_key) == ['1', '2', '10', '20']
+
+    def test_compound_sorts_by_first_arg(self):
+        vals = ['triple(10,1,1)', 'triple(5,1,1)', 'triple(20,1,1)']
+        assert sorted(vals, key=_term_sort_key) == ['triple(5,1,1)', 'triple(10,1,1)', 'triple(20,1,1)']
+
+    def test_compound_sorts_by_second_arg(self):
+        vals = ['date(1901,september,1)', 'date(1901,december,1)']
+        assert sorted(vals, key=_term_sort_key) == ['date(1901,december,1)', 'date(1901,september,1)']
+
+    def test_mixed_types(self):
+        vals = ['42', '"hello"', 'foo']
+        result = sorted(vals, key=_term_sort_key)
+        assert result[0] == '42'  # numbers first
 
 
 class TestPrologLDCSPipeline:
