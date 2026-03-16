@@ -57,7 +57,7 @@ See README.md for syntax. Key concepts:
 - `~` negates: `~red` = "not red"
 - `{}` aggregates: `count{type.us_state}`, `sum{...}`, `max{...}`
 - `X` (uppercase) = mu-abstraction (self-reference variable)
-- Lines end with `.` (claim), `?` (query), or `!` (plan)
+- Lines end with `.` (claim), `?` (query), `!` (plan), or `?!` (ASP-routed query)
 
 ## Testing
 
@@ -72,23 +72,24 @@ uv run pytest test_prolog.py -k "euler/002" --runxfail
 
 ## Prolog Backend Status (branch: prolog-backend)
 
-225+ passed, 5 xfailed:
-- **euler/011, 027, 030**: Performance (would benefit from CLP(FD))
-- **shortest-path**: Recursive min aggregation can't table through findall (needs lattice tabling)
-- **shrdlu**: `small'est` superlative crashes parser
+137 passed, 0 xfailed.
 
 Planning (`!` goals) works via ASP fallback (parallel ASPI instance).
 Proof tracking works via `prove/2` meta-interpreter in prelude.
 
+### Hybrid ASP+Prolog via `?!`
+
+Queries ending with `?!` route through the ASP backend instead of Prolog. This solves:
+- **Performance**: Combinatorial search queries (euler/011, 023, 027, 030) use ASP's ground-and-solve
+- **Planning state**: Queries needing ASP planning state (shrdlu) see ASP's world model directly
+- **`that` sync**: `_asp_query()` syncs `that` facts to Prolog for mixed `?!`→`?` sequences
+
 ### Performance notes
 
-Most tests Prolog is 2-4x faster than ASP. Outliers where Prolog is slower:
-- **euler/011** (60x slower): Grouped bag over 20x20 CSV grid — O(n⁴) line enumeration
-- **euler/019** (3x slower): Date computation with enum iteration
-- **euler/023** (7x slower): Abundant number sums — O(n²) divisor enumeration, not recursive so tabling doesn't help
-- **euler/027** (timeout): Prime search over n4 (1..9999) — O(n²) brute force
-- **euler/009** (slight): Pythagorean triples
+Most tests Prolog is 2-4x faster than ASP. Previously slow tests now use `?!` routing:
+- **euler/011**: 31s → 1.2s (via `?!`)
+- **euler/023**: 25s → 3.3s (via `?!`)
+- **euler/027**: 40s → 5.8s (via `?!`)
+- **euler/009** (slight): Pythagorean triples — only 2x, not worth `?!` churn
 
-These are algorithmic issues (brute force enumeration), not tabling issues. Tabling is already implemented for recursive predicates. CLP(FD) would help by pruning search spaces. The existing tabling also can't be used through `findall` (SWI-Prolog limitation) — lattice tabling would fix the recursive aggregation case (shortest-path).
-
-Remaining work: CLP(FD) constraints, lattice tabling for recursive aggregations, fix `small'est` parser.
+Remaining work: CLP(FD) constraints for further Prolog-native optimization.

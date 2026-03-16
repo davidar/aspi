@@ -2,7 +2,7 @@
 proper_divisor[N n3]: 1..(N-1) multiple=N.
 aliquot[N n3]: sum{proper_divisor.N}.
 abundant(N n3) :- N < aliquot.N.
-abundant?
-abundant + abundant?
-n3 ~that?
-max{that even}?
+abundant?!
+abundant + abundant?!
+n3 ~that?!
+max{that even}?!

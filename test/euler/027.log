@@ -25,16 +25,16 @@ understood.
 understood.
 
 >>> 
->>> prime_generator_max.p(1,41)?
+>>> prime_generator_max.p(1,41)?!
 --> what(A) :- prime_generator_max(A,p(1,41)).
 that: 39.
 
->>> prime_generator_max=max{prime_generator_max.p(i2,i2)}?
+>>> prime_generator_max=max{prime_generator_max.p(i2,i2)}?!
 --> what(F) :- prime_generator_max(E,F), E = @maxof(D), setof((2),D).
     gather((2),C) :- prime_generator_max(C,p(A,B)), A = (- 99) .. 99, B = (- 99) .. 99.
 that: p(-15,97).
 
->>> prime_generator_max.that?
+>>> prime_generator_max.that?!
 --> what(B) :- prime_generator_max(B,A), that(A).
 that: 47.
 

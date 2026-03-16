@@ -274,6 +274,9 @@ class ASPI:
     def repl(self, cmd: str) -> None:
         if not cmd or cmd.startswith('%'):
             return
+        # Strip ?! routing suffix — treat as plain query
+        if cmd.endswith('?!'):
+            cmd = cmd[:-1]
         if cmd.startswith('#undef '):
             name = cmd[len('#undef '):-1]
             lines = self.program.split('\n')

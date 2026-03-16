@@ -22,9 +22,16 @@ def run_backend(backend, ldcs_path, timeout=60):
         with open(ldcs_path) as f:
             proc = subprocess.run(args, stdin=f, capture_output=True, text=True, timeout=timeout)
         elapsed = time.monotonic() - start
+        # Only show stderr for non-clingo errors (clingo info warnings are noise)
+        stderr = ''
+        if proc.stderr:
+            lines = [l.strip() for l in proc.stderr.split('\n')
+                     if l.strip() and '<block>' not in l and ': info:' not in l]
+            stderr = ' '.join(lines)[:100]
+        if proc.returncode != 0:
+            return elapsed, f'CRASH({proc.returncode})', stderr
         lines = [l.strip() for l in proc.stdout.split('\n') if l.startswith('that:')]
         result = lines[-1] if lines else ''
-        stderr = proc.stderr[:100].replace('\n', ' ').strip() if proc.stderr else ''
         return elapsed, result, stderr
     except subprocess.TimeoutExpired:
         elapsed = time.monotonic() - start
@@ -67,21 +74,19 @@ def main():
         else:
             speedup = '-'
 
-        if pr and ar and pr == ar:
+        if pr == ar:
             match = 'YES'
             matches += 1
         elif pr == 'TIMEOUT' or ar == 'TIMEOUT':
             match = 'T/O'
-        elif not pr or not ar:
-            match = 'SKIP'
         else:
-            match = 'NO'
+            match = 'FAIL'
 
         notes = ''
         if pe:
             notes = pe[:40]
-        if match == 'NO':
-            notes = f'P:{pr[:30]} A:{ar[:30]}'
+        if match == 'FAIL':
+            notes = f'P:{(pr or "(empty)")[:30]} A:{(ar or "(empty)")[:30]}'
 
         print(f'{name:<20} {pt:>7.2f}s {at:>7.2f}s {speedup:>8}  {match:>5}  {notes}')
 
