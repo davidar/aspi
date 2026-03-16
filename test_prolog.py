@@ -64,14 +64,21 @@ class TestFormatPrologTerm:
     def test_negative(self):
         assert prolog._format_prolog_term('-7') == '-7'
 
-    def test_str_atom_quoted(self):
-        """Bare atom strings should be quoted."""
-        assert prolog._format_prolog_term('ahmed') == '"ahmed"'
+    def test_str_atom_unquoted(self):
+        """Bare atoms stay unquoted (writeq with double_quotes=string)."""
+        assert prolog._format_prolog_term('ahmed') == 'ahmed'
+        assert prolog._format_prolog_term('null') == 'null'
+
+    def test_str_quoted_string(self):
+        """Quoted strings pass through."""
+        assert prolog._format_prolog_term('"hello"') == '"hello"'
 
     def test_str_compound(self):
-        """Compound term string from term_to_atom should have atoms quoted."""
-        result = prolog._format_prolog_term('s(np(the,bat))')
+        """Compound terms pass through (writeq already handles quoting)."""
+        result = prolog._format_prolog_term('s(np("the","bat"))')
         assert result == 's(np("the","bat"))'
+        # Atoms in compounds stay unquoted
+        assert prolog._format_prolog_term('row("Berlin",null)') == 'row("Berlin",null)'
 
     def test_str_already_quoted(self):
         assert prolog._format_prolog_term('"hello"') == '"hello"'
@@ -841,6 +848,8 @@ def _discover_ldcs_tests():
                         line = line.strip()
                         if line.startswith('that:') or line in ('understood.', 'impossible.', 'yes.', 'no.'):
                             expected.append(line)
+                        elif line.startswith('| ') and expected and expected[-1].startswith('that:'):
+                            expected[-1] += '\n    ' + line
                 if expected:
                     name = ldcs_path.replace('test/', '').replace('.ldcs', '')
                     marks = []
@@ -881,6 +890,8 @@ def test_ldcs_file(ldcs_path, expected):
         line = line.strip()
         if line.startswith('that:') or line in ('understood.', 'impossible.', 'yes.', 'no.'):
             actual.append(line)
+        elif line.startswith('| ') and actual and actual[-1].startswith('that:'):
+            actual[-1] += '\n    ' + line
 
     def lines_match(a, e):
         if a == e:

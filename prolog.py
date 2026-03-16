@@ -319,9 +319,9 @@ _DIRECTIONAL = {
     'sort': ({0}, {1}), 'msort': ({0}, {1}),
     'sum_list': ({0}, {1}), 'min_list': ({0}, {1}), 'max_list': ({0}, {1}),
     'length': ({0}, {1}), 'product_of': ({0}, {1}),
-    'atom_length': ({0}, {1}),
-    'atom_concat': ({0, 1}, {2}),
-    'char_code': ({0}, {1}), 'sub_atom': ({0}, {1, 2, 3, 4}),
+    'string_length': ({0}, {1}),
+    'string_concat': ({0, 1}, {2}),
+    'char_code': ({0}, {1}), 'sub_string': ({0}, {1, 2, 3, 4}),
     'member': (set(), {0}),
     'permutation': ({0}, {1}), 'reverse': ({0}, {1}),
 }
@@ -503,18 +503,18 @@ class _MacroExpander(lark.Transformer):
         args = compound.args
         if fn == 'concatenate':
             if len(args) == 2:
-                return GCall(PCompound('atom_concat', (args[0], args[1], target)))
+                return GCall(PCompound('string_concat', (args[0], args[1], target)))
             elif len(args) == 3:
                 tmp = PVar(self.gensym())
-                return [GCall(PCompound('atom_concat', (args[1], args[2], tmp))),
-                        GCall(PCompound('atom_concat', (args[0], tmp, target)))]
+                return [GCall(PCompound('string_concat', (args[1], args[2], tmp))),
+                        GCall(PCompound('string_concat', (args[0], tmp, target)))]
         if fn == 'substring':
             if len(args) == 3:
                 s1 = PVar(self.gensym())
                 return [GIs(s1, PArith('-', args[1], PNum(1))),
-                        GCall(PCompound('sub_atom', (args[0], s1, args[2], PVar('_'), target)))]
+                        GCall(PCompound('sub_string', (args[0], s1, args[2], PVar('_'), target)))]
         if fn == 'length':
-            return GCall(PCompound('atom_length', (args[0], target)))
+            return GCall(PCompound('string_length', (args[0], target)))
         if fn == 'show':
             return GCall(PCompound('term_to_atom', (args[0], target)))
         if fn == 'decimal':
@@ -612,7 +612,7 @@ class PrologLDCS(ldcs.LDCS):
                             GCall(PCompound('reverse', (c1, c2))),
                             GCall(PCompound('atom_chars', (x, c2)))]
         )(PVar(self.gensym()), PVar(self.gensym())),
-        'length': lambda self, x, a: [GCall(PCompound('atom_length', (a, x)))],
+        'length': lambda self, x, a: [GCall(PCompound('string_length', (a, x)))],
         'decimal': lambda self, x, a: [GCall(PCompound('atom_number', (a, x)))],
         'codepoint': lambda self, x, a: (
             lambda ch: [GCall(PCompound('atom_chars', (a, PCompound('[', (ch,))))),
@@ -670,12 +670,12 @@ class PrologLDCS(ldcs.LDCS):
             if name == 'concatenate':
                 if n == 3:
                     x, a, b = args
-                    return [GCall(PCompound('atom_concat', (a, b, x)))]
+                    return [GCall(PCompound('string_concat', (a, b, x)))]
                 if n == 4:
                     x, a, b, c = args
                     tmp = PVar(self.gensym())
-                    return [GCall(PCompound('atom_concat', (b, c, tmp))),
-                            GCall(PCompound('atom_concat', (a, tmp, x)))]
+                    return [GCall(PCompound('string_concat', (b, c, tmp))),
+                            GCall(PCompound('string_concat', (a, tmp, x)))]
             # substring: special case with 2-arg (iterate chars) and 4-arg forms
             if name == 'substring' and n == 2:
                 x, a = args
@@ -683,16 +683,16 @@ class PrologLDCS(ldcs.LDCS):
                 l = PVar(self.gensym())
                 nn = PVar(self.gensym())
                 s1 = PVar(self.gensym())
-                return [GCall(PCompound('atom_length', (a, nn))),
+                return [GCall(PCompound('string_length', (a, nn))),
                         GBetween(PNum(1), nn, s),
                         GIs(s1, PArith('-', s, PNum(1))),
                         GBetween(PNum(0), PArith('-', PArith('+', nn, PNum(1)), s), l),
-                        GCall(PCompound('sub_atom', (a, s1, l, PVar('_'), x)))]
+                        GCall(PCompound('sub_string', (a, s1, l, PVar('_'), x)))]
             if name == 'substring' and n == 4:
                 x, a, s, l = args
                 s1 = PVar(self.gensym())
                 return [GIs(s1, PArith('-', s, PNum(1))),
-                        GCall(PCompound('sub_atom', (a, s1, l, PVar('_'), x)))]
+                        GCall(PCompound('sub_string', (a, s1, l, PVar('_'), x)))]
             # Macro expansion (for user-defined macros)
             if f'{name}/{n}' in self.macros:
                 params, tree = self.macros[f'{name}/{n}']
@@ -1453,7 +1453,7 @@ class PrologEngine:
         query_directive = (
             f':- (findall(What, ({goal}), Results_) -> true ; Results_ = []),\n'
             f'   forall(member(R_, Results_), '
-            f'(term_to_atom(R_, A_), format("result:~w~n", [A_]))),\n'
+            f'format("result:~q~n", [R_])),\n'
             f'   halt.\n'
         )
         full = program + '\n' + query_directive
@@ -1634,23 +1634,16 @@ def _parse_prolog_list(s: str) -> list:
 
 
 def _format_prolog_term(val) -> str:
-    """Format a Prolog term (from term_to_atom output) for display."""
+    """Format a Prolog term (from writeq output) for display.
+
+    With double_quotes=string, writeq already quotes strings and leaves atoms
+    bare. We just convert single-quoted atoms to double-quoted for consistency.
+    """
     if isinstance(val, str):
-        if val.startswith('"'): return val
         if val.startswith("'") and val.endswith("'"): return f'"{val[1:-1]}"'
-        # Try parsing as number
-        try:
-            n = int(val)
-            return str(n)
-        except ValueError:
-            pass
-        try:
-            f = float(val)
-            return str(int(f)) if f == int(f) else str(f)
-        except ValueError:
-            pass
-        if '(' in val or "'" in val: return _quote_atoms_in_term(val)
-        return f'"{val}"'
+        # Convert single-quoted atoms inside compound terms
+        if "'" in val: return re.sub(r"'([^']*)'", r'"\1"', val)
+        return val
     return str(val)
 
 

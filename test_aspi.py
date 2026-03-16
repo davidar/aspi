@@ -99,6 +99,8 @@ def test_script(script_runner, name):
         line = line.strip()
         if line.startswith('that:') or line in ('understood.', 'impossible.', 'yes.', 'no.'):
             actual.append(line)
+        elif line.startswith('| ') and actual and actual[-1].startswith('that:'):
+            actual[-1] += '\n    ' + line
     expected = []
     log_path = f'test/{name}.log'
     if os.path.exists(log_path):
@@ -106,6 +108,8 @@ def test_script(script_runner, name):
             line = line.strip()
             if line.startswith('that:') or line in ('understood.', 'impossible.', 'yes.', 'no.'):
                 expected.append(line)
+            elif line.startswith('| ') and expected and expected[-1].startswith('that:'):
+                expected[-1] += '\n    ' + line
     else:
         with open(log_path, 'w') as f:
             f.write(ret.stdout)

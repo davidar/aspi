@@ -2,7 +2,7 @@
 :- use_module(library(lists)).
 :- use_module(library(apply)).
 :- use_module(library(aggregate)).
-:- set_prolog_flag(double_quotes, atom).
+:- set_prolog_flag(double_quotes, string).
 
 %% Declare planning predicates as dynamic so they don't error when undefined.
 %% In ASP, undefined predicates are simply false; dynamic gives the same semantics.

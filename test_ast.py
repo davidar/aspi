@@ -147,7 +147,7 @@ class TestGoalNeedsGround:
         assert goal_needs_ground(g) == {'N'}
 
     def test_call_directional(self):
-        g = GCall(PCompound('atom_concat', (PVar('A'), PVar('B'), PVar('X'))))
+        g = GCall(PCompound('string_concat', (PVar('A'), PVar('B'), PVar('X'))))
         assert goal_needs_ground(g) == {'A', 'B'}
 
     def test_call_user_pred(self):
@@ -220,7 +220,7 @@ class TestAutoWhen:
         assert 'when(' not in rendered
 
     def test_directional_builtin_wrapped(self):
-        g = GCall(PCompound('atom_concat', (PVar('A'), PVar('B'), PVar('X'))))
+        g = GCall(PCompound('string_concat', (PVar('A'), PVar('B'), PVar('X'))))
         rendered = render_goal(g)
         assert 'when(ground(' in rendered
 
