@@ -46,7 +46,8 @@ uv run python test_bench.py    # Performance benchmarks
 - `define()` picks the LAST GCall as head (since `join` puts call at end)
 - `_BUILTINS` dict replaces `lib/macros.ldcs` for the Prolog backend
 - `_MacroExpander` only handles user-defined `#macro` rules
-- Subprocess swipl (not janus) — writes temp files, uses `term_to_atom` for output
+- Subprocess swipl (not janus) — writes temp files, uses `writeq` for output (`double_quotes=string` preserves string/atom distinction)
+- Both backends lazily initialized — ASP on first `!`/`?!`, Prolog compilation on first `?`
 - `_parse_result_term` parses result strings into PTerm for structural sorting
 
 ### LDCS Language
@@ -61,18 +62,13 @@ See README.md for syntax. Key concepts:
 
 ## Testing
 
-Tests use full transcript checking — every line of output (understood/that/impossible/yes/no) is compared against `.log` files.
+`.log` files are ASP-canonical — always generated from `uv run python aspi.py`. Both test suites compare result lines (`that:`/`understood.`/`impossible.`/`yes.`/`no.`) including multiline continuation (`| ...` lines). Never regenerate `.log` files from the Prolog backend.
 
 **Never filter test output.** No `-q`, `--tb=short`, `--tb=line`, `| tail`, `| grep`. Just run `uv run pytest` bare. The UI shows a compact scrolling view — full output is always needed to see what's actually failing.
 
-Test with `--runxfail` to see actual failures for xfailed tests:
-```bash
-uv run pytest test_prolog.py -k "euler/002" --runxfail
-```
-
 ## Prolog Backend Status (branch: prolog-backend)
 
-137 passed, 0 xfailed.
+299 passed, 0 xfailed (across all test suites).
 
 Planning (`!` goals) works via ASP fallback (parallel ASPI instance).
 Proof tracking works via `prove/2` meta-interpreter in prelude.
@@ -90,6 +86,6 @@ Most tests Prolog is 2-4x faster than ASP. Previously slow tests now use `?!` ro
 - **euler/011**: 31s → 1.2s (via `?!`)
 - **euler/023**: 25s → 3.3s (via `?!`)
 - **euler/027**: 40s → 5.8s (via `?!`)
-- **euler/009** (slight): Pythagorean triples — only 2x, not worth `?!` churn
+- **euler/009**: Pythagorean triples (also `?!`)
+- Every test at or above ASP parity, 2x faster overall
 
-Remaining work: CLP(FD) constraints for further Prolog-native optimization.
