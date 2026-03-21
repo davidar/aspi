@@ -5,28 +5,38 @@ import subprocess
 import os
 
 
+def _result_lines(stdout):
+    """Extract result lines: that:, reward:, and action lines (ending with !)."""
+    lines = []
+    for l in stdout.split('\n'):
+        l = l.strip()
+        if l.startswith('that:') or l.startswith('reward:'):
+            lines.append(l)
+        elif l.endswith('!') and not l.startswith('>>>') and l != "YOU'RE WELCOME!":
+            lines.append(l)
+    return lines
+
+
 def _run_prolog(ldcs_path):
-    """Run LDCS file through Prolog backend, return last that: line."""
+    """Run LDCS file through Prolog backend, return result lines."""
     csv_path = ldcs_path.replace('.ldcs', '.csv')
     args = ['uv', 'run', 'python', 'prolog.py']
     if os.path.exists(csv_path):
         args.append(csv_path)
     with open(ldcs_path) as f:
         proc = subprocess.run(args, stdin=f, capture_output=True, text=True, timeout=30)
-    lines = [l.strip() for l in proc.stdout.split('\n') if l.startswith('that:')]
-    return lines[-1] if lines else ''
+    return _result_lines(proc.stdout)
 
 
 def _run_asp(ldcs_path):
-    """Run LDCS file through ASP backend, return last that: line."""
+    """Run LDCS file through ASP backend, return result lines."""
     csv_path = ldcs_path.replace('.ldcs', '.csv')
     args = ['uv', 'run', 'python', 'aspi.py']
     if os.path.exists(csv_path):
         args.append(csv_path)
     with open(ldcs_path) as f:
         proc = subprocess.run(args, stdin=f, capture_output=True, text=True, timeout=30)
-    lines = [l.strip() for l in proc.stdout.split('\n') if l.startswith('that:')]
-    return lines[-1] if lines else ''
+    return _result_lines(proc.stdout)
 
 
 import glob
@@ -55,4 +65,7 @@ def test_backends_agree(ldcs_path):
         pytest.skip('ASP produced no output')
     if not prolog:
         pytest.skip('Prolog produced no output')
-    assert prolog == asp, f'\n  ASP:    {asp}\n  Prolog: {prolog}'
+    # Proof trees differ structurally between backends — skip those lines
+    asp_filtered = [l for l in asp if 'proof(' not in l and 'step(' not in l]
+    prolog_filtered = [l for l in prolog if 'proof(' not in l and 'step(' not in l]
+    assert prolog_filtered == asp_filtered, f'\n  ASP:    {chr(10).join(asp)}\n  Prolog: {chr(10).join(prolog)}'
