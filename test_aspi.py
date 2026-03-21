@@ -9,26 +9,26 @@ class TestRunClingo:
     """Test the in-process clingo integration (no sh dependency)."""
 
     def test_simple_query(self):
-        from aspi import run_clingo
+        from aspi.asp import run_clingo
         result = run_clingo('#show what/1. what(1..3).')
         assert sorted(result) == ['what(1)', 'what(2)', 'what(3)']
 
     def test_unsatisfiable(self):
-        from aspi import run_clingo, ClingoError, ClingoExitCode
+        from aspi.asp import run_clingo, ClingoError, ClingoExitCode
         with pytest.raises(ClingoError) as exc_info:
             run_clingo(':- #true. #show what/1.')  # explicit constraint makes it unsat
         assert exc_info.value.exit_code == ClingoExitCode.EXHAUST
 
     def test_context_functions(self):
         """@-functions should work via ClingoContext."""
-        from aspi import run_clingo
+        from aspi.asp import run_clingo
         # Test @show function
         result = run_clingo('#show what/1. what(@show(42)).')
         assert result == ['what("42")']
 
     def test_include_prelude(self):
         """Including lib/prelude.lp should work (script block stripped)."""
-        from aspi import run_clingo
+        from aspi.asp import run_clingo
         result = run_clingo('''
             #include "lib/prelude.lp".
             what(1..3).
@@ -41,7 +41,7 @@ class TestASPIRepl:
     """Test the ASPI REPL end-to-end."""
 
     def setup_method(self):
-        from aspi import ASPI
+        from aspi.asp import ASPI
         self.aspi = ASPI()
 
     def _query(self, *cmds):
@@ -88,14 +88,17 @@ for i in (116, 10131, 10154):
 
 
 @pytest.mark.parametrize('name', scripts)
-def test_script(script_runner, name):
-    args = ['./aspi.py']
+def test_script(name):
+    import subprocess
+    args = ['uv', 'run', 'python', '-m', 'aspi.asp']
     if os.path.exists(f'test/{name}.csv'):
         args.append(f'test/{name}.csv')
-    ret = script_runner.run(*args, stdin=open(f'test/{name}.ldcs', 'r'))
-    assert ret.success
+    with open(f'test/{name}.ldcs', 'r') as f:
+        proc = subprocess.run(args, stdin=f, capture_output=True, text=True,
+                              timeout=30, start_new_session=True)
+    assert proc.returncode == 0, f'Process failed:\n{proc.stderr}'
     actual = []
-    for line in ret.stdout.split('\n'):
+    for line in proc.stdout.split('\n'):
         line = line.strip()
         if line.startswith('that:') or line in ('understood.', 'impossible.', 'yes.', 'no.'):
             actual.append(line)

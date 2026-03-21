@@ -15,7 +15,6 @@ dependencies = [
 dev = [
     { name = "mypy" },
     { name = "pytest" },
-    { name = "pytest-console-scripts" },
     { name = "pytest-timeout" },
 ]
 
@@ -29,7 +28,6 @@ requires-dist = [
 dev = [
     { name = "mypy" },
     { name = "pytest" },
-    { name = "pytest-console-scripts" },
     { name = "pytest-timeout" },
 ]
 
@@ -268,18 +266,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/d1/db/7ef3487e0fb0049ddb5ce41d3a49c235bf9ad299b6a25d5780a89f19230f/pytest-9.0.2.tar.gz", hash = "sha256:75186651a92bd89611d1d9fc20f0b4345fd827c41ccd5c299a868a05d70edf11", size = 1568901, upload-time = "2025-12-06T21:30:51.014Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/3b/ab/b3226f0bd7cdcf710fbede2b3548584366da3b19b5021e74f5bde2a8fa3f/pytest-9.0.2-py3-none-any.whl", hash = "sha256:711ffd45bf766d5264d487b917733b453d917afd2b0ad65223959f59089f875b", size = 374801, upload-time = "2025-12-06T21:30:49.154Z" },
-]
-
-[[package]]
-name = "pytest-console-scripts"
-version = "1.4.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pytest" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/a1/85/2fbafaea1fa948497ef7f52574448e7ff99236c71a1519e312b8a2f01008/pytest-console-scripts-1.4.1.tar.gz", hash = "sha256:5a826ed84cc0afa202eb9e44381d7d762f7bdda8e0c23f9f79a7f1f44cf4a895", size = 20994, upload-time = "2023-05-31T08:44:36.954Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/32/12/149a568c244b58912350c7fd3b997ed6b57889a22098564cc43c3e511b76/pytest_console_scripts-1.4.1-py3-none-any.whl", hash = "sha256:ad860a951a90eca4bd3bd1159b8f5428633ba4ea01abd5c9526b67a95f65437a", size = 10881, upload-time = "2023-05-31T08:44:34.516Z" },
 ]
 
 [[package]]

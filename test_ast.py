@@ -1,7 +1,7 @@
 """Tests for the Prolog AST types, rendering, analysis, and LDCS→AST pipeline."""
 
 import pytest
-from prolog import (
+from aspi.prolog import (
     PVar, PAtom, PNum, PStr, PCompound, PArith,
     GCall, GUnify, GIs, GCompare, GBetween, GNot, GFindAll, GBagOf, GWhen, GRaw,
     render_term, render_goal, render_body,
@@ -576,7 +576,7 @@ class TestPlanningStateInjection:
 
     def test_extra_facts_fn_included_in_program(self):
         """PrologEngine should include extra facts in _build_program."""
-        from prolog import PrologEngine
+        from aspi.prolog import PrologEngine
         engine = PrologEngine()
         engine.add_clause('foo(1).')
         engine._extra_facts_fn = lambda: ['bar(2)', 'baz(3)']
@@ -587,7 +587,7 @@ class TestPlanningStateInjection:
 
     def test_extra_facts_fn_none_is_fine(self):
         """No extra_facts_fn should not break _build_program."""
-        from prolog import PrologEngine
+        from aspi.prolog import PrologEngine
         engine = PrologEngine()
         engine.add_clause('foo(1).')
         prog = engine._build_program()
@@ -595,7 +595,7 @@ class TestPlanningStateInjection:
 
     def test_holds_chain_with_planning_facts(self):
         """Holds should resolve through state/init with injected planning facts."""
-        from prolog import PrologEngine, PrologLDCS
+        from aspi.prolog import PrologEngine, PrologLDCS
         engine = PrologEngine()
         p = PrologLDCS()
 
@@ -633,7 +633,7 @@ class TestIneqOperators:
 
     def test_lte_becomes_eql(self):
         """<= should become =< in Prolog."""
-        from prolog import GCompare, PVar, render_goal
+        from aspi.prolog import GCompare, PVar, render_goal
         g = GCompare('<=', PVar('A'), PVar('B'))
         result = self.p.ineq('<=', (PVar('B'), []))
         # The ineq method should translate <= to =<
@@ -642,7 +642,7 @@ class TestIneqOperators:
 
     def test_neq_becomes_backslash_eq(self):
         """!= in binop_term should become \\= in Prolog."""
-        from prolog import GCompare, PVar, PNum
+        from aspi.prolog import GCompare, PVar, PNum
         result = self.p.binop_term((PVar('A'), []), '!=', (PNum(5), []))
         assert any(isinstance(g, GCompare) and g.op == '\\=' for g in result)
 

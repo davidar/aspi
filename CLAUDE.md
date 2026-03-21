@@ -6,9 +6,9 @@ Experimental programming language based on Lambda DCS (Lambda Dependency-Based C
 
 ```bash
 # Use uv for all Python execution
-uv run python aspi.py          # ASP/clingo backend (original)
-uv run python prolog.py        # Prolog backend (in development on prolog-backend branch)
-uv run python prolog.py data.csv < program.ldcs   # With CSV data
+uv run python -m aspi              # Hybrid ASP+Prolog backend (default)
+uv run python -m aspi data.csv < program.ldcs
+uv run python -m aspi.asp          # Pure ASP/clingo backend
 
 # Tests
 uv run pytest test_aspi.py     # ASP backend tests
@@ -24,15 +24,23 @@ uv run python test_bench.py    # Performance benchmarks
 
 | File | Purpose |
 |------|---------|
-| `ldcs.py` | Lark grammar + LDCS transformer (shared base for both backends) |
-| `aspi.py` | ASP/clingo backend — accumulates ASP rules, shells out to clingo |
-| `prolog.py` | Prolog backend — PTerm/PGoal AST, PrologLDCS transformer, subprocess swipl |
-| `lib/prelude.pl` | Prolog prelude (modules, helpers, string ops, aggregation) |
+| `aspi/ldcs.py` | Lark grammar + LDCS transformer (shared base for both backends) |
+| `aspi/asp.py` | ASP/clingo backend — ClingoContext, ASPI, run_clingo |
+| `aspi/prolog/ast.py` | PTerm/PGoal dataclasses, type aliases |
+| `aspi/prolog/render.py` | render_term, render_goal, render_body |
+| `aspi/prolog/analysis.py` | term_vars, goal_vars, goal_needs_ground, _DIRECTIONAL |
+| `aspi/prolog/macros.py` | _MacroExpander, _to_pterm |
+| `aspi/prolog/compiler.py` | PrologLDCS transformer (LDCS → Prolog AST) |
+| `aspi/prolog/engine.py` | PrologEngine (subprocess swipl) |
+| `aspi/prolog/formatting.py` | Result parsing and sorting |
+| `aspi/prolog/repl.py` | PrologASPI (hybrid REPL + coordination) |
+| `aspi/__main__.py` | Unified CLI entrypoint |
+| `lib/prelude.pl` | Prolog prelude (modules, helpers, aggregation) |
 | `lib/prelude.lp` | ASP prelude |
 | `lib/macros.ldcs` | Domain macros (n1-n4) used by ASP backend |
 | `test/` | Test programs (.ldcs), expected output (.log), CSV data (.csv) |
 
-### Prolog Backend (`prolog.py`)
+### Prolog Backend (`aspi/prolog/`)
 
 **AST types:**
 - `PTerm`: `PVar | PAtom | PNum | PStr | PCompound | PArith` — all have `__str__` traps (raise TypeError) to prevent accidental string conversion
@@ -62,13 +70,13 @@ See README.md for syntax. Key concepts:
 
 ## Testing
 
-`.log` files are ASP-canonical — always generated from `uv run python aspi.py`. Both test suites compare result lines (`that:`/`understood.`/`impossible.`/`yes.`/`no.`) including multiline continuation (`| ...` lines). Never regenerate `.log` files from the Prolog backend.
+`.log` files are ASP-canonical — always generated from `uv run python -m aspi.asp`. Both test suites compare result lines (`that:`/`understood.`/`impossible.`/`yes.`/`no.`) including multiline continuation (`| ...` lines). Never regenerate `.log` files from the Prolog backend.
 
 **Never filter test output.** No `-q`, `--tb=short`, `--tb=line`, `| tail`, `| grep`. Just run `uv run pytest` bare. The UI shows a compact scrolling view — full output is always needed to see what's actually failing.
 
-## Prolog Backend Status (branch: prolog-backend)
+## Backend Status
 
-299 passed, 0 xfailed (across all test suites).
+335 passed (across all test suites).
 
 Planning (`!` goals) works via ASP fallback (parallel ASPI instance).
 Proof tracking works via `prove/2` meta-interpreter in prelude.

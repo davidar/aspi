@@ -8,11 +8,13 @@ dependencies = [
     "lark",
 ]
 
+[project.scripts]
+aspi = "aspi.__main__:main"
+
 [dependency-groups]
 dev = [
     "pytest",
-    "pytest-console-scripts",
-    "pytest-timeout",
+"pytest-timeout",
     "mypy",
 ]
 

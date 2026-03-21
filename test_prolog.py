@@ -2,8 +2,8 @@
 """Tests for the Prolog backend."""
 
 import pytest
-import prolog
-import ldcs
+import aspi.prolog as prolog
+from aspi import ldcs
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -867,7 +867,7 @@ def _discover_ldcs_tests():
 def test_ldcs_file(ldcs_path, expected):
     """Run an LDCS file through the Prolog backend and check result lines."""
     csv_path = ldcs_path.replace('.ldcs', '.csv')
-    args = ['uv', 'run', 'python', 'prolog.py']
+    args = ['uv', 'run', 'python', '-m', 'aspi']
     if not os.path.exists(csv_path):
         csv_path = None
     else:

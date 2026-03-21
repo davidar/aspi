@@ -20,7 +20,7 @@ def _result_lines(stdout):
 def _run_prolog(ldcs_path):
     """Run LDCS file through Prolog backend, return result lines."""
     csv_path = ldcs_path.replace('.ldcs', '.csv')
-    args = ['uv', 'run', 'python', 'prolog.py']
+    args = ['uv', 'run', 'python', '-m', 'aspi']
     if os.path.exists(csv_path):
         args.append(csv_path)
     with open(ldcs_path) as f:
@@ -31,7 +31,7 @@ def _run_prolog(ldcs_path):
 def _run_asp(ldcs_path):
     """Run LDCS file through ASP backend, return result lines."""
     csv_path = ldcs_path.replace('.ldcs', '.csv')
-    args = ['uv', 'run', 'python', 'aspi.py']
+    args = ['uv', 'run', 'python', '-m', 'aspi.asp']
     if os.path.exists(csv_path):
         args.append(csv_path)
     with open(ldcs_path) as f:

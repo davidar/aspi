@@ -1,37 +1,24 @@
-#!/usr/bin/env python3
-import atexit
+"""ASP/clingo backend."""
+
 import clingo
 import enum
-import json
 import os
 import re
-import readline
 import sys
 from typing import cast, Dict, List, Optional
 
-import ldcs
-
-
-readline.parse_and_bind('tab: complete')
-
-try:
-    readline.read_history_file('history.log')
-    readline.set_history_length(1000)
-except FileNotFoundError:
-    pass
-
-atexit.register(readline.write_history_file, 'history.log')
+from aspi import ldcs
 
 
 class ClingoExitCode(enum.IntFlag):
     # https://github.com/potassco/clasp/issues/42
-    UNKNOWN = 0  # Satisfiablity of problem not known; search not started.
-    INTERRUPT = 1  # Run was interrupted.
-    SAT = 10  # At least one model was found.
-    EXHAUST = 20  # Search-space was completely examined.
-    MEMORY = 33  # Run was interrupted by out of memory exception.
-    ERROR = 65  # Run was interrupted by internal error.
-    NO_RUN = 128  # Search not started because of syntax or command line error.
+    UNKNOWN = 0
+    INTERRUPT = 1
+    SAT = 10
+    EXHAUST = 20
+    MEMORY = 33
+    ERROR = 65
+    NO_RUN = 128
 
 
 class ClingoError(Exception):
@@ -147,7 +134,6 @@ class ClingoContext:
 def _preprocess_asp(lp: str) -> str:
     """Resolve #include directives and remove #script blocks."""
     import re
-    # Inline #include directives
     def resolve_includes(text):
         def replace_include(m):
             path = m.group(1)
@@ -156,11 +142,10 @@ def _preprocess_asp(lp: str) -> str:
                     content = f.read()
                 return resolve_includes(content)
             except FileNotFoundError:
-                return m.group(0)  # keep as-is if not found
+                return m.group(0)
         return re.sub(r'#include\s+"([^"]+)"\s*\.?', replace_include, text)
 
     lp = resolve_includes(lp)
-    # Strip #script (python) ... #end.
     lp = re.sub(r'#script\s*\(python\).*?#end\.', '', lp, flags=re.DOTALL)
     return lp
 
@@ -274,7 +259,6 @@ class ASPI:
     def repl(self, cmd: str) -> None:
         if not cmd or cmd.startswith('%'):
             return
-        # Strip ?! routing suffix — treat as plain query
         if cmd.endswith('?!'):
             cmd = cmd[:-1]
         if cmd.startswith('#undef '):
@@ -416,6 +400,7 @@ class Results:
 
 
 if __name__ == '__main__':
+    import sys
     aspi = ASPI(sys.argv[1:])
     while True:
         try:

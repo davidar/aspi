@@ -11,9 +11,9 @@ def run_backend(backend, ldcs_path, timeout=60):
     """Run an LDCS file through a backend, return (time_seconds, last_that_line, stderr_snippet)."""
     csv_path = ldcs_path.replace('.ldcs', '.csv')
     if backend == 'prolog':
-        args = ['uv', 'run', 'python', 'prolog.py']
+        args = ['uv', 'run', 'python', '-m', 'aspi']
     else:
-        args = ['uv', 'run', 'python', 'aspi.py']
+        args = ['uv', 'run', 'python', '-m', 'aspi.asp']
     if os.path.exists(csv_path):
         args.append(csv_path)
 
