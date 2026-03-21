@@ -232,8 +232,9 @@ class LDCS(lark.Transformer[str]):
 
     def fluent(self, head_body: CSym, *args: CSym) -> str:
         head, body = head_body
-        if len(args) > 0:
-            for v, b in args:
+        body_preds = [vb for vb in args if vb is not None]
+        if body_preds:
+            for v, b in body_preds:
                 body = commas(body, f'holds({v},Time)', b)
             self.rules.append(f'holds({head},Time) :- {body}.')
         return f'{head} :- holds({head})'
@@ -298,8 +299,9 @@ class LDCS(lark.Transformer[str]):
         return commas(*args)
 
     def goal_any(self, *args: CSym) -> Optional[str]:
-        if args:
-            self.fluent(('done', None), *args)
+        preds = [a for a in args if a is not None]
+        if preds:
+            self.fluent(('done', None), *preds)
             return 'goal(done)'
         else:
             return ''
@@ -315,10 +317,12 @@ class LDCS(lark.Transformer[str]):
         return list(args)
 
     def term(self, name: str, *args: CSym) -> str:
+        args = tuple(a for a in args if a is not None)
         vals, bodies = unzip(args)
         return commas(self.expand_macro(name, *vals), *bodies)
 
     def pred(self, name: str, *args: CSym) -> CSym:
+        args = tuple(a for a in args if a is not None)
         vals, bodies = unzip(args)
         if not vals:
             return name, None
@@ -360,7 +364,9 @@ class LDCS(lark.Transformer[str]):
                 '..' not in head:
             x = head[len('_ = '):]
             if x[0] != '"':
-                x = x.replace(' ', '')
+                # Strip spaces around symbol operators but preserve around
+                # word operators (e.g., 'mod') for Prolog compatibility
+                x = re.sub(r'(?<=\W) | (?=\W)', '', x)
             return x, commas(body, cond)
         else:
             x = self.gensym()
@@ -423,11 +429,17 @@ class LDCS(lark.Transformer[str]):
         return lambda x: commas(f'{x} {op} {var}', body)
 
     def setof(self, a, b=None) -> Unary:
+        if a is None and b is not None:
+            a = b
+            b = None
         if b is not None:
             return self.join(a, self.ldcs(self.setof(b)))
         return self.lift(a, 'setof', gather=True)
 
     def bagof(self, a, b=None) -> Unary:
+        if a is None and b is not None:
+            a = b
+            b = None
         if b is not None:
             return self.join(a, self.ldcs(self.bagof(b)))
         var, body = a
@@ -545,7 +557,7 @@ class RuleBody(lark.Transformer[str]):
         return body
 
     def rule(self, head: List[str], *body: str) -> str:
-        return ', '.join(head + list(body))
+        return ', '.join(head + [b for b in body if b is not None])
 
     def pred(self, name: str, *args: str) -> str:
         if not args:
@@ -553,7 +565,7 @@ class RuleBody(lark.Transformer[str]):
         return f"{name}({','.join(unparen(arg) for arg in args)})"
 
     def predop(self, *args: str) -> str:
-        return ' '.join(args)
+        return ' '.join(a for a in args if a is not None)
 
     def var(self, name: Sym) -> Sym:
         if name not in self.subst:

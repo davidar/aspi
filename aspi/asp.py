@@ -1,58 +1,208 @@
-#!/usr/bin/env python3
-import atexit
+"""ASP/clingo backend."""
+
 import clingo
 import enum
-import json
 import os
 import re
-import readline
-import sh  # type: ignore
 import sys
 from typing import cast, Dict, List, Optional
 
-import ldcs
-
-
-readline.parse_and_bind('tab: complete')
-
-try:
-    readline.read_history_file('history.log')
-    readline.set_history_length(1000)
-except FileNotFoundError:
-    pass
-
-atexit.register(readline.write_history_file, 'history.log')
+from aspi import ldcs
 
 
 class ClingoExitCode(enum.IntFlag):
     # https://github.com/potassco/clasp/issues/42
-    UNKNOWN = 0  # Satisfiablity of problem not known; search not started.
-    INTERRUPT = 1  # Run was interrupted.
-    SAT = 10  # At least one model was found.
-    EXHAUST = 20  # Search-space was completely examined.
-    MEMORY = 33  # Run was interrupted by out of memory exception.
-    ERROR = 65  # Run was interrupted by internal error.
-    NO_RUN = 128  # Search not started because of syntax or command line error.
+    UNKNOWN = 0
+    INTERRUPT = 1
+    SAT = 10
+    EXHAUST = 20
+    MEMORY = 33
+    ERROR = 65
+    NO_RUN = 128
 
 
-def run_clingo(lp: str) -> List[str]:
-    result = json.loads(sh.clingo(
-        outf=2, time_limit=5, _in=lp,
-        _err=sys.stderr if 'DEBUG' in os.environ else None,
-        _ok_code=[
-            ClingoExitCode.SAT,
-            ClingoExitCode.SAT | ClingoExitCode.EXHAUST
-        ]).stdout)
+class ClingoError(Exception):
+    def __init__(self, exit_code: int, stderr: str = ''):
+        self.exit_code = exit_code
+        self.stderr = stderr
+        super().__init__(f'clingo exit code {exit_code}')
+
+
+class ClingoContext:
+    """Provides @-functions for clingo grounding (replaces #script block)."""
+
+    def __init__(self):
+        self.gathered = {}
+
+    def show(self, a):
+        return clingo.String(str(a))
+
+    def concatenate(self, a, b):
+        return clingo.String(a.string + b.string)
+
+    def reverse(self, a):
+        return clingo.String(a.string[::-1])
+
+    def substring(self, a, start, length):
+        return clingo.String(a.string[start.number-1:start.number-1+length.number])
+
+    def length(self, a):
+        return clingo.Number(len(a.string))
+
+    def decimal(self, a):
+        try:
+            return clingo.Number(int(a.string))
+        except Exception:
+            return clingo.Function('error')
+
+    def permutation(self, a):
+        import itertools
+        return [clingo.String(''.join(t)) for t in itertools.permutations(a.string)]
+
+    def codepoint(self, a):
+        try:
+            return clingo.Number(ord(a.string))
+        except TypeError:
+            return clingo.Number(-1)
+
+    def gather(self, i, a):
+        if i not in self.gathered:
+            self.gathered[i] = []
+        if a.type == clingo.SymbolType.Function and a.name == 'gather_sentinel':
+            pass
+        else:
+            self.gathered[i].append(a)
+        return i
+
+    def setof(self, i):
+        if i not in self.gathered:
+            return clingo.Function('empty')
+        return clingo.Function('set', sorted(self.gathered[i]))
+
+    def bagof(self, i):
+        try:
+            return clingo.Function('bag', sorted(a.arguments[0] for a in self.gathered[i]))
+        except Exception:
+            return clingo.Function('error')
+
+    def countof(self, a):
+        return clingo.Number(len(a.arguments))
+
+    def sumof(self, a):
+        return clingo.Number(sum(x.number for x in a.arguments) % sys.maxsize)
+
+    def productof(self, a):
+        import math
+        return clingo.Number(math.prod(x.number for x in a.arguments) % sys.maxsize)
+
+    def minof(self, a):
+        if len(a.arguments) == 0 or all(x == clingo.Supremum for x in a.arguments):
+            return clingo.Supremum
+        return clingo.Number(min(x.number for x in a.arguments if x != clingo.Supremum))
+
+    def maxof(self, a):
+        if len(a.arguments) == 0 or all(x == clingo.Infimum for x in a.arguments):
+            return clingo.Infimum
+        return clingo.Number(max(x.number for x in a.arguments if x != clingo.Infimum))
+
+    def memberof(self, a):
+        return a.arguments
+
+    def enumerateof(self, a):
+        return [clingo.Tuple_([clingo.Number(i+1), x]) for i, x in enumerate(sorted(a.arguments))]
+
+    def proof(self, head, *args):
+        if len(args) == 0:
+            return head
+        body = set()
+        proofs = set()
+        for p in args:
+            if p.type == clingo.SymbolType.Function and p.name == 'proof':
+                for subproof in p.arguments:
+                    body.add(subproof.arguments[0])
+                    proofs.add(subproof)
+            else:
+                body.add(p)
+        proofs.add(clingo.Tuple_([head] + sorted(body)))
+        return clingo.Function('proof', sorted(proofs))
+
+    def context(self, *args):
+        """No-op: @context is used for scoping in gather, handled by ASP rules."""
+        return clingo.Function('context', list(args))
+
+
+def _preprocess_asp(lp: str) -> str:
+    """Resolve #include directives and remove #script blocks."""
+    import re
+    def resolve_includes(text):
+        def replace_include(m):
+            path = m.group(1)
+            try:
+                with open(path) as f:
+                    content = f.read()
+                return resolve_includes(content)
+            except FileNotFoundError:
+                return m.group(0)
+        return re.sub(r'#include\s+"([^"]+)"\s*\.?', replace_include, text)
+
+    lp = resolve_includes(lp)
+    lp = re.sub(r'#script\s*\(python\).*?#end\.', '', lp, flags=re.DOTALL)
+    return lp
+
+
+def run_clingo(lp: str, time_limit: int = 5) -> List[str]:
+    ctl = clingo.Control(['0'])
+    ctx = ClingoContext()
+
     if 'DEBUG' in os.environ:
-        print(json.dumps(result, indent=2), file=sys.stderr)
-    witness = result['Call'][-1]['Witnesses'][-1]
-    if result['Result'] == 'OPTIMUM FOUND':
-        costs = result['Models']['Costs']
-        assert costs == witness['Costs']
+        print(lp, file=sys.stderr)
+
+    ctl.add('base', [], _preprocess_asp(lp))
+    ctl.ground([('base', ())], context=ctx)
+
+    models: List[dict] = []
+    interrupted = False
+
+    def on_timeout(signum, frame):
+        nonlocal interrupted
+        interrupted = True
+        ctl.interrupt()
+
+    import signal
+    old_handler = signal.signal(signal.SIGALRM, on_timeout)
+    signal.alarm(time_limit)
+    try:
+        with ctl.solve(yield_=True) as handle:
+            for model in handle:
+                models.append({
+                    'Value': [str(a) for a in model.symbols(shown=True)],
+                    'Costs': model.cost,
+                    'Optimal': model.optimality_proven,
+                })
+            result = handle.get()
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old_handler)
+
+    if interrupted or not models:
+        if interrupted:
+            raise ClingoError(int(ClingoExitCode.INTERRUPT))
+        raise ClingoError(int(ClingoExitCode.EXHAUST))
+
+    if result.unsatisfiable:
+        raise ClingoError(int(ClingoExitCode.EXHAUST))
+    if not result.satisfiable and not models:
+        raise ClingoError(int(ClingoExitCode.UNKNOWN))
+
+    witness = models[-1]
+
+    if witness['Costs'] and any(c != 0 for c in witness['Costs']):
+        costs = witness['Costs']
         if costs[0] < 0:
             print(f"reward: {-costs[0]}.")
         else:
             print(f"cost: {costs[0]}.")
+
     return cast(List[str], witness['Value'])
 
 
@@ -109,6 +259,8 @@ class ASPI:
     def repl(self, cmd: str) -> None:
         if not cmd or cmd.startswith('%'):
             return
+        if cmd.endswith('?!'):
+            cmd = cmd[:-1]
         if cmd.startswith('#undef '):
             name = cmd[len('#undef '):-1]
             lines = self.program.split('\n')
@@ -161,7 +313,7 @@ class ASPI:
             lp += '#include "lib/planner.lp".\n'
         try:
             return Results(self, run_clingo(lp))
-        except sh.ErrorReturnCode as e:
+        except ClingoError as e:
             if e.exit_code == ClingoExitCode.INTERRUPT:
                 print('timeout.\n')
                 return None
@@ -169,7 +321,7 @@ class ASPI:
                 print('impossible.\n')
                 return None
             else:
-                print(e.stderr.decode('utf-8'), file=sys.stderr)
+                print(e.stderr, file=sys.stderr)
                 print(ClingoExitCode(e.exit_code), file=sys.stderr)
                 for i, line in enumerate(lp.split('\n')):
                     if not line.startswith('csv('):
@@ -224,7 +376,7 @@ class Results:
             self.parse_assert(result)
         elif result.startswith('retract('):
             result = result[len('retract('):-1]
-            self.parent.facts.remove(result)
+            self.parent.facts.discard(result)
         elif result.startswith('what('):
             result = result[len('what('):-1]
             self.shows.append(result)
@@ -248,6 +400,7 @@ class Results:
 
 
 if __name__ == '__main__':
+    import sys
     aspi = ASPI(sys.argv[1:])
     while True:
         try:
